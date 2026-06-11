@@ -36,15 +36,24 @@ const riskyPatterns = [
   { label: 'Unklare None-Artefakte', pattern: /\bNone\b/i, level: 'warn' }
 ];
 
-const planOutput = document.querySelector('#planOutput');
-const autonomyChecks = document.querySelector('#autonomyChecks');
-const scriptOutput = document.querySelector('#scriptOutput');
-const projectName = document.querySelector('#projectName');
-const copyStatus = document.querySelector('#copyStatus');
-const qaResults = document.querySelector('#qaResults');
+function requiredElement(selector) {
+  const element = document.querySelector(selector);
+  if (!element) {
+    throw new Error(`Required element missing: ${selector}`);
+  }
+  return element;
+}
+
+const planOutput = requiredElement('#planOutput');
+const autonomyChecks = requiredElement('#autonomyChecks');
+const scriptOutput = requiredElement('#scriptOutput');
+const projectName = requiredElement('#projectName');
+const copyStatus = requiredElement('#copyStatus');
+const qaResults = requiredElement('#qaResults');
 
 function setProfile(name) {
-  const profile = profiles[name];
+  const profileName = profiles[name] ? name : 'minimal';
+  const profile = profiles[profileName];
   planOutput.replaceChildren(...profile.steps.map((step) => {
     const li = document.createElement('li');
     li.textContent = step;
@@ -61,18 +70,26 @@ function setProfile(name) {
   }));
 
   document.querySelectorAll('.profile').forEach((button) => {
-    button.classList.toggle('active', button.dataset.profile === name);
+    const active = button.dataset.profile === profileName;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
   });
-  renderScript(name);
+  renderScript(profileName);
 }
 
 function safeProjectName(value) {
-  return value.trim().replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'iphone-dev-check';
+  const cleaned = value
+    .trim()
+    .replace(/[^a-zA-Z0-9._-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^[.-]+|[.-]+$/g, '')
+    .slice(0, 48);
+  return cleaned || 'iphone-dev-check';
 }
 
 function renderScript(profileName = document.querySelector('.profile.active')?.dataset.profile || 'minimal') {
   const name = safeProjectName(projectName.value);
-  const common = `set -eu\nPROJECT="${name}"\nmkdir -p "$HOME/Developer/scratch/$PROJECT"\ncd "$HOME/Developer/scratch/$PROJECT"\ncat > README.md <<'MD'\n# ${name}\n\nAutonom erzeugtes iPhone-Entwicklungsprojekt.\nMD\ncat > hello.py <<'PY'\nprint("iPhone Direct-Inject OK")\nPY\npython3 hello.py`;
+  const common = `set -eu\numask 077\nPROJECT="${name}"\nmkdir -p "$HOME/Developer/scratch/$PROJECT"\ncd "$HOME/Developer/scratch/$PROJECT"\ncat > README.md <<'MD'\n# ${name}\n\nAutonom erzeugtes iPhone-Entwicklungsprojekt.\nMD\ncat > hello.py <<'PY'\nprint("iPhone Direct-Inject OK")\nPY\npython3 hello.py`;
 
   const extras = {
     minimal: '\nprintf "\\nMinimalprofil bereit. Öffne den Ordner im Editor und committe über Working Copy.\\n"',
@@ -80,7 +97,8 @@ function renderScript(profileName = document.querySelector('.profile.active')?.d
     hybrid: '\ncat > remote-checklist.txt <<\'TXT\'\nssh dev@dein-host\nmkdir -p ~/projects\n# git clone git@github.com:dein-name/dein-repo.git\nTXT\nprintf "\\nHybridprofil bereit. Siehe remote-checklist.txt.\\n"'
   };
 
-  scriptOutput.textContent = `${common}${extras[profileName]}\n`;
+  scriptOutput.textContent = `${common}${extras[profileName] || extras.minimal}\n`;
+  projectName.value = name;
 }
 
 async function copyScript() {
@@ -137,7 +155,7 @@ document.querySelectorAll('.profile').forEach((button) => {
   button.addEventListener('click', () => setProfile(button.dataset.profile));
 });
 projectName.addEventListener('input', () => renderScript());
-document.querySelector('#copyScript').addEventListener('click', copyScript);
+requiredElement('#copyScript').addEventListener('click', copyScript);
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('service-worker.js').catch(() => {});

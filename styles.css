@@ -216,3 +216,69 @@ input {
   }
   .topbar { align-items: flex-start; flex-direction: column; }
 }
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+  transform: translateY(-150%);
+  background: white;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+.access-panel { padding-bottom: 2rem; }
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.access-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  color: var(--ink);
+  display: block;
+  min-height: 10rem;
+  padding: 1.2rem;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.access-card:hover,
+.access-card:focus-visible {
+  border-color: var(--accent);
+  outline: 3px solid rgb(37 99 235 / 18%);
+  outline-offset: 2px;
+}
+
+.access-card strong,
+.access-card span {
+  display: block;
+}
+
+.access-card span {
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.field-help {
+  color: #cbd5e1;
+  flex-basis: 100%;
+  font-size: 0.9rem;
+}
+
+.safety-panel { padding-top: 2rem; }
+
+@media (max-width: 800px) {
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
+}

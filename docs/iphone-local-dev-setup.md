@@ -51,7 +51,19 @@ Du musst nicht alle Apps installieren. Für ein schlankes Setup reichen Working 
 
 Wenn du unsicher bist, starte mit **Minimal lokal**. Ergänze iSH erst, wenn du wirklich `apk`-Pakete oder eine Linux-ähnliche Shell brauchst. Ergänze Blink/Remote erst, wenn lokale Builds zu langsam oder instabil werden.
 
-## 4. 15-Minuten-Schnellstart
+## 4. Sichere und saubere Zugänge
+
+Die Plattform bietet direkte Zugänge zu den wichtigsten Aufgaben, ohne dass eine Aktion automatisch ausgeführt wird:
+
+- **Guide**: lesen, planen und Grenzen verstehen.
+- **Autopilot**: Profil wählen und Setup-Schritte erzeugen.
+- **Direct-Inject**: lokalen Copy/Paste-Block generieren, prüfen und bewusst ausführen.
+- **QA-Scanner**: unklare Artefakte, riskante Muster und Nummerierungen prüfen.
+- **Deploy**: statische Dateien ohne Build-Schritt veröffentlichen.
+
+Für sauberen Zugriff gelten drei Regeln: keine Secrets in Projektdateien, keine blinden Remote-Ausführungen und Direct-Inject-Blöcke immer vor dem Kopieren lesen. Projektnamen werden auf sichere Zeichen begrenzt und der generierte Startblock schreibt nur unter `~/Developer/scratch/`.
+
+## 5. 15-Minuten-Schnellstart
 
 Dieser Schnellstart erzeugt einen funktionierenden End-to-End-Workflow, bevor du dich mit allen Details beschäftigst. Wenn du zuerst die autonome Plattform nutzen willst, öffne `index.html`, wähle ein Profil und kopiere den generierten Direct-Inject-Block.
 
@@ -71,16 +83,16 @@ node --version
 7. Wechsle zurück zu Working Copy, prüfe den Diff, committe und pushe.
 8. Wenn Schritt 7 klappt, ist der mobile Grundworkflow eingerichtet.
 
-## 5. Basisinstallation auf dem iPhone
+## 6. Basisinstallation auf dem iPhone
 
-### 5.1 iOS vorbereiten
+### 6.1 iOS vorbereiten
 
 1. Aktualisiere iOS über **Einstellungen → Allgemein → Softwareupdate**.
 2. Aktiviere iCloud Drive, wenn du Dokumente zwischen Apps sichern möchtest.
 3. Installiere eine Passwortverwaltung mit SSH-Key-/Token-Ablage, z. B. iCloud-Schlüsselbund, 1Password oder Bitwarden.
 4. Verwende nach Möglichkeit eine externe Tastatur. Terminal- und Git-Arbeit wird dadurch deutlich schneller.
 
-### 5.2 Apps installieren
+### 6.2 Apps installieren
 
 Installiere mindestens:
 
@@ -93,7 +105,7 @@ Optional:
 - iSH, wenn du eine Linux-ähnliche Umgebung möchtest.
 - Blink Shell, wenn du regelmäßig per SSH/Mosh auf Server gehst.
 
-## 6. Verzeichnisstruktur
+## 7. Verzeichnisstruktur
 
 Lege in der Dateien-App unter **Auf meinem iPhone** eine klare Struktur an:
 
@@ -116,7 +128,7 @@ Empfehlung:
 
 Working Copy verwaltet Repositories intern sehr gut. Öffne sie im Editor möglichst als externe Ordner, statt dieselben Dateien mehrfach zu kopieren.
 
-### 6.1 Lokale Projektvorlage
+### 7.1 Lokale Projektvorlage
 
 Für neue lokale Experimente kannst du in a-Shell folgende Vorlage verwenden:
 
@@ -137,16 +149,16 @@ python3 hello.py
 
 Wenn du später ein echtes Git-Repository daraus machen willst, importiere den Ordner in Working Copy oder erstelle das Repository direkt dort.
 
-## 7. Git mit Working Copy einrichten
+## 8. Git mit Working Copy einrichten
 
-### 7.1 Konto verbinden
+### 8.1 Konto verbinden
 
 1. Öffne Working Copy.
 2. Verbinde GitHub, GitLab, Bitbucket oder deinen eigenen Git-Server.
 3. Richte Authentifizierung über OAuth oder Personal Access Token ein.
 4. Klone dein Repository.
 
-### 7.2 Git-Identität setzen
+### 8.2 Git-Identität setzen
 
 Setze in Working Copy pro Repository oder global:
 
@@ -157,7 +169,7 @@ Email: deine-commit-email@beispiel.invalid
 
 Wenn du GitHub nutzt, verwende bei Bedarf die GitHub-`noreply`-Adresse, damit deine private E-Mail verborgen bleibt.
 
-### 7.3 Standard-Workflow
+### 8.3 Standard-Workflow
 
 1. `Pull` oder `Fetch` ausführen.
 2. Branch erstellen, z. B. `feature/iphone-setup`.
@@ -167,7 +179,7 @@ Wenn du GitHub nutzt, verwende bei Bedarf die GitHub-`noreply`-Adresse, damit de
 6. Push ausführen.
 7. Pull Request im Browser oder über deine Git-Plattform öffnen.
 
-### 7.4 Abnahmeprüfung für Git
+### 8.4 Abnahmeprüfung für Git
 
 Vor dem ersten echten Feature solltest du einmal bewusst einen ungefährlichen Test-Commit durchführen:
 
@@ -180,9 +192,9 @@ Vor dem ersten echten Feature solltest du einmal bewusst einen ungefährlichen T
 
 Diese Prüfung stellt sicher, dass Authentifizierung, Dateifreigabe, Editor und Remote-Rechte zusammenpassen.
 
-## 8. a-Shell einrichten
+## 9. a-Shell einrichten
 
-### 8.1 Erste Prüfung
+### 9.1 Erste Prüfung
 
 Öffne a-Shell und führe aus:
 
@@ -196,7 +208,7 @@ clang --version
 
 Nicht jedes Projekt braucht alle Tools. Prüfe zuerst, was lokal schon vorhanden ist.
 
-### 8.2 Arbeitsordner öffnen
+### 9.2 Arbeitsordner öffnen
 
 In a-Shell kannst du über die iOS-Dateiauswahl Projektordner verfügbar machen. Lege anschließend einen Arbeitsordner an:
 
@@ -205,7 +217,7 @@ mkdir -p ~/Developer/scratch
 cd ~/Developer/scratch
 ```
 
-### 8.3 Nützliche Shell-Konfiguration
+### 9.3 Nützliche Shell-Konfiguration
 
 Erstelle eine kleine Profil-Datei:
 
@@ -225,7 +237,7 @@ Lade sie neu:
 . ~/.profile
 ```
 
-### 8.4 Python-Projekt testen
+### 9.4 Python-Projekt testen
 
 ```sh
 mkdir -p ~/Developer/scratch/hello-python
@@ -236,7 +248,7 @@ PY
 python3 hello.py
 ```
 
-### 8.5 JavaScript-Projekt testen
+### 9.5 JavaScript-Projekt testen
 
 ```sh
 mkdir -p ~/Developer/scratch/hello-js
@@ -249,7 +261,7 @@ node hello.js
 
 Wenn `node` in deiner Installation nicht verfügbar ist, nutze Code App für JavaScript-Experimente oder weiche auf iSH/Remote aus.
 
-### 8.6 Lokale Grenzen früh testen
+### 9.6 Lokale Grenzen früh testen
 
 Prüfe bei jedem neuen Projekt zuerst die kleinsten sinnvollen Befehle, bevor du viel Zeit in Abhängigkeiten investierst:
 
@@ -260,18 +272,18 @@ node --check hello.js
 
 Wenn schon diese Basistests fehlen oder fehlschlagen, entscheide früh zwischen anderer App, iSH oder Remote-Host.
 
-## 9. iSH einrichten
+## 10. iSH einrichten
 
 Nutze iSH, wenn du eine Alpine-Linux-ähnliche Umgebung brauchst.
 
-### 9.1 Pakete aktualisieren
+### 10.1 Pakete aktualisieren
 
 ```sh
 apk update
 apk upgrade
 ```
 
-### 9.2 Basiswerkzeuge installieren
+### 10.2 Basiswerkzeuge installieren
 
 ```sh
 apk add git openssh curl wget nano vim python3 py3-pip nodejs npm make
@@ -283,7 +295,7 @@ Je nach iSH-/Alpine-Stand können Paketnamen oder Versionen abweichen. Wenn ein 
 apk search <name>
 ```
 
-### 9.3 Git konfigurieren
+### 10.3 Git konfigurieren
 
 ```sh
 git config --global user.name "Dein Name"
@@ -292,7 +304,7 @@ git config --global init.defaultBranch main
 git config --global pull.rebase false
 ```
 
-### 9.4 SSH-Key erzeugen
+### 10.4 SSH-Key erzeugen
 
 ```sh
 mkdir -p ~/.ssh
@@ -303,7 +315,7 @@ cat ~/.ssh/id_ed25519.pub
 
 Kopiere den öffentlichen Schlüssel in GitHub/GitLab/Bitbucket oder auf deinen Server. Teile niemals `id_ed25519`, sondern nur `id_ed25519.pub`.
 
-### 9.5 SSH-Verbindung testen
+### 10.5 SSH-Verbindung testen
 
 Für GitHub:
 
@@ -317,9 +329,9 @@ Für einen eigenen Server:
 ssh user@server.invalid
 ```
 
-## 10. Editor-Workflow
+## 11. Editor-Workflow
 
-### 10.1 Textastic mit Working Copy
+### 11.1 Textastic mit Working Copy
 
 1. Klone das Repository in Working Copy.
 2. Öffne Textastic.
@@ -327,7 +339,7 @@ ssh user@server.invalid
 4. Bearbeite Dateien in Textastic.
 5. Wechsle zu Working Copy, prüfe den Diff und committe.
 
-### 10.2 Code App als All-in-one-Option
+### 11.2 Code App als All-in-one-Option
 
 Code App eignet sich, wenn du Editor, Terminal, Git und einfache Paketmanager in einer App bevorzugst.
 
@@ -338,7 +350,7 @@ Empfohlener Start:
 3. Git aktivieren oder mit einem bestehenden Repository verbinden.
 4. `pip`/`npm` nur für kleine Projekte nutzen und große Abhängigkeiten vermeiden.
 
-## 11. Lokale Web-Entwicklung
+## 12. Lokale Web-Entwicklung
 
 Für statische Seiten oder kleine Python-Server:
 
@@ -358,7 +370,7 @@ Hinweise:
 - iOS kann lokale Server stoppen, wenn die App im Hintergrund ist.
 - Für Frameworks mit Watch-Modus, Hot Reload oder langen Builds ist ein Remote-Server oft stabiler.
 
-## 12. Remote-Ergänzung für große Projekte
+## 13. Remote-Ergänzung für große Projekte
 
 Wenn lokale Grenzen erreicht sind, nutze das iPhone als Client und baue auf einem Remote-System:
 
@@ -376,7 +388,7 @@ git pull
 npm test
 ```
 
-### 12.1 Empfohlenes Remote-Grundsetup
+### 13.1 Empfohlenes Remote-Grundsetup
 
 Auf dem Remote-Host ist diese Basis für viele Web- und Skriptprojekte ausreichend:
 
@@ -389,7 +401,7 @@ cd dein-repo
 
 Danach kannst du vom iPhone per SSH arbeiten, während Git weiterhin die gemeinsame Wahrheit zwischen iPhone, Server und Git-Plattform bleibt.
 
-## 13. Sicherheit
+## 14. Sicherheit
 
 - Aktiviere Face ID/Code und Geräteverschlüsselung.
 - Verwende pro Dienst separate Tokens mit minimalen Rechten.
@@ -398,7 +410,7 @@ Danach kannst du vom iPhone per SSH arbeiten, während Git weiterhin die gemeins
 - Entferne alte Tokens und Keys regelmäßig.
 - Prüfe vor jedem Push den Diff.
 
-## 14. Backup-Strategie
+## 15. Backup-Strategie
 
 Mindestens eine dieser Strategien sollte aktiv sein:
 
@@ -409,7 +421,7 @@ Mindestens eine dieser Strategien sollte aktiv sein:
 
 Für aktive Projekte gilt: Nicht committete Änderungen sind nicht zuverlässig gesichert.
 
-## 15. Wartung
+## 16. Wartung
 
 Wöchentlich:
 
@@ -432,7 +444,7 @@ Monatlich:
 - Tokens und SSH-Keys prüfen.
 - Backups testweise öffnen.
 
-## 16. Fehlerbehebung
+## 17. Fehlerbehebung
 
 ### Git-Push schlägt fehl
 
@@ -463,7 +475,7 @@ Wenn die Repository-Konfiguration veraltet ist, verwende die von iSH empfohlene 
 - Prüfe Port und URL, z. B. `http://localhost:8000`.
 - Starte den Server neu.
 
-## 17. Minimal-Checkliste
+## 18. Minimal-Checkliste
 
 - [ ] iOS aktualisiert.
 - [ ] Working Copy installiert und Git-Konto verbunden.
@@ -475,7 +487,7 @@ Wenn die Repository-Konfiguration veraltet ist, verwende die von iSH empfohlene 
 - [ ] Teständerung committet und gepusht.
 - [ ] Backup-Strategie festgelegt.
 
-## 18. Empfohlene Startkonfiguration
+## 19. Empfohlene Startkonfiguration
 
 Wenn du sofort loslegen willst:
 
@@ -494,7 +506,7 @@ node --version
 7. Committe mit einer kleinen, klaren Nachricht.
 8. Pushe den Branch.
 
-## 19. Finale Abnahme
+## 20. Finale Abnahme
 
 Das Setup gilt als vollständig, wenn diese Punkte erledigt sind:
 
