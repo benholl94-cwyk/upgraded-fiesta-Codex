@@ -92,11 +92,13 @@ function setProfile(name) {
 }
 
 /**
- * Create a filesystem-safe project folder name from an arbitrary string.
- * Trims whitespace, replaces disallowed characters with '-', collapses multiple '-',
- * trims leading/trailing '.' and '-', and limits length to 48 characters.
- * @param {string} value - The raw project name input.
- * @returns {string} A sanitized folder name; returns `'iphone-dev-check'` if the result is empty.
+ * Produce a filesystem-safe project folder name from an arbitrary string.
+ *
+ * Trims surrounding whitespace, replaces characters outside [a-zA-Z0-9._-] with '-', collapses repeated '-' characters,
+ * strips leading or trailing '.' and '-', and truncates the result to 48 characters. If the sanitized name is empty,
+ * returns 'iphone-dev-check'.
+ * @param {string} value - Raw project name input.
+ * @returns {string} The sanitized folder name, or 'iphone-dev-check' when the result is empty.
  */
 function safeProjectName(value) {
   const cleaned = value
@@ -165,13 +167,13 @@ async function loadGuideText() {
 }
 
 /**
- * Validate top-level numbered headings (level-2) in the provided Markdown text.
+ * Check level-2 Markdown headings for consecutive numbering starting at 1.
  *
  * @param {string} text - Markdown content to scan for level-2 headings of the form `## 1. Title`.
  * @returns {{label: string, ok: boolean, detail: string}} An object describing the check:
- *  - `label`: title of the check,
- *  - `ok`: `true` if the extracted numbers form a consecutive sequence starting at 1, `false` otherwise,
- *  - `detail`: either a success summary like "`N` Abschnitte geprüft." or a description of the found sequence.
+ *  - `label`: human-readable title of the check,
+ *  - `ok`: `true` if the extracted heading numbers form the sequence 1, 2, 3, … in order, `false` otherwise,
+ *  - `detail`: on success `"<N> Abschnitte geprüft."`, on failure ` "Gefunden: x, y, z"` or when none found `"Keine nummerierten Abschnitte gefunden."`
  */
 function checkNumbering(text) {
   const headings = [...text.matchAll(/^## (\d+)\. /gm)].map((match) => Number(match[1]));
@@ -203,10 +205,10 @@ function resultItem({ label, ok, detail, level = 'ok' }) {
 }
 
 /**
- * Run the configured QA checks on the guide text and render the results into the QA results list.
+ * Run QA checks against the guide text and render their results into the QA results list.
  *
- * Loads the guide text, evaluates each risky pattern plus the heading-numbering check, and replaces
- * the contents of the QA results element with the generated result items.
+ * Loads the guide text, evaluates each configured risky pattern and the heading-numbering check,
+ * then replaces the children of the QA results element with a list item for each check.
  */
 async function runQa() {
   const text = await loadGuideText();
