@@ -1,0 +1,4 @@
+host_id,purpose,ssh_alias,required_auth,allowed_workflows,network_requirement,notes
+buildhost,build and test,buildhost,ed25519_key_with_passphrase,"remote-build-test",vpn_or_trusted_network,configure in SSH client and password manager
+prodhost,production deploy,prodhost,ed25519_key_hardware_or_passphrase,"deploy incident-freeze",vpn_required,no direct shell changes outside runbooks
+backuphost,backup target,backuphost,ed25519_key_with_passphrase,"backup recovery",trusted_network,encrypted backups only
