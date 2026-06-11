@@ -36,6 +36,12 @@ const riskyPatterns = [
   { label: 'Unklare None-Artefakte', pattern: /\bNone\b/i, level: 'warn' }
 ];
 
+/**
+ * Retrieve a DOM element by CSS selector or throw if not found.
+ * @param {string} selector - CSS selector of the required element.
+ * @returns {Element} The matching DOM element.
+ * @throws {Error} If no element matches the selector.
+ */
 function requiredElement(selector) {
   const element = document.querySelector(selector);
   if (!element) {
@@ -51,6 +57,14 @@ const projectName = requiredElement('#projectName');
 const copyStatus = requiredElement('#copyStatus');
 const qaResults = requiredElement('#qaResults');
 
+/**
+ * Selects a configuration profile and updates the UI to match it.
+ *
+ * Activates the profile identified by `name` (falls back to `"minimal"` when the key is missing or unknown),
+ * replaces the plan and autonomy-checks lists with the profile's steps and checks (checkboxes start checked),
+ * updates all `.profile` buttons' active state and `aria-pressed` attributes, and regenerates the script for the chosen profile.
+ * @param {string} name - The profile key to activate (e.g., `"minimal"`, `"linux"`, `"hybrid"`).
+ */
 function setProfile(name) {
   const profileName = profiles[name] ? name : 'minimal';
   const profile = profiles[profileName];
@@ -77,6 +91,13 @@ function setProfile(name) {
   renderScript(profileName);
 }
 
+/**
+ * Create a filesystem-safe project folder name from an arbitrary string.
+ * Trims whitespace, replaces disallowed characters with '-', collapses multiple '-',
+ * trims leading/trailing '.' and '-', and limits length to 48 characters.
+ * @param {string} value - The raw project name input.
+ * @returns {string} A sanitized folder name; returns `'iphone-dev-check'` if the result is empty.
+ */
 function safeProjectName(value) {
   const cleaned = value
     .trim()
@@ -87,6 +108,15 @@ function safeProjectName(value) {
   return cleaned || 'iphone-dev-check';
 }
 
+/**
+ * Generate and display the shell script for the selected profile.
+ *
+ * Sanitizes the current project name, builds a common shell script, appends
+ * profile-specific extras, writes the script into the `scriptOutput` element,
+ * and updates the `projectName` input with the sanitized name.
+ *
+ * @param {string} [profileName=document.querySelector('.profile.active')?.dataset.profile || 'minimal'] - Profile key that selects which extra instructions to append; falls back to `minimal` when unknown.
+ */
 function renderScript(profileName = document.querySelector('.profile.active')?.dataset.profile || 'minimal') {
   const name = safeProjectName(projectName.value);
   const common = `set -eu\numask 077\nPROJECT="${name}"\nmkdir -p "$HOME/Developer/scratch/$PROJECT"\ncd "$HOME/Developer/scratch/$PROJECT"\ncat > README.md <<'MD'\n# ${name}\n\nAutonom erzeugtes iPhone-Entwicklungsprojekt.\nMD\ncat > hello.py <<'PY'\nprint("iPhone Direct-Inject OK")\nPY\npython3 hello.py`;
@@ -101,6 +131,12 @@ function renderScript(profileName = document.querySelector('.profile.active')?.d
   projectName.value = name;
 }
 
+/**
+ * Copy the currently rendered script to the clipboard and update the UI with the operation result.
+ *
+ * On success, sets the copy status element to a success message; on failure, sets a fallback message
+ * instructing the user to copy the script manually.
+ */
 async function copyScript() {
   try {
     await navigator.clipboard.writeText(scriptOutput.textContent);
@@ -110,6 +146,14 @@ async function copyScript() {
   }
 }
 
+/**
+ * Retrieve the guide text used for QA checks and script generation.
+ *
+ * Attempts to fetch 'docs/iphone-local-dev-setup.md' without cache and returns its text.
+ * If the fetch fails or the response is not OK, returns document.body.innerText as a fallback.
+ *
+ * @returns {string} The guide text to be analyzed and displayed.
+ */
 async function loadGuideText() {
   try {
     const response = await fetch('docs/iphone-local-dev-setup.md', { cache: 'no-cache' });
@@ -120,6 +164,15 @@ async function loadGuideText() {
   }
 }
 
+/**
+ * Validate top-level numbered headings (level-2) in the provided Markdown text.
+ *
+ * @param {string} text - Markdown content to scan for level-2 headings of the form `## 1. Title`.
+ * @returns {{label: string, ok: boolean, detail: string}} An object describing the check:
+ *  - `label`: title of the check,
+ *  - `ok`: `true` if the extracted numbers form a consecutive sequence starting at 1, `false` otherwise,
+ *  - `detail`: either a success summary like "`N` Abschnitte geprüft." or a description of the found sequence.
+ */
 function checkNumbering(text) {
   const headings = [...text.matchAll(/^## (\d+)\. /gm)].map((match) => Number(match[1]));
   if (headings.length === 0) return { label: 'Top-Level-Nummerierung gefunden', ok: false, detail: 'Keine nummerierten Abschnitte gefunden.' };
@@ -128,6 +181,19 @@ function checkNumbering(text) {
   return { label: 'Durchgehende Top-Level-Nummerierung', ok, detail: ok ? `${headings.length} Abschnitte geprüft.` : `Gefunden: ${headings.join(', ')}` };
 }
 
+/**
+ * Create a list item element representing a QA result.
+ *
+ * The returned <li> contains a leading dot <span> whose class reflects pass/fail,
+ * followed by text formatted as: "Label: OK|Prüfen — detail".
+ *
+ * @param {Object} options - Options for the result item.
+ * @param {string} options.label - Short title for the check.
+ * @param {boolean} options.ok - Whether the check passed.
+ * @param {string} options.detail - Additional information or matched text.
+ * @param {string} [options.level='ok'] - Severity level used for the dot when `ok` is false.
+ * @returns {HTMLLIElement} The constructed list item element.
+ */
 function resultItem({ label, ok, detail, level = 'ok' }) {
   const li = document.createElement('li');
   const dot = document.createElement('span');
@@ -136,10 +202,16 @@ function resultItem({ label, ok, detail, level = 'ok' }) {
   return li;
 }
 
+/**
+ * Run the configured QA checks on the guide text and render the results into the QA results list.
+ *
+ * Loads the guide text, evaluates each risky pattern plus the heading-numbering check, and replaces
+ * the contents of the QA results element with the generated result items.
+ */
 async function runQa() {
   const text = await loadGuideText();
   const results = riskyPatterns.map((rule) => {
-    const match = text.match(rule.pattern);
+
     return {
       label: rule.label,
       ok: !match,
