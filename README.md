@@ -54,3 +54,15 @@ Für Hosting reicht das Hochladen der statischen Dateien `index.html`, `styles.c
 - Git-Identität, Branch-Workflow und sicherer Push/Pull-Ablauf.
 - Copy-and-paste-Kommandos für a-Shell, iSH, Python, JavaScript, SSH und lokale Webserver.
 - Entscheidungshilfe, wann lokal auf dem iPhone gearbeitet wird und wann ein Remote-Host besser ist.
+
+## Produktions-Workflow-Automation
+
+Für den mobilen Betrieb als iPhone-Kontrollplattform enthält dieses Repository zusätzlich:
+
+- Produktions-Workflows: [`docs/mobile-iphone-automation-workflows.md`](docs/mobile-iphone-automation-workflows.md)
+- Plattform-Einstellungen: [`settings/mobile-iphone-platform/settings.json`](settings/mobile-iphone-platform/settings.json)
+- Shortcut-Katalog: [`settings/mobile-iphone-platform/shortcuts.catalog.json`](settings/mobile-iphone-platform/shortcuts.catalog.json)
+- Steuerdatensätze: [`datasets/mobile-iphone-platform/`](datasets/mobile-iphone-platform/)
+- Validierung: [`scripts/validate_mobile_iphone_platform.py`](scripts/validate_mobile_iphone_platform.py)
+
+Die Automatisierung ist bewusst als iPhone-Kontrollplattform ausgelegt: Git, Editor, lokale Smoke-Checks, Shortcuts und SSH laufen vom iPhone aus; Builds, Container, Datenbanken und Deployments werden reproduzierbar auf Remote-Hosts ausgeführt.
