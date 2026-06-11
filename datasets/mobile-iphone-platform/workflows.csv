@@ -1,0 +1,11 @@
+workflow_id,name,trigger,controller,executor,input_dataset,output_artifact,required_gate,rollback
+bootstrap,daily bootstrap,start of workday,shortcuts,iphone,apps.csv,Developer/runs/YYYY-MM-DD-bootstrap.log,device_unlocked_and_network_known,reopen apps and rerun checklist
+git-sync,repository sync,before editing,working-copy,iphone,repositories.csv,updated branch,remote_fetch_completed,discard local sync and reclone if necessary
+edit-commit-push,edit commit push,feature change,textastic-or-code-app-plus-working-copy,iphone,repositories.csv,remote branch,secret_scan_completed,revert commit or push fixup branch
+local-smoke-test,local smoke test,before commit,ashell,iphone,commands.csv,Developer/logs/local-smoke.log,tests_or_documented_skip,mark test skipped with reason
+remote-build-test,remote build test,after push,shortcuts-plus-ssh,remote-host,remote-hosts.csv,Developer/logs/remote-ci.log,branch_pushed,stop deploy and inspect logs
+preview-web,local preview,documentation or static web edit,ashell,iphone,commands.csv,http://localhost:8000,terminal_foreground,stop server and remove tmp files
+deploy,production deploy,release approval,shortcuts-plus-ssh,remote-host,deployments.csv,release tag and deploy log,ci_green,run rollback command from deployments.csv
+backup,daily backup,end of workday,shortcuts,iphone-plus-storage,backup-policy.csv,encrypted backup snapshot,all_changes_pushed,restore from git remote and previous snapshot
+security-rotation,credential rotation,monthly or incident,password-manager,provider-console,secret-inventory.template.csv,rotation log,new_secret_verified,revoke new secret and restore previous valid credential
+incident-freeze,incident control,security or data incident,shortcuts-plus-password-manager,iphone-plus-provider,runbook-checks.csv,incident record,deployments_disabled,document recovery and re-enable after review

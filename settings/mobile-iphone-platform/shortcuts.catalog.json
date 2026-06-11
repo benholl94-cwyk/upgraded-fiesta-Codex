@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "shortcuts": [
+    {
+      "id": "iphone-dev-daily-bootstrap",
+      "name": "Dev Daily Bootstrap",
+      "trigger": "Manual or Home Screen icon",
+      "steps": [
+        "Open Working Copy",
+        "Open Developer dashboard note or README",
+        "Open a-Shell",
+        "Run local checklist command from docs/mobile-iphone-automation-workflows.md"
+      ],
+      "failure_policy": "Stop on first failed app open; record the failure in Developer/logs."
+    },
+    {
+      "id": "iphone-dev-remote-ci",
+      "name": "Remote CI Controller",
+      "trigger": "Manual after commit",
+      "steps": [
+        "Ask for branch name",
+        "Run SSH command on build host to fetch the branch",
+        "Run the repository test command on the build host",
+        "Save stdout and stderr to Developer/logs"
+      ],
+      "failure_policy": "Do not deploy. Keep the branch remote-only until logs are reviewed."
+    },
+    {
+      "id": "iphone-dev-backup",
+      "name": "Dev Backup Snapshot",
+      "trigger": "Daily automation or manual before risky work",
+      "steps": [
+        "Open Working Copy and verify all important repositories are pushed",
+        "Create a dated export folder under Developer/backups",
+        "Copy run logs and release notes into the export folder",
+        "Upload encrypted backup through the selected storage provider"
+      ],
+      "failure_policy": "Block destructive changes until backup succeeds or an explicit risk waiver is written."
+    },
+    {
+      "id": "iphone-dev-incident-freeze",
+      "name": "Incident Freeze",
+      "trigger": "Manual when credentials, production, or data integrity are at risk",
+      "steps": [
+        "Disable deploy shortcut",
+        "Rotate exposed token in password manager or provider console",
+        "Create incident note from datasets/mobile-iphone-platform/runbook-checks.csv",
+        "Push a revocation or remediation branch if code is affected"
+      ],
+      "failure_policy": "Escalate to desktop or server access. Do not keep editing on the phone if evidence collection is incomplete."
+    }
+  ]
+}
