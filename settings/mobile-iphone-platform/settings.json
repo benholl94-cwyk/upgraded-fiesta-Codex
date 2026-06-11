@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at_utc": "2026-06-11T00:00:00Z",
+  "platform": "iphone-mobile-dev-control-plane",
+  "operating_principle": "local-first-control-plane-remote-heavy-execution",
+  "ios_hard_limits": [
+    "No Docker or Linux containers execute natively on stock iOS.",
+    "Long-running foreground terminals can be suspended when iOS backgrounds the app.",
+    "App sandboxing requires explicit file-provider handoff between editor, Git client and terminal.",
+    "Production secrets must not be stored as plain files in shared iCloud folders."
+  ],
+  "required_apps": [
+    "Working Copy",
+    "a-Shell",
+    "Textastic or Code App",
+    "Apple Shortcuts"
+  ],
+  "optional_apps": [
+    "iSH",
+    "Blink Shell",
+    "Password manager with SSH key and token support"
+  ],
+  "directory_contract": {
+    "root": "Developer",
+    "required_directories": [
+      "Developer/repos",
+      "Developer/inbox",
+      "Developer/outbox",
+      "Developer/runs",
+      "Developer/logs",
+      "Developer/exports",
+      "Developer/backups",
+      "Developer/tmp",
+      "Developer/policies",
+      "Developer/datasets"
+    ],
+    "forbidden_patterns": [
+      "**/id_ed25519",
+      "**/*.pem",
+      "**/*.p12",
+      "**/.env",
+      "**/secrets.*"
+    ]
+  },
+  "quality_gates": {
+    "before_commit": [
+      "working_tree_reviewed",
+      "secret_scan_completed",
+      "tests_or_documented_skip",
+      "rollback_note_written"
+    ],
+    "before_push": [
+      "branch_is_not_main_unless_hotfix",
+      "remote_fetch_completed",
+      "commit_message_has_scope",
+      "network_is_trusted_or_vpn_enabled"
+    ],
+    "before_deploy": [
+      "ci_green",
+      "backup_or_snapshot_exists",
+      "release_notes_written",
+      "rollback_command_known"
+    ]
+  },
+  "automation_channels": {
+    "local_ios": [
+      "Apple Shortcuts",
+      "Working Copy actions",
+      "Files app document providers",
+      "a-Shell commands"
+    ],
+    "remote_execution": [
+      "SSH",
+      "Mosh where supported",
+      "GitHub Actions or equivalent CI",
+      "deployment host command runner"
+    ],
+    "handoff": [
+      "Git remote",
+      "Files app folder handoff",
+      "SSH file transfer",
+      "signed release artifact"
+    ]
+  },
+  "slo": {
+    "commit_from_phone_minutes": 5,
+    "hotfix_branch_to_remote_minutes": 10,
+    "remote_test_feedback_minutes": 15,
+    "manual_recovery_rto_minutes": 30
+  }
+}

@@ -17,3 +17,15 @@ Für die meisten iPhone-Workflows ist die stabilste Kombination:
 5. **Blink Shell** oder ein anderer SSH/Mosh-Client optional für Remote-Builds, falls lokale iOS-Grenzen erreicht werden.
 
 Die Details inklusive Installationsbefehlen, Verzeichnisstruktur, Git-Konfiguration, Testbefehlen und Fehlerbehebung stehen in der vollständigen Anleitung.
+
+## Produktions-Workflow-Automation
+
+Für den mobilen Betrieb als iPhone-Kontrollplattform enthält dieses Repository zusätzlich:
+
+- Produktions-Workflows: [`docs/mobile-iphone-automation-workflows.md`](docs/mobile-iphone-automation-workflows.md)
+- Plattform-Einstellungen: [`settings/mobile-iphone-platform/settings.json`](settings/mobile-iphone-platform/settings.json)
+- Shortcut-Katalog: [`settings/mobile-iphone-platform/shortcuts.catalog.json`](settings/mobile-iphone-platform/shortcuts.catalog.json)
+- Steuerdatensätze: [`datasets/mobile-iphone-platform/`](datasets/mobile-iphone-platform/)
+- Validierung: [`scripts/validate_mobile_iphone_platform.py`](scripts/validate_mobile_iphone_platform.py)
+
+Die Automatisierung ist bewusst als iPhone-Kontrollplattform ausgelegt: Git, Editor, lokale Smoke-Checks, Shortcuts und SSH laufen vom iPhone aus; Builds, Container, Datenbanken und Deployments werden reproduzierbar auf Remote-Hosts ausgeführt.
