@@ -30,6 +30,16 @@ REQUIRED_CSV_COLUMNS = {
 
 
 def validate_json(path: Path, required_keys: list[str]) -> None:
+    """
+    Validate that a JSON settings file contains required top-level keys and file-specific constraints.
+    
+    Parameters:
+        path (Path): Path to the JSON file to validate.
+        required_keys (list[str]): Top-level keys that must be present in the parsed JSON object.
+    
+    Raises:
+        SystemExit: If any required top-level keys are missing; if `settings.json` does not include a forbidden pattern containing ".env"; or if `shortcuts.catalog.json` has an empty `shortcuts` list.
+    """
     data = json.loads(path.read_text(encoding="utf-8"))
     missing = [key for key in required_keys if key not in data]
     if missing:
@@ -43,6 +53,15 @@ def validate_json(path: Path, required_keys: list[str]) -> None:
 
 
 def validate_csv(path: Path, required_columns: list[str]) -> None:
+    """
+    Validate a CSV file's header and required cell values.
+    
+    Checks that the CSV at `path` has exactly the provided `required_columns` (order-sensitive), contains at least one data row, and that every required column has a non-empty value in each row. Raises `SystemExit` with a descriptive message if any validation fails.
+    
+    Parameters:
+        path (Path): Path to the CSV file to validate.
+        required_columns (list[str]): Exact list of expected header field names in the required order.
+    """
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames != required_columns:
@@ -57,6 +76,11 @@ def validate_csv(path: Path, required_columns: list[str]) -> None:
 
 
 def main() -> None:
+    """
+    Run validations for required JSON and CSV files for the mobile iPhone platform.
+    
+    Calls the configured `validate_json` and `validate_csv` checks for each required file and prints a confirmation message when all validations pass.
+    """
     for path, keys in REQUIRED_JSON.items():
         validate_json(path, keys)
     for path, columns in REQUIRED_CSV_COLUMNS.items():
