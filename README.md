@@ -4,7 +4,7 @@ Dieses Repository enthält eine sofort deploybare, deutschsprachige Plattform un
 
 - Plattform: [`index.html`](index.html)
 - Hauptanleitung: [`docs/iphone-local-dev-setup.md`](docs/iphone-local-dev-setup.md)
-- Schwerpunkt: autonome Setup-Pläne, Direct-Inject-Skripte, lokale Shell, Git-Workflow, Editor, Python/JavaScript, SSH, Backups und Wartung
+- Schwerpunkt: sichere Schnellzugriffe, autonome Setup-Pläne, Direct-Inject-Skripte, lokale Shell, Git-Workflow, Editor, Python/JavaScript, SSH, Backups und Wartung
 - Stand der geprüften App-/Tool-Informationen: 2026-06-11
 
 ## Kurzempfehlung
@@ -26,6 +26,18 @@ Die Details inklusive Installationsbefehlen, Verzeichnisstruktur, Git-Konfigurat
 3. Kopiere den generierten **Direct-Inject**-Block in a-Shell, iSH oder deinen Remote-Host.
 4. Installiere für den produktiven iPhone-Workflow **Working Copy**, **a-Shell** und **Textastic** oder **Code App**.
 5. Klone dein Repository in Working Copy, ändere eine kleine Datei, prüfe den Diff, committe und pushe.
+
+## Sichere Zugänge
+
+Die Plattform bündelt die wichtigsten Bereiche auf einer eigenen Schnellzugriffsfläche:
+
+- **Guide** für Planung und Details.
+- **Autopilot** für profilbasierte Setup-Schritte.
+- **Direct-Inject** für lokal erzeugte, lesbare Copy/Paste-Blöcke.
+- **QA-Scanner** für unklare Artefakte und riskante Muster.
+- **Deploy** für statisches Hosting ohne Build-Schritt.
+
+Direct-Inject-Blöcke werden nicht automatisch ausgeführt, nutzen bereinigte Projektnamen und schreiben standardmäßig nur unter `~/Developer/scratch/`.
 
 ## Sofort-Deploy
 
