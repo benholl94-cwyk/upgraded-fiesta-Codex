@@ -494,7 +494,19 @@ node --version
 7. Committe mit einer kleinen, klaren Nachricht.
 8. Pushe den Branch.
 
-## 19. Finale Abnahme
+## 19. Produktions-Workflow-Automation
+
+Die Basisanleitung wird durch den produktionsorientierten mobilen Kontrollplattform-Workflow ergänzt:
+
+- Vollständige Workflow-Anleitung: `docs/mobile-iphone-automation-workflows.md`
+- Einstellungen: `settings/mobile-iphone-platform/settings.json`
+- Shortcut-Katalog: `settings/mobile-iphone-platform/shortcuts.catalog.json`
+- Datensätze: `datasets/mobile-iphone-platform/`
+- Prüfbefehl: `python3 scripts/validate_mobile_iphone_platform.py`
+
+Diese Ergänzung trennt sauber zwischen iPhone-Steuerung und Remote-Ausführung. Das iPhone koordiniert Git, Editor, lokale Prüfungen, Logs, Freigaben und SSH. Produktions-Builds, Container, Datenbanken und Deployments gehören auf einen reproduzierbaren Remote-Host.
+
+## 20. Finale Abnahme
 
 Das Setup gilt als vollständig, wenn diese Punkte erledigt sind:
 

@@ -1,0 +1,10 @@
+check_id,workflow_id,check,pass_condition,fail_action
+rb-bootstrap-001,bootstrap,network is trusted or vpn is active,user confirms trusted network,stop and switch network
+rb-git-001,git-sync,remote fetch completed,Working Copy fetch has no auth error,fix token or ssh key before editing
+rb-commit-001,edit-commit-push,diff reviewed,no generated secrets or unrelated files,unstage risky files
+rb-test-001,local-smoke-test,test result captured,log file or documented skip exists,do not commit until evidence exists
+rb-remote-001,remote-build-test,remote build host clean,git status clean before checkout,abort and clean remote workspace
+rb-deploy-001,deploy,rollback command exists,deployments.csv rollback command is populated,block deploy
+rb-backup-001,backup,critical changes pushed,all active branches pushed or exported,run manual export before shutdown
+rb-security-001,security-rotation,new credential verified,old and new credential states are known,do not revoke old credential yet
+rb-incident-001,incident-freeze,deploy path disabled,deploy shortcut and token are disabled,escalate immediately
