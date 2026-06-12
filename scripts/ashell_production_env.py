@@ -30,7 +30,8 @@ EXPORT_DIR = DEV_ROOT / "exports"
 BACKUP_DIR = DEV_ROOT / "backups"
 STATE_FILE = RUN_DIR / "mobile-production-state.json"
 SKIP_DIRS = {".git", "__pycache__", "node_modules", "vendor", "dist", "build"}
-SKIP_SUFFIXES = (".pyc",)
+SKIP_NAMES = {"key.sh", ".env", "id_ed25519", "id_rsa"}
+SKIP_SUFFIXES = (".pyc", ".pem", ".p12", ".key")
 
 
 def utc_now() -> str:
@@ -164,7 +165,7 @@ def backup() -> int:
 
     def allowed(path: Path) -> bool:
         rel = path.relative_to(ROOT)
-        if any(part in SKIP_DIRS for part in rel.parts) or path.name.endswith(SKIP_SUFFIXES):
+        if any(part in SKIP_DIRS for part in rel.parts) or path.name in SKIP_NAMES or path.name.endswith(SKIP_SUFFIXES):
             skipped.append(str(rel))
             return False
         return True
