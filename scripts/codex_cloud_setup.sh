@@ -7,14 +7,16 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT_DIR"
 
 python3 --version
-python3 -m py_compile scripts/validate_mobile_iphone_platform.py scripts/mobile_operator.py scripts/ashell_static_server.py scripts/repository_audit_report.py scripts/ashell_codex_chat.py scripts/ashell_production_env.py scripts/ashell_flowctl.py
+python3 -m py_compile scripts/validate_mobile_iphone_platform.py scripts/mobile_operator.py scripts/ashell_static_server.py scripts/repository_audit_report.py scripts/ashell_codex_chat.py scripts/ashell_production_env.py scripts/ashell_flowctl.py scripts/ashell_niche_nodes.py
 python3 scripts/validate_mobile_iphone_platform.py
 python3 scripts/mobile_operator.py self-test
 python3 scripts/ashell_static_server.py --self-test
 python3 scripts/ashell_codex_chat.py --self-test
 python3 scripts/ashell_production_env.py self-test
 python3 scripts/ashell_flowctl.py self-test
+python3 scripts/ashell_niche_nodes.py self-test
 python3 scripts/ashell_flowctl.py list
+python3 scripts/ashell_niche_nodes.py friction-scan
 python3 scripts/ashell_production_env.py doctor
 python3 scripts/repository_audit_report.py --format markdown
 python3 - <<'PY'
