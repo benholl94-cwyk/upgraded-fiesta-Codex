@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "name": "api-targets-local-example",
+  "description": "Copy to ~/Documents/Developer/policies/api-targets.local.json and fill explicit targets. Keep private values outside the repository.",
+  "targets": [
+    {
+      "id": "example-public-site",
+      "base_url": "https://example.com",
+      "enabled": false,
+      "families": ["openapi_http", "rss_atom_jsonfeed", "oauth_oidc"]
+    }
+  ]
+}
