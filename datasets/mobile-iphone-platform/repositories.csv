@@ -1,4 +1,3 @@
 repo_id,provider,remote_url,default_branch,local_owner_app,editor_app,test_command,ci_required,deployable,notes
-example-docs,github,git@github.com:ORG/example-docs.git,main,working-copy,textastic,"python3 scripts/validate_docs.py",true,false,replace with real repository
-example-api,github,git@github.com:ORG/example-api.git,main,working-copy,code-app,"ssh buildhost 'cd ~/src/example-api && git pull && make test'",true,true,remote execution required for production builds
-example-static-site,github,git@github.com:ORG/example-static-site.git,main,working-copy,textastic,"python3 -m http.server 8000",false,true,local preview allowed; production deploy remote-only
+upgraded-fiesta,github,https://github.com/benholl94-cmyk/upgraded-fiesta.git,main,working-copy,textastic-or-code-app,"sh scripts/codex_cloud_setup.sh",true,true,active repository; static iPhone control-plane; local preview through mobile_operator serve
+upgraded-fiesta-remote-validation,github,https://github.com/benholl94-cmyk/upgraded-fiesta.git,main,working-copy,code-app,"sh scripts/codex_cloud_setup.sh",true,false,optional remote validation path; disabled until build host exists
