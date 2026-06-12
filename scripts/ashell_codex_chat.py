@@ -24,6 +24,8 @@ MODEL_ENV = "OPENAI_MODEL"
 BRIDGE_ENV = "CODEX_CHAT_BRIDGE_CMD"
 SAFE_COMMAND_PREFIXES = ("pwd", "ls", "cat", "head", "tail", "python3 -m py_compile", "python3 scripts/", "sh scripts/", "lg2 pull", "lg2 status", "lg2 diff")
 BLOCKED_COMMAND_RE = re.compile(r"(^|\s)(rm|rmdir|mv|cp|chmod|chown|dd|mkfs|kill|pkill|curl|wget|ssh|scp|nc|python\s+-c)\b|[|;&`$<>]", re.I)
+RISKY_LOCAL_NAMES = {"key.sh", ".env", "id_ed25519", "id_rsa"}
+RISKY_LOCAL_SUFFIXES = (".pem", ".p12", ".key")
 
 
 def now() -> str:
@@ -78,18 +80,68 @@ def command_allowed(command: str) -> bool:
     return any(stripped == prefix or stripped.startswith(prefix + " ") for prefix in SAFE_COMMAND_PREFIXES)
 
 
+def git_dir() -> Path | None:
+    direct = ROOT / ".git"
+    if direct.is_dir():
+        return direct
+    if direct.is_file():
+        text = direct.read_text(encoding="utf-8", errors="replace").strip()
+        prefix = "gitdir:"
+        if text.startswith(prefix):
+            candidate = (ROOT / text[len(prefix):].strip()).resolve()
+            if candidate.is_dir():
+                return candidate
+    return None
+
+
+def git_ref_from_files() -> tuple[str, str]:
+    directory = git_dir()
+    if not directory:
+        return "git-unavailable", "unknown"
+    head_file = directory / "HEAD"
+    if not head_file.exists():
+        return "git-unavailable", "unknown"
+    head_text = head_file.read_text(encoding="utf-8", errors="replace").strip()
+    if head_text.startswith("ref:"):
+        ref = head_text.split(":", 1)[1].strip()
+        branch = ref.removeprefix("refs/heads/")
+        ref_file = directory / ref
+        if ref_file.exists():
+            return ref_file.read_text(encoding="utf-8", errors="replace").strip()[:12], branch
+        packed = directory / "packed-refs"
+        if packed.exists():
+            for line in packed.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line and not line.startswith("#") and line.endswith(" " + ref):
+                    return line.split()[0][:12], branch
+        return "head-ref-unresolved", branch
+    return head_text[:12], "detached"
+
+
+def local_risk_findings(status_text: str) -> list[str]:
+    findings: list[str] = []
+    for line in status_text.splitlines():
+        path = line[3:].strip() if len(line) > 3 else line.strip()
+        name = Path(path).name
+        if name in RISKY_LOCAL_NAMES or name.endswith(RISKY_LOCAL_SUFFIXES):
+            findings.append(path)
+    return findings
+
+
 def repo_status() -> dict[str, Any]:
     git_head = run_cmd(["git", "rev-parse", "--short=12", "HEAD"])
     git_branch = run_cmd(["git", "branch", "--show-current"])
     git_status = run_cmd(["git", "status", "--short"])
+    fallback_head, fallback_branch = git_ref_from_files()
+    status_text = str(git_status.get("stdout") or "")
     return {
         "root": str(ROOT),
         "python": sys.version.split()[0],
         "model": os.environ.get(MODEL_ENV, DEFAULT_MODEL),
         "bridge_configured": bool(os.environ.get(BRIDGE_ENV)),
-        "git_head": git_head.get("stdout") or "git-unavailable",
-        "git_branch": git_branch.get("stdout") or "unknown",
-        "git_status": git_status.get("stdout") or "clean-or-unavailable",
+        "git_head": git_head.get("stdout") or fallback_head,
+        "git_branch": git_branch.get("stdout") or fallback_branch,
+        "git_status": status_text or "clean-or-unavailable",
+        "local_risk_files": local_risk_findings(status_text),
     }
 
 
@@ -128,6 +180,8 @@ def banner() -> None:
     print(f"root   : {status['root']}")
     print(f"head   : {status['git_head']}  branch: {status['git_branch']}")
     print(f"bridge : {'configured' if status['bridge_configured'] else 'local-only'}  model: {status['model']}")
+    if status["local_risk_files"]:
+        print(color("risk   : untracked sensitive-looking files: " + ", ".join(status["local_risk_files"]), "31"))
     print("type /help for commands")
     print()
 
