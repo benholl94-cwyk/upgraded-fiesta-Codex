@@ -6,10 +6,10 @@
 
 set -u
 
-DEV_ROOT="$HOME/Developer"
+DEV_ROOT="$HOME/Documents/Developer"
 BIN_DIR="$HOME/Documents/bin"
-RUN_DATE=`date -u +%Y-%m-%d 2>/dev/null || date +%Y-%m-%d`
-RUN_TS=`date -u +%Y%m%dT%H%M%SZ 2>/dev/null || date +%Y%m%dT%H%M%S`
+RUN_DATE=`date +%Y-%m-%d`
+RUN_TS=`date +%Y%m%dT%H%M%S`
 LOG_DIR="$DEV_ROOT/logs"
 RUN_DIR="$DEV_ROOT/runs"
 LOG_FILE="$LOG_DIR/upgraded-fiesta-ashell-bootstrap-$RUN_TS.log"
@@ -31,7 +31,7 @@ mkdir -p "$BIN_DIR"
 touch "$LOG_FILE"
 
 log() {
-  NOW=`date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date`
+  NOW=`date +%Y-%m-%dT%H:%M:%S`
   echo "$NOW $*"
   echo "$NOW $*" >> "$LOG_FILE"
 }
@@ -87,13 +87,15 @@ else
 
 # upgraded-fiesta a-Shell bootstrap
 export EDITOR=vim
-export MOBILE_DEV_ROOT="$HOME/Developer"
-export UPGRADED_FIESTA_REPO="$HOME/Developer/repos/upgraded-fiesta"
+export PATH="$HOME/Documents/bin:$PATH"
+export MOBILE_DEV_ROOT="$HOME/Documents/Developer"
+export UPGRADED_FIESTA_REPO="$HOME/Documents/Developer/upgraded-fiesta.git"
 alias ll='ls -la'
 alias py='python3'
 alias serve='python3 -m http.server 8000'
 alias gs='lg2 status'
 alias gv='lg2 version'
+alias uf='cd "$UPGRADED_FIESTA_REPO"'
 PROFILE_BLOCK
   log "OK appended upgraded-fiesta profile block to $PROFILE"
 fi
