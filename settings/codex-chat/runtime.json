@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "name": "a-shell-chat",
+  "runtime": "python3-stdlib-only",
+  "logs": "~/Documents/Developer/logs",
+  "runs": "~/Documents/Developer/runs"
+}
