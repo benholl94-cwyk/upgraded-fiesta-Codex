@@ -1,0 +1,10 @@
+# Local-only runtime helpers
+key.sh
+private-bridges/
+*.local.json
+*.local.sh
+
+# Python and editor noise
+__pycache__/
+*.pyc
+.DS_Store
