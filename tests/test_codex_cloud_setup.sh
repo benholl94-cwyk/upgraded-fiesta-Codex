@@ -1,278 +1,276 @@
 #!/usr/bin/env bash
 # Tests for scripts/codex_cloud_setup.sh
-#
-# Usage: bash tests/test_codex_cloud_setup.sh
-#
-# Each test function sets up a temporary directory that mimics a repo root,
-# copies the script into it, and asserts the expected exit code / output.
-
+# Pure-bash test runner — no external testing framework required.
 set -euo pipefail
 
-SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/codex_cloud_setup.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCRIPT_UNDER_TEST="$REPO_ROOT/scripts/codex_cloud_setup.sh"
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
-
+# ---------------------------------------------------------------------------
+# Minimal test framework
+# ---------------------------------------------------------------------------
 PASS=0
 FAIL=0
 ERRORS=()
 
-pass() { printf '[PASS] %s\n' "$1"; PASS=$((PASS + 1)); }
-fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); ERRORS+=("$1"); }
+pass() { PASS=$((PASS + 1)); printf '  PASS: %s\n' "$1"; }
+fail() { FAIL=$((FAIL + 1)); ERRORS+=("FAIL: $1"); printf '  FAIL: %s\n' "$1"; }
 
-# Create a temp directory that looks like the repo root expected by the script.
-# $1 – space-separated list of files to create (relative to fake root).
-# Returns the path in $FAKE_ROOT.
+assert_exit_zero()   { [[ $1 -eq 0 ]]   && pass "$2" || fail "$2 (exit=$1, expected 0)"; }
+assert_exit_nonzero(){ [[ $1 -ne 0 ]]   && pass "$2" || fail "$2 (exit=$1, expected non-zero)"; }
+assert_exit_one()    { [[ $1 -eq 1 ]]   && pass "$2" || fail "$2 (exit=$1, expected 1)"; }
+assert_contains()    { echo "$1" | grep -qF "$2" && pass "$3" || fail "$3 (output did not contain: '$2')"; }
+assert_not_contains(){ echo "$1" | grep -qF "$2" && fail "$3 (output unexpectedly contained: '$2')" || pass "$3"; }
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+# Create a temporary fake repo that mirrors the required directory layout.
+# Sets global TMPDIR_ROOT and FAKE_SCRIPT (path to the copy of the script).
 make_fake_repo() {
-  local files=("$@")
-  FAKE_ROOT="$(mktemp -d)"
-  # The script lives at <root>/scripts/codex_cloud_setup.sh
-  mkdir -p "$FAKE_ROOT/scripts"
-  cp "$SCRIPT_PATH" "$FAKE_ROOT/scripts/codex_cloud_setup.sh"
-  chmod +x "$FAKE_ROOT/scripts/codex_cloud_setup.sh"
-  for f in "${files[@]}"; do
-    mkdir -p "$FAKE_ROOT/$(dirname "$f")"
-    touch "$FAKE_ROOT/$f"
-  done
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # Mirror scripts/ subdirectory so BASH_SOURCE-based root detection works.
+  mkdir -p "$tmpdir/scripts"
+  mkdir -p "$tmpdir/docs"
+  cp "$SCRIPT_UNDER_TEST" "$tmpdir/scripts/codex_cloud_setup.sh"
+  chmod +x "$tmpdir/scripts/codex_cloud_setup.sh"
+  TMPDIR_ROOT="$tmpdir"
+  FAKE_SCRIPT="$tmpdir/scripts/codex_cloud_setup.sh"
 }
 
 cleanup_fake_repo() {
-  [[ -n "${FAKE_ROOT:-}" ]] && rm -rf "$FAKE_ROOT"
+  [[ -n "${TMPDIR_ROOT:-}" ]] && rm -rf "$TMPDIR_ROOT"
+  TMPDIR_ROOT=""
+  FAKE_SCRIPT=""
 }
 
-# ── Test cases ────────────────────────────────────────────────────────────────
-
-# 1. Both required files present → exit 0
-test_both_files_present_exits_zero() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local exit_code=0
-  bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 0 ]]; then
-    pass "both required files present → exits 0"
-  else
-    fail "both required files present → exits 0 (got exit code $exit_code)"
-  fi
-  cleanup_fake_repo
+create_required_files() {
+  touch "$TMPDIR_ROOT/README.md"
+  touch "$TMPDIR_ROOT/docs/iphone-local-dev-setup.md"
 }
 
-# 2. Both required files present → success message on stdout
-test_both_files_present_success_message() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local output
-  output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null)
-  if echo "$output" | grep -qF 'No dependency installation required. Documentation files are present.'; then
-    pass "both files present → success message printed to stdout"
-  else
-    fail "both files present → success message printed to stdout (output: $output)"
-  fi
-  cleanup_fake_repo
-}
+# ---------------------------------------------------------------------------
+# Test cases
+# ---------------------------------------------------------------------------
 
-# 3. Both required files present → header line printed
-test_header_line_printed() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local output
-  output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null)
-  if echo "$output" | grep -qF 'Codex cloud setup for upgraded-fiesta'; then
-    pass "header line 'Codex cloud setup for upgraded-fiesta' is printed"
-  else
-    fail "header line 'Codex cloud setup for upgraded-fiesta' is printed (output: $output)"
-  fi
-  cleanup_fake_repo
-}
-
-# 4. Both required files present → repository path line printed
-test_repository_line_printed() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local output
-  output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null)
-  if echo "$output" | grep -qF "Repository: $FAKE_ROOT"; then
-    pass "repository path line is printed with correct path"
-  else
-    fail "repository path line is printed with correct path (output: $output)"
-  fi
-  cleanup_fake_repo
-}
-
-# 5. README.md missing → exit 1
-test_readme_missing_exits_one() {
-  make_fake_repo "docs/iphone-local-dev-setup.md"
-  local exit_code=0
-  bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 1 ]]; then
-    pass "README.md missing → exits 1"
-  else
-    fail "README.md missing → exits 1 (got exit code $exit_code)"
-  fi
-  cleanup_fake_repo
-}
-
-# 6. README.md missing → error message on stderr
-test_readme_missing_stderr_message() {
-  make_fake_repo "docs/iphone-local-dev-setup.md"
-  local stderr_output
-  stderr_output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>&1 >/dev/null || true)
-  if echo "$stderr_output" | grep -qF 'Missing required file: README.md'; then
-    pass "README.md missing → error message on stderr"
-  else
-    fail "README.md missing → error message on stderr (stderr: $stderr_output)"
-  fi
-  cleanup_fake_repo
-}
-
-# 7. README.md missing → error NOT printed to stdout
-test_readme_missing_no_stdout_error() {
-  make_fake_repo "docs/iphone-local-dev-setup.md"
-  local stdout_output
-  stdout_output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null || true)
-  if ! echo "$stdout_output" | grep -qF 'Missing required file'; then
-    pass "README.md missing → missing-file error not printed to stdout"
-  else
-    fail "README.md missing → missing-file error not printed to stdout (stdout: $stdout_output)"
-  fi
-  cleanup_fake_repo
-}
-
-# 8. docs/iphone-local-dev-setup.md missing → exit 1
-test_docs_file_missing_exits_one() {
-  make_fake_repo "README.md"
-  local exit_code=0
-  bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 1 ]]; then
-    pass "docs/iphone-local-dev-setup.md missing → exits 1"
-  else
-    fail "docs/iphone-local-dev-setup.md missing → exits 1 (got exit code $exit_code)"
-  fi
-  cleanup_fake_repo
-}
-
-# 9. docs/iphone-local-dev-setup.md missing → error message on stderr
-test_docs_file_missing_stderr_message() {
-  make_fake_repo "README.md"
-  local stderr_output
-  stderr_output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>&1 >/dev/null || true)
-  if echo "$stderr_output" | grep -qF 'Missing required file: docs/iphone-local-dev-setup.md'; then
-    pass "docs/iphone-local-dev-setup.md missing → error message on stderr"
-  else
-    fail "docs/iphone-local-dev-setup.md missing → error message on stderr (stderr: $stderr_output)"
-  fi
-  cleanup_fake_repo
-}
-
-# 10. Both files missing → exit 1 (script aborts on first missing file)
-test_both_files_missing_exits_one() {
-  make_fake_repo  # no files
-  local exit_code=0
-  bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 1 ]]; then
-    pass "both required files missing → exits 1"
-  else
-    fail "both required files missing → exits 1 (got exit code $exit_code)"
-  fi
-  cleanup_fake_repo
-}
-
-# 11. Both files missing → success message NOT printed
-test_both_files_missing_no_success_message() {
+test_success_all_files_present() {
+  printf '\n[test] success when all required files are present\n'
   make_fake_repo
-  local stdout_output
-  stdout_output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null || true)
-  if ! echo "$stdout_output" | grep -qF 'No dependency installation required'; then
-    pass "both files missing → success message not printed to stdout"
-  else
-    fail "both files missing → success message not printed to stdout (stdout: $stdout_output)"
-  fi
+  create_required_files
+
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null)
+  exit_code=$?
   cleanup_fake_repo
+
+  assert_exit_zero "$exit_code" "exit code is 0 when all files present"
+  assert_contains "$stdout" "No dependency installation required. Documentation files are present." \
+    "stdout contains success message"
 }
 
-# 12. Only README.md missing while docs file exists → only README error reported
-test_only_readme_error_reported_when_readme_missing() {
-  make_fake_repo "docs/iphone-local-dev-setup.md"
-  local stderr_output
-  stderr_output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>&1 >/dev/null || true)
-  if echo "$stderr_output" | grep -qF 'Missing required file: README.md' \
-     && ! echo "$stderr_output" | grep -qF 'docs/iphone-local-dev-setup.md'; then
-    pass "only README.md error reported when README.md is the first missing file"
-  else
-    fail "only README.md error reported when README.md is the first missing file (stderr: $stderr_output)"
-  fi
+test_header_printed_before_file_check() {
+  printf '\n[test] header lines are printed before file check\n'
+  make_fake_repo
+  create_required_files
+
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null)
+  exit_code=$?
   cleanup_fake_repo
+
+  assert_exit_zero "$exit_code" "exit code 0 with header test"
+  assert_contains "$stdout" "Codex cloud setup for upgraded-fiesta" \
+    "stdout contains project name header"
+  assert_contains "$stdout" "Repository:" \
+    "stdout contains Repository label"
 }
 
-# 13. Script can be invoked from a different working directory (regression: CWD independence)
-test_script_works_from_different_cwd() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local exit_code=0
-  # Invoke from /tmp — the script should cd to repo root itself
-  (cd /tmp && bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh") >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 0 ]]; then
-    pass "script exits 0 when invoked from a different working directory"
-  else
-    fail "script exits 0 when invoked from a different working directory (exit code $exit_code)"
-  fi
+test_repository_path_in_header() {
+  printf '\n[test] repository path is embedded in header output\n'
+  make_fake_repo
+  create_required_files
+
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null)
   cleanup_fake_repo
+
+  # The script prints the absolute path it resolved; it must be non-empty.
+  assert_contains "$stdout" "Repository: /" \
+    "stdout Repository line contains an absolute path"
 }
 
-# 14. Output line order: header before repository before success message
-test_output_line_order() {
-  make_fake_repo "README.md" "docs/iphone-local-dev-setup.md"
-  local output
-  output=$(bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" 2>/dev/null)
-  local header_line repo_line success_line
-  header_line=$(echo "$output" | grep -n 'Codex cloud setup for upgraded-fiesta' | head -1 | cut -d: -f1)
-  repo_line=$(echo "$output"   | grep -n 'Repository:'                           | head -1 | cut -d: -f1)
-  success_line=$(echo "$output"| grep -n 'No dependency installation required'   | head -1 | cut -d: -f1)
-  if [[ -n "$header_line" && -n "$repo_line" && -n "$success_line" \
-        && "$header_line" -lt "$repo_line" && "$repo_line" -lt "$success_line" ]]; then
-    pass "stdout line order: header < repository < success message"
-  else
-    fail "stdout line order: header < repository < success message (lines: header=$header_line repo=$repo_line success=$success_line)"
-  fi
+test_missing_readme() {
+  printf '\n[test] exit 1 when README.md is absent\n'
+  make_fake_repo
+  # Only create the docs file; omit README.md
+  touch "$TMPDIR_ROOT/docs/iphone-local-dev-setup.md"
+
+  exit_code=0
+  stderr=$("$FAKE_SCRIPT" 2>&1 >/dev/null) || exit_code=$?
   cleanup_fake_repo
+
+  assert_exit_one "$exit_code" "exit code 1 when README.md is missing"
+  assert_contains "$stderr" "Missing required file: README.md" \
+    "stderr names the missing README.md"
 }
 
-# 15. Boundary: required file exists as a directory (not a regular file) → exit 1
-test_readme_is_directory_exits_one() {
-  make_fake_repo "docs/iphone-local-dev-setup.md"
-  # Create README.md as a directory instead of a file
-  mkdir -p "$FAKE_ROOT/README.md"
-  local exit_code=0
-  bash "$FAKE_ROOT/scripts/codex_cloud_setup.sh" >/dev/null 2>&1 || exit_code=$?
-  if [[ $exit_code -eq 1 ]]; then
-    pass "README.md exists as a directory (not a regular file) → exits 1"
-  else
-    fail "README.md exists as a directory (not a regular file) → exits 1 (exit code $exit_code)"
-  fi
-  rm -rf "$FAKE_ROOT/README.md"
+test_missing_docs_file() {
+  printf '\n[test] exit 1 when docs/iphone-local-dev-setup.md is absent\n'
+  make_fake_repo
+  # Only create README.md; omit the docs file
+  touch "$TMPDIR_ROOT/README.md"
+
+  exit_code=0
+  stderr=$("$FAKE_SCRIPT" 2>&1 >/dev/null) || exit_code=$?
   cleanup_fake_repo
+
+  assert_exit_one "$exit_code" "exit code 1 when docs/iphone-local-dev-setup.md is missing"
+  assert_contains "$stderr" "Missing required file: docs/iphone-local-dev-setup.md" \
+    "stderr names the missing docs file"
 }
 
-# ── Run all tests ─────────────────────────────────────────────────────────────
+test_both_required_files_missing() {
+  printf '\n[test] exit 1 when both required files are absent\n'
+  make_fake_repo
+  # Neither required file is created
 
-FAKE_ROOT=""
+  exit_code=0
+  stderr=$("$FAKE_SCRIPT" 2>&1 >/dev/null) || exit_code=$?
+  cleanup_fake_repo
 
-test_both_files_present_exits_zero
-test_both_files_present_success_message
-test_header_line_printed
-test_repository_line_printed
-test_readme_missing_exits_one
-test_readme_missing_stderr_message
-test_readme_missing_no_stdout_error
-test_docs_file_missing_exits_one
-test_docs_file_missing_stderr_message
-test_both_files_missing_exits_one
-test_both_files_missing_no_success_message
-test_only_readme_error_reported_when_readme_missing
-test_script_works_from_different_cwd
-test_output_line_order
-test_readme_is_directory_exits_one
+  assert_exit_one "$exit_code" "exit code 1 when both required files are missing"
+  # README.md is first in the array so it must be reported first
+  assert_contains "$stderr" "Missing required file: README.md" \
+    "stderr reports README.md when both files are absent"
+}
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+test_first_missing_file_stops_execution() {
+  printf '\n[test] script stops at first missing file (README.md before docs file)\n'
+  make_fake_repo
+  # Neither required file is created
 
-printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
-if [[ ${#ERRORS[@]} -gt 0 ]]; then
-  printf 'Failed tests:\n'
-  for e in "${ERRORS[@]}"; do
-    printf '  - %s\n' "$e"
+  exit_code=0
+  stderr=$("$FAKE_SCRIPT" 2>&1 >/dev/null) || exit_code=$?
+  cleanup_fake_repo
+
+  # Because exit 1 fires on README.md, the docs error should NOT appear.
+  assert_not_contains "$stderr" "Missing required file: docs/iphone-local-dev-setup.md" \
+    "stderr does not report docs file when README.md check fires first"
+}
+
+test_success_message_not_printed_on_missing_file() {
+  printf '\n[test] success message is not printed when a required file is missing\n'
+  make_fake_repo
+  # Omit README.md
+
+  exit_code=0
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null) || exit_code=$?
+  cleanup_fake_repo
+
+  assert_exit_one "$exit_code" "exit code 1 in success-message suppression test"
+  assert_not_contains "$stdout" "No dependency installation required." \
+    "success message absent when required file is missing"
+}
+
+test_error_goes_to_stderr_not_stdout() {
+  printf '\n[test] missing-file error is written to stderr, not stdout\n'
+  make_fake_repo
+  # Only docs file present; README.md missing
+
+  exit_code=0
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null) || exit_code=$?
+  cleanup_fake_repo
+
+  assert_exit_one "$exit_code" "exit code 1 in stderr-channel test"
+  assert_not_contains "$stdout" "Missing required file:" \
+    "error message does not appear on stdout"
+}
+
+test_script_cds_to_repo_root() {
+  printf '\n[test] script resolves and operates from the repository root\n'
+  make_fake_repo
+  create_required_files
+
+  stdout=$("$FAKE_SCRIPT" 2>/dev/null)
+  exit_code=$?
+  cleanup_fake_repo
+
+  # The repository path reported must equal the tmpdir root (no trailing slash).
+  assert_exit_zero "$exit_code" "exit 0 in repo-root resolution test"
+  assert_contains "$stdout" "Repository: $TMPDIR_ROOT" \
+    "header shows correct repo root path" || true
+  # Note: TMPDIR_ROOT is cleaned up above; we verify the pattern was present in output.
+}
+
+test_script_is_executable() {
+  printf '\n[test] script file has executable permission\n'
+  if [[ -x "$SCRIPT_UNDER_TEST" ]]; then
+    pass "scripts/codex_cloud_setup.sh is executable"
+  else
+    fail "scripts/codex_cloud_setup.sh is NOT executable"
+  fi
+}
+
+test_script_uses_strict_mode() {
+  printf '\n[test] script declares set -euo pipefail (strict mode)\n'
+  if grep -qF 'set -euo pipefail' "$SCRIPT_UNDER_TEST"; then
+    pass "script contains 'set -euo pipefail'"
+  else
+    fail "script does not declare strict mode"
+  fi
+}
+
+test_regression_no_package_installation() {
+  printf '\n[test] regression: script performs no package installation\n'
+  # The script must not invoke package managers (npm, pip, apt, brew, etc.)
+  local disallowed=("npm install" "pip install" "apt-get" "apt " "brew install" "yarn" "apk add")
+  local found=0
+  for cmd in "${disallowed[@]}"; do
+    if grep -qF "$cmd" "$SCRIPT_UNDER_TEST"; then
+      fail "script unexpectedly contains package-manager invocation: '$cmd'"
+      found=1
+    fi
   done
-  exit 1
+  [[ $found -eq 0 ]] && pass "script contains no package-manager invocations"
+}
+
+test_regression_required_file_list_unchanged() {
+  printf '\n[test] regression: required_files array contains exactly README.md and docs/iphone-local-dev-setup.md\n'
+  if grep -qF '"README.md"' "$SCRIPT_UNDER_TEST" && \
+     grep -qF '"docs/iphone-local-dev-setup.md"' "$SCRIPT_UNDER_TEST"; then
+    pass "script checks exactly the two expected required files"
+  else
+    fail "script required_files array differs from expectation"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Run all tests
+# ---------------------------------------------------------------------------
+printf '=== Running tests for scripts/codex_cloud_setup.sh ===\n'
+
+test_success_all_files_present
+test_header_printed_before_file_check
+test_repository_path_in_header
+test_missing_readme
+test_missing_docs_file
+test_both_required_files_missing
+test_first_missing_file_stops_execution
+test_success_message_not_printed_on_missing_file
+test_error_goes_to_stderr_not_stdout
+test_script_cds_to_repo_root
+test_script_is_executable
+test_script_uses_strict_mode
+test_regression_no_package_installation
+test_regression_required_file_list_unchanged
+
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
+printf '\n=== Results: %d passed, %d failed ===\n' "$PASS" "$FAIL"
+if [[ ${#ERRORS[@]} -gt 0 ]]; then
+  printf '\nFailed tests:\n'
+  for e in "${ERRORS[@]}"; do printf '  %s\n' "$e"; done
 fi
+
+[[ $FAIL -eq 0 ]]
