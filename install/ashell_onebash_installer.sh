@@ -79,7 +79,7 @@ fi
 
 cd "$REPO_DIR" || fail "cannot enter repository: $REPO_DIR"
 
-for path in scripts/mobile_operator.py scripts/ashell_static_server.py scripts/validate_mobile_iphone_platform.py scripts/repository_audit_report.py scripts/repository_audit_report.sh scripts/validate_repository.sh
+for path in scripts/mobile_operator.py scripts/ashell_static_server.py scripts/validate_mobile_iphone_platform.py scripts/repository_audit_report.py scripts/repository_audit_report.sh scripts/codex_cloud_setup.sh
 do
   if [ ! -f "$path" ]; then
     fail "required file missing after clone or pull: $path"
@@ -111,9 +111,9 @@ if [ $? -ne 0 ]; then
   fail "static server self-test failed"
 fi
 
-sh scripts/validate_repository.sh >> "$LOG_FILE" 2>&1
+sh scripts/codex_cloud_setup.sh >> "$LOG_FILE" 2>&1
 if [ $? -ne 0 ]; then
-  fail "repository validation failed"
+  fail "codex cloud setup failed"
 fi
 
 log "DONE installer"
