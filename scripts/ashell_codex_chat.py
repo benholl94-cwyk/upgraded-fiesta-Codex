@@ -8,6 +8,7 @@ import datetime as dt
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import textwrap
@@ -20,6 +21,7 @@ LOG_DIR = DEV_ROOT / "logs"
 RUN_DIR = DEV_ROOT / "runs"
 DEFAULT_MODEL = "gpt-4.1"
 MODEL_ENV = "OPENAI_MODEL"
+BRIDGE_ENV = "CODEX_CHAT_BRIDGE_CMD"
 SAFE_COMMAND_PREFIXES = ("pwd", "ls", "cat", "head", "tail", "python3 -m py_compile", "python3 scripts/", "sh scripts/", "lg2 pull", "lg2 status", "lg2 diff")
 BLOCKED_COMMAND_RE = re.compile(r"(^|\s)(rm|rmdir|mv|cp|chmod|chown|dd|mkfs|kill|pkill|curl|wget|ssh|scp|nc|python\s+-c)\b|[|;&`$<>]", re.I)
 
@@ -84,15 +86,38 @@ def repo_status() -> dict[str, Any]:
         "root": str(ROOT),
         "python": sys.version.split()[0],
         "model": os.environ.get(MODEL_ENV, DEFAULT_MODEL),
+        "bridge_configured": bool(os.environ.get(BRIDGE_ENV)),
         "git_head": git_head.get("stdout") or "git-unavailable",
         "git_branch": git_branch.get("stdout") or "unknown",
         "git_status": git_status.get("stdout") or "clean-or-unavailable",
     }
 
 
-def local_answer(prompt: str) -> str:
-    status = repo_status()
-    return "Local monitor mode. API bridge is not configured in this file. Prompt logged; status: " + json.dumps(status, ensure_ascii=False, sort_keys=True)
+def project_context() -> str:
+    parts = []
+    for rel in ("AGENTS.md", "README.md"):
+        path = ROOT / rel
+        if path.exists():
+            parts.append(f"--- {rel} ---\n" + path.read_text(encoding="utf-8")[:6000])
+    parts.append("--- live status ---\n" + json.dumps(repo_status(), indent=2, ensure_ascii=False, sort_keys=True))
+    return "\n\n".join(parts)
+
+
+def bridge_answer(prompt: str) -> str:
+    command = os.environ.get(BRIDGE_ENV, "").strip()
+    if not command:
+        return "Local monitor mode. Set CODEX_CHAT_BRIDGE_CMD to an untracked bridge command to enable model-backed answers."
+    try:
+        argv = shlex.split(command)
+        payload = project_context() + "\n\n--- user ---\n" + prompt
+        done = subprocess.run(argv, cwd=str(ROOT), input=payload, text=True, capture_output=True, check=False, timeout=180)
+        log_event("bridge", {"returncode": done.returncode, "stdout_chars": len(done.stdout), "stderr_chars": len(done.stderr)})
+        if done.returncode != 0:
+            return "bridge failed: " + (done.stderr.strip() or done.stdout.strip() or str(done.returncode))
+        return done.stdout.strip() or "bridge returned no output"
+    except Exception as exc:
+        log_event("bridge_error", {"detail": repr(exc)})
+        return "bridge error: " + repr(exc)
 
 
 def banner() -> None:
@@ -102,7 +127,7 @@ def banner() -> None:
     print(color("╰────────────────────────────────────────────╯", "36"))
     print(f"root   : {status['root']}")
     print(f"head   : {status['git_head']}  branch: {status['git_branch']}")
-    print(f"model  : {status['model']}")
+    print(f"bridge : {'configured' if status['bridge_configured'] else 'local-only'}  model: {status['model']}")
     print("type /help for commands")
     print()
 
@@ -114,9 +139,15 @@ def print_help() -> None:
       /status               show live repository state
       /audit                generate live repository audit markdown
       /validate             run sh scripts/codex_cloud_setup.sh
+      /bridge-test          send a minimal prompt through CODEX_CHAT_BRIDGE_CMD
       /run <safe command>   run an allowlisted local command
       /clear                redraw the interface
       /exit                 quit
+
+    Bridge contract:
+      The command in CODEX_CHAT_BRIDGE_CMD receives the full prompt on stdin
+      and must return the assistant answer on stdout. The command is not stored
+      in the repository and may hold local credentials outside tracked files.
     """).strip())
 
 
@@ -145,6 +176,8 @@ def handle_command(line: str) -> bool:
         show_result("audit", run_cmd(["python3", "scripts/repository_audit_report.py", "--format", "markdown"], timeout=90))
     elif line == "/validate":
         show_result("validate", run_cmd(["sh", "scripts/codex_cloud_setup.sh"], timeout=180))
+    elif line == "/bridge-test":
+        print(bridge_answer("Respond with exactly: OK"))
     elif line.startswith("/run "):
         command = line[5:].strip()
         if not command_allowed(command):
@@ -176,7 +209,7 @@ def chat_loop() -> int:
             continue
         log_event("user", {"chars": len(line)})
         print(color("assistant:", "32"))
-        print(local_answer(line))
+        print(bridge_answer(line))
         write_monitor({"last_prompt_chars": len(line), **repo_status()})
     log_event("stop", repo_status())
     return 0
@@ -196,9 +229,13 @@ def self_test() -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Interactive a-Shell repository chat and monitor.")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--once", help="Send one prompt through the configured bridge and exit")
     args = parser.parse_args(argv)
     if args.self_test:
         return self_test()
+    if args.once:
+        print(bridge_answer(args.once))
+        return 0
     return chat_loop()
 
 
