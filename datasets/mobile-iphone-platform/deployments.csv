@@ -1,3 +1,3 @@
 deployment_id,repo_id,environment,deploy_controller,deploy_command,healthcheck_url,rollback_command,approval_required
-static-site-prod,example-static-site,production,shortcuts-plus-ssh,"./ops/deploy.sh ${VERSION}",https://example.com/health,"./ops/rollback.sh ${PREVIOUS_VERSION}",true
-api-prod,example-api,production,shortcuts-plus-ssh,"./ops/deploy.sh ${VERSION}",https://api.example.com/health,"./ops/rollback.sh ${PREVIOUS_VERSION}",true
+upgraded-fiesta-static-production,upgraded-fiesta,production,manual-static-host,blocked_until_static_host_is_selected,blocked_until_static_host_is_selected,revert hosting source or restore previous static artifact,true
+upgraded-fiesta-remote-disabled,upgraded-fiesta,remote,shortcuts-plus-ssh,disabled_until_remote_host_and_ops_scripts_exist,disabled_until_remote_host_and_ops_scripts_exist,disabled_until_previous_release_exists,true
