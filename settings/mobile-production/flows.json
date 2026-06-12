@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "name": "mobile-production-flow-registry",
-  "description": "Named a-Shell flows that combine validation, evidence, monitoring, chat and local preview without requiring /tmp or external package installs.",
+  "description": "Named a-Shell flows that combine validation, evidence, monitoring, chat, local preview, context packaging and friction handling without requiring /tmp or external package installs.",
   "flows": [
     {
       "id": "bootstrap",
@@ -27,6 +27,39 @@
       "steps": [
         {"id": "snapshot", "command": ["python3", "scripts/ashell_production_env.py", "snapshot"], "runnable": true},
         {"id": "backup", "command": ["python3", "scripts/ashell_production_env.py", "backup"], "runnable": true}
+      ]
+    },
+    {
+      "id": "pocket-command-center",
+      "title": "Show one-screen command launcher for mobile operation",
+      "kind": "navigation",
+      "steps": [
+        {"id": "command_center", "command": ["python3", "scripts/ashell_niche_nodes.py", "command-center"], "runnable": true}
+      ]
+    },
+    {
+      "id": "friction-map",
+      "title": "Detect iPhone/a-Shell naming, bridge and local runtime friction",
+      "kind": "diagnostic",
+      "steps": [
+        {"id": "friction_scan", "command": ["python3", "scripts/ashell_niche_nodes.py", "friction-scan"], "runnable": true},
+        {"id": "alias_notes", "command": ["python3", "scripts/ashell_niche_nodes.py", "alias-notes"], "runnable": true}
+      ]
+    },
+    {
+      "id": "context-pack",
+      "title": "Build a compact context package for Codex/chat/handoff",
+      "kind": "handoff",
+      "steps": [
+        {"id": "context_pack", "command": ["python3", "scripts/ashell_niche_nodes.py", "context-pack"], "runnable": true}
+      ]
+    },
+    {
+      "id": "handoff-next",
+      "title": "Print next safest steps from current local state",
+      "kind": "adaptive",
+      "steps": [
+        {"id": "handoff", "command": ["python3", "scripts/ashell_niche_nodes.py", "handoff"], "runnable": true}
       ]
     },
     {
@@ -57,6 +90,7 @@
   "quality_of_life": {
     "ls": "Use lowercase ls in a-Shell.",
     "la": "Use ls -la. a-Shell does not provide this alias unless you define it locally.",
+    "Ls": "Use lowercase ls. Command names are case-sensitive.",
     "clear": "Use /clear inside the chat UI or clear in shell when available."
   }
 }
