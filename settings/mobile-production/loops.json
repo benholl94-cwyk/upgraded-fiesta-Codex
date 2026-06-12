@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "name": "mobile-loop-registry",
+  "runtime_mode": "foreground_loop",
+  "state_file": "~/Documents/Developer/runs/mobile-loop-state.json",
+  "log_file": "~/Documents/Developer/logs/mobile-loop-YYYYMMDD.jsonl",
+  "minimum_interval_seconds": 15,
+  "default_interval_seconds": 60,
+  "loops": [
+    {
+      "id": "state",
+      "command": ["python3", "scripts/ashell_production_env.py", "status"],
+      "enabled_by_default": true
+    },
+    {
+      "id": "maintain",
+      "command": ["python3", "scripts/ashell_maintain.py", "apply"],
+      "enabled_by_default": true
+    },
+    {
+      "id": "friction",
+      "command": ["python3", "scripts/ashell_niche_nodes.py", "friction-scan"],
+      "enabled_by_default": true
+    },
+    {
+      "id": "gate",
+      "command": ["python3", "scripts/ashell_gate.py"],
+      "enabled_by_default": true
+    },
+    {
+      "id": "evidence",
+      "command": ["python3", "scripts/ashell_flowctl.py", "run", "evidence"],
+      "enabled_by_default": false
+    }
+  ],
+  "known_gaps": [
+    {
+      "id": "foreground_only",
+      "required_value": "active a-Shell session",
+      "default_value": "foreground loop"
+    },
+    {
+      "id": "remote_metadata_missing",
+      "required_value": "host id, repo path, health command, rollback command",
+      "default_value": "not configured"
+    }
+  ]
+}
