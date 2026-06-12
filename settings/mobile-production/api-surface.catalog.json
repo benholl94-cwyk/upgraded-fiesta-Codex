@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "name": "api-surface-catalog",
+  "scope": "protocol-and-contract-families-not-every-host-on-the-internet",
+  "principles": {
+    "explicit_targets_only": true,
+    "no_credential_storage": true,
+    "read_only_discovery_by_default": true,
+    "mobile_a_shell_compatible": true
+  },
+  "families": [
+    {
+      "id": "openapi_http",
+      "transport": "http",
+      "contract_files": ["/openapi.json", "/swagger.json", "/api-docs", "/.well-known/openapi.json"],
+      "signals": ["openapi", "swagger", "paths", "components"],
+      "best_use": "turn documented HTTP APIs into typed tools"
+    },
+    {
+      "id": "graphql",
+      "transport": "http_websocket",
+      "contract_files": ["/graphql", "/api/graphql"],
+      "signals": ["data", "errors", "__schema"],
+      "best_use": "query exact graph-shaped data and subscriptions"
+    },
+    {
+      "id": "mcp",
+      "transport": "json_rpc",
+      "contract_files": ["tools/list", "resources/list", "prompts/list"],
+      "signals": ["tools", "resources", "prompts"],
+      "best_use": "standard tool/resource bridge for agent systems"
+    },
+    {
+      "id": "webhook",
+      "transport": "http_callback",
+      "contract_files": ["event catalog", "signature docs"],
+      "signals": ["event", "signature", "delivery", "retry"],
+      "best_use": "turn external events into local workflow triggers"
+    },
+    {
+      "id": "sse",
+      "transport": "http_event_stream",
+      "contract_files": ["event-stream endpoint docs"],
+      "signals": ["text/event-stream", "event:", "data:"],
+      "best_use": "low-overhead one-way live updates"
+    },
+    {
+      "id": "websocket",
+      "transport": "ws_wss",
+      "contract_files": ["socket endpoint docs"],
+      "signals": ["ws://", "wss://", "message", "close"],
+      "best_use": "bidirectional realtime sessions"
+    },
+    {
+      "id": "rss_atom_jsonfeed",
+      "transport": "http_feed",
+      "contract_files": ["/feed", "/rss", "/atom.xml", "/feed.json"],
+      "signals": ["rss", "feed", "entry", "item"],
+      "best_use": "cheap monitoring without full API access"
+    },
+    {
+      "id": "grpc",
+      "transport": "http2_binary",
+      "contract_files": [".proto files", "server reflection"],
+      "signals": ["proto", "service", "rpc"],
+      "best_use": "typed high-throughput service contracts"
+    },
+    {
+      "id": "oauth_oidc",
+      "transport": "http",
+      "contract_files": ["/.well-known/openid-configuration", "/.well-known/oauth-authorization-server"],
+      "signals": ["issuer", "authorization_endpoint", "token_endpoint", "jwks_uri"],
+      "best_use": "identity and delegated access discovery"
+    }
+  ],
+  "target_template": {
+    "id": "example",
+    "base_url": "https://example.com",
+    "enabled": false,
+    "families": ["openapi_http", "rss_atom_jsonfeed"]
+  }
+}
