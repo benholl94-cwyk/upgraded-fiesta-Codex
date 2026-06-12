@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "name": "mobile-production-flow-registry",
+  "description": "Named a-Shell flows that combine validation, evidence, monitoring, chat and local preview without requiring /tmp or external package installs.",
+  "flows": [
+    {
+      "id": "bootstrap",
+      "title": "Prepare local operating folders and show state",
+      "kind": "setup",
+      "steps": [
+        {"id": "reconcile", "command": ["python3", "scripts/ashell_production_env.py", "reconcile"], "runnable": true},
+        {"id": "status", "command": ["python3", "scripts/ashell_production_env.py", "status"], "runnable": true}
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "Run the full mobile production gate chain",
+      "kind": "gate",
+      "steps": [
+        {"id": "codex_setup", "command": ["sh", "scripts/codex_cloud_setup.sh"], "runnable": true}
+      ]
+    },
+    {
+      "id": "evidence",
+      "title": "Create audit snapshot and portable backup archive",
+      "kind": "evidence",
+      "steps": [
+        {"id": "snapshot", "command": ["python3", "scripts/ashell_production_env.py", "snapshot"], "runnable": true},
+        {"id": "backup", "command": ["python3", "scripts/ashell_production_env.py", "backup"], "runnable": true}
+      ]
+    },
+    {
+      "id": "operate-chat",
+      "title": "Open the interactive chat and repository monitor UI",
+      "kind": "interactive",
+      "steps": [
+        {"id": "chat", "command": ["python3", "scripts/ashell_production_env.py", "chat"], "runnable": false, "reason": "long running interactive command; start explicitly"}
+      ]
+    },
+    {
+      "id": "operate-preview",
+      "title": "Start local static web preview",
+      "kind": "interactive",
+      "steps": [
+        {"id": "serve", "command": ["python3", "scripts/ashell_production_env.py", "serve", "--port", "8001"], "runnable": false, "reason": "long running foreground service; start explicitly"}
+      ]
+    },
+    {
+      "id": "operate-monitor",
+      "title": "Run live foreground monitor",
+      "kind": "interactive",
+      "steps": [
+        {"id": "monitor", "command": ["python3", "scripts/ashell_production_env.py", "monitor", "--interval", "15"], "runnable": false, "reason": "foreground monitor; stop with Ctrl-C"}
+      ]
+    }
+  ],
+  "quality_of_life": {
+    "ls": "Use lowercase ls in a-Shell.",
+    "la": "Use ls -la. a-Shell does not provide this alias unless you define it locally.",
+    "clear": "Use /clear inside the chat UI or clear in shell when available."
+  }
+}
