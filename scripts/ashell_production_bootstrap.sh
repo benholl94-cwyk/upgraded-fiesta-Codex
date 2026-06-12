@@ -1,12 +1,13 @@
 #!/bin/sh
 # a-Shell production bootstrap for benholl94-cmyk/upgraded-fiesta.
 # Safe scope: creates local Developer folders, logs, repo control-plane exports,
-# a lg2-backed git wrapper, and deterministic local validation. It does not
+# lg2-backed helper commands, and deterministic local validation. It does not
 # create or store secrets.
 
 set -u
 
 DEV_ROOT="$HOME/Documents/Developer"
+REPO_PATH="$HOME/Documents/Developer/upgraded-fiesta.git"
 BIN_DIR="$HOME/Documents/bin"
 RUN_DATE=`date +%Y-%m-%d`
 RUN_TS=`date +%Y%m%dT%H%M%S`
@@ -65,7 +66,7 @@ if [ ! -f "$REPO_ROOT/scripts/validate_mobile_iphone_platform.py" ]; then
   exit 1
 fi
 
-# Ensure lg2-backed git wrapper for a-Shell.
+# Ensure lg2-backed git wrapper and direct helper commands for a-Shell.
 if command -v lg2 >/dev/null 2>&1; then
   cat > "$BIN_DIR/git" <<'WRAPPER'
 #!/bin/sh
@@ -77,7 +78,50 @@ else
   log "WARN lg2 not found. Git wrapper skipped."
 fi
 
-# Idempotent a-Shell profile block.
+cat > "$BIN_DIR/uf" <<'UF'
+#!/bin/sh
+cd "$HOME/Documents/Developer/upgraded-fiesta.git" || exit 1
+pwd
+UF
+chmod +x "$BIN_DIR/uf"
+
+cat > "$BIN_DIR/uf-status" <<'UFSTATUS'
+#!/bin/sh
+cd "$HOME/Documents/Developer/upgraded-fiesta.git" || exit 1
+lg2 status
+UFSTATUS
+chmod +x "$BIN_DIR/uf-status"
+
+cat > "$BIN_DIR/uf-version" <<'UFVERSION'
+#!/bin/sh
+lg2 version
+UFVERSION
+chmod +x "$BIN_DIR/uf-version"
+
+cat > "$BIN_DIR/uf-validate" <<'UFVALIDATE'
+#!/bin/sh
+cd "$HOME/Documents/Developer/upgraded-fiesta.git" || exit 1
+python3 scripts/validate_mobile_iphone_platform.py
+UFVALIDATE
+chmod +x "$BIN_DIR/uf-validate"
+
+cat > "$BIN_DIR/uf-serve" <<'UFSERVE'
+#!/bin/sh
+cd "$HOME/Documents/Developer/upgraded-fiesta.git" || exit 1
+python3 scripts/ashell_static_server.py --host 127.0.0.1 --port 8000
+UFSERVE
+chmod +x "$BIN_DIR/uf-serve"
+
+cat > "$BIN_DIR/uf-bootstrap" <<'UFBOOTSTRAP'
+#!/bin/sh
+cd "$HOME/Documents/Developer/upgraded-fiesta.git" || exit 1
+sh scripts/ashell_production_bootstrap.sh
+UFBOOTSTRAP
+chmod +x "$BIN_DIR/uf-bootstrap"
+
+log "OK installed direct helper commands: uf, uf-status, uf-version, uf-validate, uf-serve, uf-bootstrap"
+
+# Optional profile block. a-Shell may not support sourcing it interactively; helper commands above are authoritative.
 PROFILE="$HOME/.profile"
 touch "$PROFILE"
 if grep -q "upgraded-fiesta a-Shell bootstrap" "$PROFILE" 2>/dev/null; then
@@ -95,7 +139,6 @@ alias py='python3'
 alias serve='python3 -m http.server 8000'
 alias gs='lg2 status'
 alias gv='lg2 version'
-alias uf='cd "$UPGRADED_FIESTA_REPO"'
 PROFILE_BLOCK
   log "OK appended upgraded-fiesta profile block to $PROFILE"
 fi
@@ -142,6 +185,15 @@ if command -v python3 >/dev/null 2>&1; then
     exit 3
   fi
   log "OK Python compile check passed"
+
+  if [ -f "$REPO_ROOT/scripts/ashell_static_server.py" ]; then
+    python3 -m py_compile "$REPO_ROOT/scripts/ashell_static_server.py" >> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+      log "ERROR quiet static server compile check failed"
+      exit 5
+    fi
+    log "OK quiet static server compile check passed"
+  fi
 
   cd "$REPO_ROOT"
   python3 scripts/validate_mobile_iphone_platform.py >> "$LOG_FILE" 2>&1
