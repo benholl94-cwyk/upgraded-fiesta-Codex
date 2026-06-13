@@ -1,6 +1,0 @@
-asset,source,backup_target,frequency,retention,verification
-remote_git_branches,working-copy,git_provider,after_each_commit,provider_policy,clone_or_fetch_from_second_device
-run_logs,Developer/logs,encrypted_cloud_or_backuphost,daily,30_days,open_latest_log
-release_notes,Developer/exports,encrypted_cloud_or_backuphost,per_release,1_year,compare_checksum
-ssh_public_keys,password-manager-or-provider,encrypted_vault,monthly,until_rotated,match_provider_console
-recovery_codes,password-manager,offline_secure_copy,when_changed,until_rotated,test_presence_not_value

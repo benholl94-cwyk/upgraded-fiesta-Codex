@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: heavy
+      POSTGRES_PASSWORD: metal
+      POSTGRES_DB: heavy_metal
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  gateway:
+    build: .
+    depends_on: [postgres, redis]
+    ports: ["8080:8080"]
+  ui:
+    build: ./ui
+    ports: ["3000:80"]
+volumes:
+  pgdata:

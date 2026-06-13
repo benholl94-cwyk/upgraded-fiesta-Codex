@@ -1,9 +1,0 @@
-app_id,role,required,primary_data_boundary,automation_surface,production_use,hard_limit
-working-copy,git-control-plane,true,app-sandbox-plus-file-provider,git-actions-and-url-handoff,"clone,branch,diff,commit,push,pull,resolve conflicts",not-a-build-runner
-apple-shortcuts,workflow-orchestrator,true,ios-automation-sandbox,shortcut-actions-and-ssh,"open apps,collect inputs,run ssh,save logs",cannot-bypass-app-sandbox
-ashell,local-command-runner,true,app-sandbox-plus-shared-folders,shell-commands,"small scripts,local checks,static server,log inspection",foreground-and-ios-process-limits
-textastic,code-editor,false,files-provider,document-editing,"edit code from Working Copy external folders",does-not-own-git-state
-code-app,all-in-one-editor,false,app-sandbox,editor-terminal-git,"small projects and experiments",avoid-large-builds
-ish,linux-like-toolbox,false,emulated-alpine-filesystem,apk-and-shell,"linux-like package workflows and ssh",not-real-linux-kernel
-blink,remote-terminal,false,ssh-client,ssh-and-mosh,"remote build/deploy/control",requires-remote-host
-password-manager,secret-store,true,encrypted-vault,autofill-and-copy,"tokens,ssh passphrases,recovery codes",no-plain-file-export

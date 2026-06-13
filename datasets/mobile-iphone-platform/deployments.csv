@@ -1,3 +1,0 @@
-deployment_id,repo_id,environment,deploy_controller,deploy_command,healthcheck_url,rollback_command,approval_required
-upgraded-fiesta-static-production,upgraded-fiesta,production,manual-static-host,blocked_until_static_host_is_selected,blocked_until_static_host_is_selected,revert hosting source or restore previous static artifact,true
-upgraded-fiesta-remote-disabled,upgraded-fiesta,remote,shortcuts-plus-ssh,disabled_until_remote_host_and_ops_scripts_exist,disabled_until_remote_host_and_ops_scripts_exist,disabled_until_previous_release_exists,true

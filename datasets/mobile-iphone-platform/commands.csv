@@ -1,7 +1,0 @@
-command_id,workflow_id,run_location,command,success_signal,timeout_seconds,log_path
-local-python-version,local-smoke-test,ashell,"python3 --version",exit_code_0,30,Developer/logs/local-python-version.log
-local-node-version,local-smoke-test,ashell,"node --version",exit_code_0_or_documented_skip,30,Developer/logs/local-node-version.log
-local-static-preview,preview-web,ashell,"python3 -m http.server 8000",browser_loads_localhost_8000,600,Developer/logs/static-preview.log
-remote-fetch-test,remote-build-test,ssh,"cd ~/src/${REPO_ID} && git fetch --all --prune",exit_code_0,120,Developer/logs/remote-fetch.log
-remote-test,remote-build-test,ssh,"cd ~/src/${REPO_ID} && git checkout ${BRANCH} && make test",exit_code_0,1800,Developer/logs/remote-test.log
-remote-deploy,deploy,ssh,"cd ~/src/${REPO_ID} && ./ops/deploy.sh ${VERSION}",exit_code_0_and_healthcheck_ok,1800,Developer/logs/deploy.log

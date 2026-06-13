@@ -1,3 +1,0 @@
-repo_id,provider,remote_url,default_branch,local_owner_app,editor_app,test_command,ci_required,deployable,notes
-upgraded-fiesta,github,https://github.com/benholl94-cmyk/upgraded-fiesta.git,main,working-copy,textastic-or-code-app,"sh scripts/codex_cloud_setup.sh",true,true,active repository; static iPhone control-plane; local preview through mobile_operator serve
-upgraded-fiesta-remote-validation,github,https://github.com/benholl94-cmyk/upgraded-fiesta.git,main,working-copy,code-app,"sh scripts/codex_cloud_setup.sh",true,false,optional remote validation path; disabled until build host exists
