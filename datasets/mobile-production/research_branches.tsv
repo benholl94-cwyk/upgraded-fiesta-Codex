@@ -1,0 +1,8 @@
+id	branch	unfinished_problem	direct_mobile_implementation	production_value
+RB001	production-like reliability surfaces	single-run success hides instability	repeat local command suites k times and compare exit codes plus artifact drift	measurable reliability
+RB002	resource-aware software agents	failed tasks can consume too much time and context	add elapsed time output size and retry budgets to loop runtime	bounded mobile operation
+RB003	multi-file code quality agents	working changes can still regress related behavior	add bounded checks and regression examples before evidence export	more durable changes
+RB004	standard tool context protocols	tool integrations remain fragmented	convert flows and api surfaces into a local tool catalog	future connector portability
+RB005	action observability	actions are hard to reconstruct after failure	add task ids parent ids phases and duration fields to jsonl events	auditable runs
+RB006	fresh interactive software tasks	benchmarks become stale or contaminated	derive local repo tasks from actual issues gaps and runbooks	fresh local evaluation
+RB007	metamorphic command testing	text output differs while final state is equivalent	compare end states instead of exact output strings	robust task verification
