@@ -1,0 +1,7 @@
+id	phase	input	tool	output	verification
+RB001	prepare	repo root	scripts/ashell_gate.py	gate result json	python3 scripts/ashell_gate.py
+RB002	operate	operator command	scripts/ashell_dev_console.py	live task panel	python3 scripts/ashell_dev_console.py --self-test
+RB003	monitor	loop registry	scripts/ashell_loop_runtime.py	loop state json	python3 scripts/ashell_loop_runtime.py self-test
+RB004	discover	target registry	scripts/ashell_api_surface.py	api surface state json	python3 scripts/ashell_api_surface.py self-test
+RB005	evidence	repo and runtime state	scripts/ashell_production_env.py	snapshot and archive	python3 scripts/ashell_production_env.py self-test
+RB006	graph	production graph	scripts/ashell_graph_report.py	mermaid markdown json	python3 scripts/ashell_graph_report.py self-test
