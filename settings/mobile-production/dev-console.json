@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "name": "ashell-dev-console",
+  "ui_model": "single_prompt_with_live_task_panel",
+  "state_file": "~/Documents/Developer/runs/dev-console-state.json",
+  "log_file": "~/Documents/Developer/logs/dev-console-YYYYMMDD.jsonl",
+  "commands": [
+    {"id": "/status", "title": "Show repository and platform status", "exec": ["python3", "scripts/ashell_production_env.py", "status"]},
+    {"id": "/gate", "title": "Run local gate", "exec": ["python3", "scripts/ashell_gate.py"]},
+    {"id": "/gate-full", "title": "Run local gate plus setup gate", "exec": ["python3", "scripts/ashell_gate.py", "--with-setup"]},
+    {"id": "/api-plan", "title": "Show API target plan", "exec": ["python3", "scripts/ashell_api_surface.py", "plan"]},
+    {"id": "/api-probe", "title": "Probe explicit API targets", "exec": ["python3", "scripts/ashell_api_surface.py", "probe"]},
+    {"id": "/loop-once", "title": "Run one foreground loop cycle", "exec": ["python3", "scripts/ashell_loop_runtime.py", "once"]},
+    {"id": "/maintain", "title": "Run deterministic local maintenance", "exec": ["python3", "scripts/ashell_maintain.py", "apply"]},
+    {"id": "/friction", "title": "Run friction scan", "exec": ["python3", "scripts/ashell_niche_nodes.py", "friction-scan"]},
+    {"id": "/evidence", "title": "Create snapshot and backup evidence", "exec": ["python3", "scripts/ashell_flowctl.py", "run", "evidence"]}
+  ]
+}
