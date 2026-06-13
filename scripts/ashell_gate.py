@@ -32,6 +32,7 @@ def gate(include_setup: bool) -> int:
         ["python3", "scripts/ashell_loop_runtime.py", "self-test"],
         ["python3", "scripts/ashell_api_surface.py", "self-test"],
         ["python3", "scripts/ashell_dev_console.py", "--self-test"],
+        ["python3", "scripts/ashell_graph_report.py", "self-test"],
     ]
     if include_setup:
         steps.append(["sh", "scripts/codex_cloud_setup.sh"])
