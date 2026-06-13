@@ -13,6 +13,8 @@
     {"id": "/loop-once", "title": "Run one foreground loop cycle", "exec": ["python3", "scripts/ashell_loop_runtime.py", "once"]},
     {"id": "/maintain", "title": "Run deterministic local maintenance", "exec": ["python3", "scripts/ashell_maintain.py", "apply"]},
     {"id": "/friction", "title": "Run friction scan", "exec": ["python3", "scripts/ashell_niche_nodes.py", "friction-scan"]},
-    {"id": "/evidence", "title": "Create snapshot and backup evidence", "exec": ["python3", "scripts/ashell_flowctl.py", "run", "evidence"]}
+    {"id": "/evidence", "title": "Create snapshot and backup evidence", "exec": ["python3", "scripts/ashell_flowctl.py", "run", "evidence"]},
+    {"id": "/task", "title": "Open adaptive task engine", "exec": ["python3", "scripts/ashell_task_engine.py", "interactive"]},
+    {"id": "/task-demo", "title": "Run adaptive task engine demo", "exec": ["python3", "scripts/ashell_task_engine.py", "run", "generate", "graph", "report", "and", "run", "gate"]}
   ]
 }
