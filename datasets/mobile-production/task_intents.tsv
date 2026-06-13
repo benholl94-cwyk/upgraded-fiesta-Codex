@@ -1,0 +1,12 @@
+id	label	keywords	commands	validation	mode
+T001	status snapshot	status state overview health	python3 scripts/ashell_production_env.py status	python3 scripts/ashell_gate.py	read
+T002	local gate	gate validate check prüfen validieren	python3 scripts/ashell_gate.py	python3 scripts/ashell_gate.py	read
+T003	full gate	full setup komplett cloud setup production	python3 scripts/ashell_gate.py --with-setup	python3 scripts/ashell_gate.py	read
+T004	api discovery	api interface endpoint discovery probe surface schnittstelle	python3 scripts/ashell_api_surface.py plan;python3 scripts/ashell_api_surface.py probe	python3 scripts/ashell_api_surface.py self-test	read
+T005	loop runtime	loop autonom runtime foreground monitor permanent	python3 scripts/ashell_loop_runtime.py once	python3 scripts/ashell_loop_runtime.py self-test	read
+T006	evidence export	evidence snapshot backup report artifact nachweis	python3 scripts/ashell_flowctl.py run evidence	python3 scripts/ashell_gate.py	write
+T007	graph report	graph mermaid documentation docs diagram export	python3 scripts/ashell_graph_report.py generate	python3 scripts/ashell_graph_report.py validate	write
+T008	readiness report	readiness capability research gap production cli ai	python3 scripts/ashell_readiness_report.py generate	python3 scripts/ashell_readiness_report.py validate	write
+T009	maintenance	maintain repair apply reconcile wartung fix	python3 scripts/ashell_maintain.py apply	python3 scripts/ashell_maintain.py plan	write
+T010	friction scan	friction issue problem ls manifest shell diagnose	python3 scripts/ashell_niche_nodes.py friction-scan	python3 scripts/ashell_niche_nodes.py self-test	write
+T011	developer console	console ui cli chat prompt command line interface	python3 scripts/ashell_dev_console.py --self-test	python3 scripts/ashell_dev_console.py --self-test	read
