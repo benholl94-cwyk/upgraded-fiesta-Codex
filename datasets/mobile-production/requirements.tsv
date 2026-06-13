@@ -1,0 +1,9 @@
+id	requirement	existing_component	gap	completion_tool	verification_command	status
+R001	single mobile command surface	scripts/ashell_dev_console.py	none	dev_console	python3 scripts/ashell_dev_console.py --self-test	implemented
+R002	live task monitoring	scripts/ashell_dev_console.py	none	dev_console	python3 scripts/ashell_dev_console.py --self-test	implemented
+R003	supervised loop	scripts/ashell_loop_runtime.py	foreground session required	loop_runtime	python3 scripts/ashell_loop_runtime.py self-test	implemented
+R004	interface surface discovery	scripts/ashell_api_surface.py	explicit targets required	api_surface	python3 scripts/ashell_api_surface.py self-test	implemented
+R005	evidence outputs	scripts/ashell_production_env.py	none	production_env	python3 scripts/ashell_production_env.py self-test	implemented
+R006	maintenance	scripts/ashell_maintain.py	bounded local actions	maintenance	python3 scripts/ashell_maintain.py self-test	implemented
+R007	graph export	settings/mobile-production/production-graph.json	export generator required	graph_report	python3 scripts/ashell_graph_report.py self-test	implemented
+R008	remote metadata	datasets/mobile-production/remote_targets.tsv	local values required	remote_target	python3 scripts/ashell_graph_report.py validate	metadata_required
