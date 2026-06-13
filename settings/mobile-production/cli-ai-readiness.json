@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.0.0",
+  "name": "production-cli-ai-readiness-model",
+  "scope": "a-Shell mobile CLI AI development system",
+  "assessment_chain": "requirement -> existing -> missing -> implementation example -> verification",
+  "readiness_levels": ["missing", "partial", "implemented", "runtime_metadata_required"],
+  "capability_gaps": [
+    {
+      "id": "CLI001",
+      "capability": "single interactive command surface",
+      "existing": "scripts/ashell_dev_console.py",
+      "missing": "none for local command orchestration",
+      "implementation_example": "/gate, /api-probe, /loop-once, /fix-manifest in one prompt",
+      "verification": "python3 scripts/ashell_dev_console.py --self-test",
+      "status": "implemented"
+    },
+    {
+      "id": "CLI002",
+      "capability": "tool permission model",
+      "existing": "mapped console commands and explicit API target policy",
+      "missing": "granular allow/deny matrix per command, target and mutation class",
+      "implementation_example": "settings/mobile-production/tool-policy.json with command ids, mutation scope and approval mode",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py validate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI003",
+      "capability": "resumable task ledger",
+      "existing": "JSONL logs and state files under ~/Documents/Developer",
+      "missing": "task ids, parent ids, retry count, elapsed time and final artifact references",
+      "implementation_example": "ledger rows appended by dev console and loop runtime",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py generate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI004",
+      "capability": "agent reliability evaluation",
+      "existing": "local gate, loop once, evidence flow",
+      "missing": "repeat-run consistency, perturbation checks and tool-failure simulation",
+      "implementation_example": "run command suites k times with synthetic timeout and missing-file cases",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py validate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI005",
+      "capability": "cost and resource effectiveness",
+      "existing": "foreground loop interval and command tail limits",
+      "missing": "token/time budget accounting and expensive-failure stop rules",
+      "implementation_example": "budget counters in loop runtime and bridge wrapper",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py generate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI006",
+      "capability": "observability standardization",
+      "existing": "JSONL logs, state files, export reports",
+      "missing": "trace ids and span-like task nesting",
+      "implementation_example": "task_id, parent_task_id, phase, duration_ms in every log event",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py validate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI007",
+      "capability": "tool interface standardization",
+      "existing": "flow registry and API surface catalog",
+      "missing": "standard tool schema adapter for external tool protocols",
+      "implementation_example": "tool catalog with name, input_schema, output_schema and risk class",
+      "verification": "python3 scripts/ashell_cli_ai_readiness.py validate",
+      "status": "partial"
+    },
+    {
+      "id": "CLI008",
+      "capability": "secure code change evaluation",
+      "existing": "gate and graph report",
+      "missing": "security-focused code checks and proof-oriented regression cases",
+      "implementation_example": "bounded static checks plus exploit-free regression examples in tests/",
+      "verification": "python3 scripts/ashell_gate.py",
+      "status": "partial"
+    },
+    {
+      "id": "CLI009",
+      "capability": "remote execution metadata",
+      "existing": "external_targets.tsv template",
+      "missing": "real host id, project path, health check and restore command",
+      "implementation_example": "local-only external target file under ~/Documents/Developer/policies",
+      "verification": "python3 scripts/ashell_graph_report.py validate",
+      "status": "runtime_metadata_required"
+    }
+  ],
+  "research_branches": [
+    {
+      "id": "RB001",
+      "branch": "production-like reliability surfaces",
+      "unfinished_problem": "agents are often evaluated by single-run success instead of consistency under repeated runs and tool faults",
+      "direct_mobile_implementation": "repeat each local command suite k times and record consistency, stderr drift and artifact drift",
+      "production_value": "turns perceived correctness into measurable reliability"
+    },
+    {
+      "id": "RB002",
+      "branch": "resource-aware software agents",
+      "unfinished_problem": "agents can fail expensively by spending too much time or context on unsolvable tasks",
+      "direct_mobile_implementation": "add elapsed time, output size and retry budget to loop runtime and bridge wrapper",
+      "production_value": "prevents expensive failure loops on mobile runtime"
+    },
+    {
+      "id": "RB003",
+      "branch": "secure multi-file code agents",
+      "unfinished_problem": "functionally correct changes can still introduce unsafe behavior",
+      "direct_mobile_implementation": "add regression cases and bounded static checks to gate before evidence export",
+      "production_value": "raises correctness from works-now to works-safely"
+    },
+    {
+      "id": "RB004",
+      "branch": "standard tool context protocols",
+      "unfinished_problem": "tool integrations remain fragmented without a shared tool/resource contract",
+      "direct_mobile_implementation": "convert flow commands and API surfaces into a local tool catalog",
+      "production_value": "future external tool connectors can be added without rewriting the CLI"
+    },
+    {
+      "id": "RB005",
+      "branch": "observability for agent actions",
+      "unfinished_problem": "agent decisions and tool calls are hard to reconstruct after failure",
+      "direct_mobile_implementation": "add task ids, parent ids and duration fields to every JSONL event",
+      "production_value": "makes every run auditable and reproducible"
+    }
+  ]
+}
