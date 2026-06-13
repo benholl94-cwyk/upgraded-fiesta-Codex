@@ -30,8 +30,9 @@ services:
       retries: 10
 
   gateway:
-    build:
-      context: .
+    image: python:3.13-alpine
+    working_dir: /app
+    command: ["python", "/app/deploy/gateway_service.py"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,8 +41,15 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-production}
       PORT: 8080
+    volumes:
+      - ./:/app:ro
     ports:
       - "${GATEWAY_BIND:-0.0.0.0}:${GATEWAY_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
   ui:
@@ -49,7 +57,8 @@ services:
     volumes:
       - ./ui/index.html:/usr/share/nginx/html/index.html:ro
     depends_on:
-      - gateway
+      gateway:
+        condition: service_healthy
     ports:
       - "${UI_BIND:-0.0.0.0}:${UI_PORT:-3000}:80"
     restart: unless-stopped
