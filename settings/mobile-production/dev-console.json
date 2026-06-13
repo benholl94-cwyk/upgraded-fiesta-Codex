@@ -15,6 +15,8 @@
     {"id": "/friction", "title": "Run friction scan", "exec": ["python3", "scripts/ashell_niche_nodes.py", "friction-scan"]},
     {"id": "/evidence", "title": "Create snapshot and backup evidence", "exec": ["python3", "scripts/ashell_flowctl.py", "run", "evidence"]},
     {"id": "/task", "title": "Open adaptive task engine", "exec": ["python3", "scripts/ashell_task_engine.py", "interactive"]},
-    {"id": "/task-demo", "title": "Run adaptive task engine demo", "exec": ["python3", "scripts/ashell_task_engine.py", "run", "generate", "graph", "report", "and", "run", "gate"]}
+    {"id": "/task-demo", "title": "Run adaptive task engine demo", "exec": ["python3", "scripts/ashell_task_engine.py", "run", "generate", "graph", "report", "and", "run", "gate"]},
+    {"id": "/agent", "title": "Open unified CLI agent", "exec": ["python3", "scripts/ashell_codex_cli_agent.py", "chat"]},
+    {"id": "/inventory", "title": "Create full repository byte inventory", "exec": ["python3", "scripts/ashell_repo_byte_inventory.py", "generate"]}
   ]
 }
