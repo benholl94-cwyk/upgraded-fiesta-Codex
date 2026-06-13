@@ -1,0 +1,10 @@
+id	capability	existing	missing	implementation_example	verification	status
+CLI001	single interactive command surface	scripts/ashell_dev_console.py	none	one prompt with mapped commands	python3 scripts/ashell_dev_console.py --self-test	implemented
+CLI002	tool policy model	mapped commands and explicit targets	matrix per command and change class	tool policy json	python3 scripts/ashell_cli_ai_readiness.py validate	partial
+CLI003	resumable task ledger	jsonl logs and state files	task ids parent ids retries duration artifact refs	ledger events from console and loop runtime	python3 scripts/ashell_cli_ai_readiness.py generate	partial
+CLI004	reliability evaluation	local gate and loop once	repeat run consistency and failure simulation	k-run command suites	python3 scripts/ashell_cli_ai_readiness.py validate	partial
+CLI005	resource effectiveness	loop intervals and output tails	time and context budgets	budget counters	python3 scripts/ashell_cli_ai_readiness.py generate	partial
+CLI006	observability standardization	jsonl logs and state files	trace ids and span-like nesting	task_id parent_task_id phase duration_ms	python3 scripts/ashell_cli_ai_readiness.py validate	partial
+CLI007	tool interface standardization	flow registry and api surface catalog	standard tool schema adapter	tool catalog with input and output schema	python3 scripts/ashell_cli_ai_readiness.py validate	partial
+CLI008	code review evaluation	gate and graph report	focused code checks	bounded checks and regression cases	python3 scripts/ashell_gate.py	partial
+CLI009	external execution metadata	external_targets.tsv template	real local values required	local policy target metadata	python3 scripts/ashell_graph_report.py validate	runtime_metadata_required
