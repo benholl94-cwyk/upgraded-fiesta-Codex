@@ -7,6 +7,8 @@ Production startup path for `benholl94-cmyk/upgraded-fiesta`.
 - `.env.production.example` supplies the required runtime variables.
 - `deploy/fullstack-compose.yml` starts Postgres with pgvector, Redis, the Rust gateway build, and an nginx-served UI.
 - `scripts/fullstack_up.sh` validates the repository, checks the compose configuration, starts the stack, and prints service state.
+- `scripts/remote_fullstack_up.sh` clones or refreshes the repository on a server and then delegates to `scripts/fullstack_up.sh`.
+- `scripts/fullstack_status.sh` and `scripts/fullstack_down.sh` provide operational status and shutdown commands.
 
 ## Server usage
 
@@ -17,6 +19,10 @@ cp .env.production.example .env
 # edit POSTGRES_PASSWORD before public deployment
 sh scripts/fullstack_up.sh
 ```
+
+## Remote bootstrap file
+
+`scripts/remote_fullstack_up.sh` may be copied to a server and run with `sh`. It requires `git`, Docker, and the Docker Compose plugin.
 
 ## Ports
 
