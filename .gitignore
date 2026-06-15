@@ -1,0 +1,36 @@
+# Local environment files
+.env
+.env.*.local
+*.local.env
+
+# Local credential material
+*.pem
+*.p12
+*.pfx
+*.secret
+*.secrets
+
+# Signal CLI local state and runtime data
+integrations/signal-cli/.env.signal.local
+integrations/signal-cli/data/
+settings/signal-cli-client.local.json
+
+# Runtime output
+logs/
+runs/
+backups/
+exports/
+.tmp/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
