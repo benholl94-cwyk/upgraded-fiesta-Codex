@@ -36,8 +36,19 @@ def cmd_serve(args):
     root = ensure_workspace(args.workspace)
     os.chdir(root)
     print(json.dumps({"ok": True, "url": f"http://{args.host}:{args.port}", "workspace": str(root)}, sort_keys=True), flush=True)
-    http.server.test(HandlerClass=http.server.SimpleHTTPRequestHandler, port=args.port, bind=args.host)
+    http.server.test(HandlerClass=QuietHandler, port=args.port, bind=args.host)
     return 0
+
+
+class QuietHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, fmt, *args):
+        return
+
+    def handle_one_request(self):
+        try:
+            return super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
 
 def build_parser():
