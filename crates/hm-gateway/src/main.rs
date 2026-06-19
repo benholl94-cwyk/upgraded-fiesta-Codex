@@ -67,8 +67,14 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn handle_connection(mut stream: TcpStream, remote_addr: SocketAddr, state: AppState) -> anyhow::Result<()> {
-    let request = read_request(&mut stream).await?;
-    let response = route_request(request, remote_addr, state).await;
+    let response = match read_request(&mut stream).await {
+        Ok(request) => route_request(request, remote_addr, state).await,
+        Err(error) => json_response(400, json!({
+            "status": "invalid_request",
+            "accepted": false,
+            "reason": error.to_string()
+        })),
+    };
     stream.write_all(response.as_bytes()).await?;
     stream.shutdown().await?;
     Ok(())
@@ -94,6 +100,9 @@ async fn read_request(stream: &mut TcpStream) -> anyhow::Result<HttpRequest> {
             if let Some(end) = header_end {
                 let headers = String::from_utf8_lossy(&buffer[..end]);
                 content_length = parse_content_length(&headers);
+                if content_length > MAX_REQUEST_BYTES {
+                    anyhow::bail!("request body too large");
+                }
             }
         }
         if let Some(end) = header_end {
@@ -235,7 +244,8 @@ fn uptime_seconds(started_at: SystemTime) -> u64 {
 
 fn empty_response(status: u16) -> String {
     format!(
-        "HTTP/1.1 {status} OK\r\n{}Content-Length: 0\r\n\r\n",
+        "HTTP/1.1 {status} {}\r\n{}Content-Length: 0\r\n\r\n",
+        reason_phrase(status),
         common_headers("text/plain")
     )
 }
