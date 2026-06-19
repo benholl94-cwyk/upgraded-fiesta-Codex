@@ -16,9 +16,13 @@ services:
   gateway:
     build: .
     depends_on: [postgres, redis]
+    environment:
+      HM_GATEWAY_BIND: 0.0.0.0:8080
+      HM_ZERO_STAKED: "false"
     ports: ["8080:8080"]
   ui:
     build: ./ui
+    depends_on: [gateway]
     ports: ["3000:80"]
 volumes:
   pgdata:
