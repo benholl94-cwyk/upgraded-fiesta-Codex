@@ -1,1 +1,3 @@
-pub fn component_name()->&'static str{"hm-agent"}
+pub fn component_name() -> &'static str {
+    "hm-agent"
+}

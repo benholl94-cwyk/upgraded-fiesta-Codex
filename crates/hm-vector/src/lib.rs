@@ -1,1 +1,1 @@
-pub const NAME:&str="vector";
+pub const NAME: &str = "vector";

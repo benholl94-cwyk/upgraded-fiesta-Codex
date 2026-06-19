@@ -1,1 +1,1 @@
-pub const NAME:&str="browser";
+pub const NAME: &str = "browser";

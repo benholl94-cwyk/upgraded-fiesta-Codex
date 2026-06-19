@@ -1,1 +1,1 @@
-pub const NAME:&str="sdk";
+pub const NAME: &str = "sdk";

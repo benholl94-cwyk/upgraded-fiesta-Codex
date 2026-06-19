@@ -1,7 +1,16 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::{env, net::SocketAddr, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
-use tokio::{io::{AsyncReadExt, AsyncWriteExt}, net::{TcpListener, TcpStream}, sync::Mutex};
+use std::{
+    env,
+    net::SocketAddr,
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    net::{TcpListener, TcpStream},
+    sync::Mutex,
+};
 
 const MAX_REQUEST_BYTES: usize = 1_048_576;
 
@@ -43,7 +52,12 @@ struct TaskInput {
 async fn main() -> anyhow::Result<()> {
     let bind = env::var("HM_GATEWAY_BIND").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
     let zero_staked = env::var("HM_ZERO_STAKED")
-        .map(|value| matches!(value.to_ascii_lowercase().as_str(), "1" | "true" | "yes" | "zero_staked"))
+        .map(|value| {
+            matches!(
+                value.to_ascii_lowercase().as_str(),
+                "1" | "true" | "yes" | "zero_staked"
+            )
+        })
         .unwrap_or(false);
 
     let state = AppState {
@@ -66,14 +80,21 @@ async fn main() -> anyhow::Result<()> {
     }
 }
 
-async fn handle_connection(mut stream: TcpStream, remote_addr: SocketAddr, state: AppState) -> anyhow::Result<()> {
+async fn handle_connection(
+    mut stream: TcpStream,
+    remote_addr: SocketAddr,
+    state: AppState,
+) -> anyhow::Result<()> {
     let response = match read_request(&mut stream).await {
         Ok(request) => route_request(request, remote_addr, state).await,
-        Err(error) => json_response(400, json!({
-            "status": "invalid_request",
-            "accepted": false,
-            "reason": error.to_string()
-        })),
+        Err(error) => json_response(
+            400,
+            json!({
+                "status": "invalid_request",
+                "accepted": false,
+                "reason": error.to_string()
+            }),
+        ),
     };
     stream.write_all(response.as_bytes()).await?;
     stream.shutdown().await?;
@@ -116,7 +137,9 @@ async fn read_request(stream: &mut TcpStream) -> anyhow::Result<HttpRequest> {
     let header_end = header_end.ok_or_else(|| anyhow::anyhow!("missing http headers"))?;
     let header_text = String::from_utf8_lossy(&buffer[..header_end]);
     let mut lines = header_text.lines();
-    let start_line = lines.next().ok_or_else(|| anyhow::anyhow!("missing request line"))?;
+    let start_line = lines
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("missing request line"))?;
     let mut parts = start_line.split_whitespace();
     let method = parts.next().unwrap_or_default().to_string();
     let raw_path = parts.next().unwrap_or("/");
@@ -156,12 +179,19 @@ async fn route_request(request: HttpRequest, remote_addr: SocketAddr, state: App
 
     match (request.method.as_str(), request.path.as_str()) {
         ("GET", "/") => json_response(200, gateway_info(&state).await),
-        ("GET", "/health") | ("GET", "/api/health") | ("GET", "/gateway/health") => json_response(200, health_payload(&state).await),
+        ("GET", "/health") | ("GET", "/api/health") | ("GET", "/gateway/health") => {
+            json_response(200, health_payload(&state).await)
+        }
         ("GET", "/tasks") | ("GET", "/api/tasks") | ("GET", "/gateway/tasks") => {
             let tasks = state.tasks.lock().await.clone();
-            json_response(200, json!({ "status": status_text(state.zero_staked), "tasks": tasks }))
+            json_response(
+                200,
+                json!({ "status": status_text(state.zero_staked), "tasks": tasks }),
+            )
         }
-        ("POST", "/tasks") | ("POST", "/api/tasks") | ("POST", "/gateway/tasks") => accept_task(request.body, remote_addr, state).await,
+        ("POST", "/tasks") | ("POST", "/api/tasks") | ("POST", "/gateway/tasks") => {
+            accept_task(request.body, remote_addr, state).await
+        }
         _ => json_response(404, json!({ "status": "not_found", "path": request.path })),
     }
 }
@@ -191,28 +221,38 @@ async fn health_payload(state: &AppState) -> Value {
 
 async fn accept_task(body: Vec<u8>, remote_addr: SocketAddr, state: AppState) -> String {
     if state.zero_staked {
-        return json_response(503, json!({
-            "status": "zero_staked",
-            "accepted": false,
-            "reason": "gateway_zero_staked_rotation_required"
-        }));
+        return json_response(
+            503,
+            json!({
+                "status": "zero_staked",
+                "accepted": false,
+                "reason": "gateway_zero_staked_rotation_required"
+            }),
+        );
     }
 
     let input = match serde_json::from_slice::<TaskInput>(&body) {
         Ok(input) => input,
         Err(error) => {
-            return json_response(400, json!({
-                "status": "invalid_request",
-                "accepted": false,
-                "reason": error.to_string()
-            }));
+            return json_response(
+                400,
+                json!({
+                    "status": "invalid_request",
+                    "accepted": false,
+                    "reason": error.to_string()
+                }),
+            );
         }
     };
 
     let accepted_at_unix = unix_now();
     let task = TaskRecord {
         task_id: format!("task-{accepted_at_unix}-{}", remote_addr.port()),
-        task_type: if input.task_type.trim().is_empty() { "unspecified".to_string() } else { input.task_type },
+        task_type: if input.task_type.trim().is_empty() {
+            "unspecified".to_string()
+        } else {
+            input.task_type
+        },
         objective: input.objective,
         payload: input.payload,
         accepted_at_unix,
@@ -221,25 +261,38 @@ async fn accept_task(body: Vec<u8>, remote_addr: SocketAddr, state: AppState) ->
 
     state.tasks.lock().await.push(task.clone());
 
-    json_response(202, json!({
-        "status": "online",
-        "accepted": true,
-        "task_id": task.task_id,
-        "task_type": task.task_type,
-        "agent_managed": true
-    }))
+    json_response(
+        202,
+        json!({
+            "status": "online",
+            "accepted": true,
+            "task_id": task.task_id,
+            "task_type": task.task_type,
+            "agent_managed": true
+        }),
+    )
 }
 
 fn status_text(zero_staked: bool) -> &'static str {
-    if zero_staked { "zero_staked" } else { "online" }
+    if zero_staked {
+        "zero_staked"
+    } else {
+        "online"
+    }
 }
 
 fn unix_now() -> u64 {
-    SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs()
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
 }
 
 fn uptime_seconds(started_at: SystemTime) -> u64 {
-    SystemTime::now().duration_since(started_at).unwrap_or_default().as_secs()
+    SystemTime::now()
+        .duration_since(started_at)
+        .unwrap_or_default()
+        .as_secs()
 }
 
 fn empty_response(status: u16) -> String {
