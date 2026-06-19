@@ -1,0 +1,35 @@
+name: codex-setup
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/codex-setup.yml
+      - .codex/**
+      - AGENTS.md
+      - Makefile
+      - README.md
+      - scripts/codex_fullstack_setup.sh
+      - scripts/codex_fullstack_check.sh
+      - Cargo.toml
+      - ui/package.json
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt,clippy
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Codex setup
+        run: bash .codex/setup.sh
