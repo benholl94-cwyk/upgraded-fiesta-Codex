@@ -1,1 +1,3 @@
-pub fn channel_name()->&'static str{"discord"}
+pub fn channel_name() -> &'static str {
+    "discord"
+}

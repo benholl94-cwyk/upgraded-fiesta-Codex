@@ -1,1 +1,1 @@
-pub const NAME:&str="web";
+pub const NAME: &str = "web";

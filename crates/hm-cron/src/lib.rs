@@ -1,1 +1,1 @@
-pub const NAME:&str="cron";
+pub const NAME: &str = "cron";

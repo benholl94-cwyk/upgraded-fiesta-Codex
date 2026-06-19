@@ -1,1 +1,1 @@
-pub const NAME:&str="media";
+pub const NAME: &str = "media";

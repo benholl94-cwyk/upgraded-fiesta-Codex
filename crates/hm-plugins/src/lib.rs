@@ -1,1 +1,1 @@
-pub const NAME:&str="plugins";
+pub const NAME: &str = "plugins";

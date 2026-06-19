@@ -1,1 +1,1 @@
-pub const NAME:&str="sessions";
+pub const NAME: &str = "sessions";

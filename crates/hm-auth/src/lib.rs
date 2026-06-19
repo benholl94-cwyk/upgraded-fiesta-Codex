@@ -1,1 +1,1 @@
-pub const NAME:&str="auth";
+pub const NAME: &str = "auth";

@@ -1,1 +1,1 @@
-pub const NAME:&str="run";
+pub const NAME: &str = "run";
