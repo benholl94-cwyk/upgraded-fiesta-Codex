@@ -12,8 +12,6 @@ The primary operator may only have an iPhone/mobile client. Do not assume access
 
 Never commit API keys, tokens, private SSH keys, `.env` files, generated secrets, or host-specific credentials. Use environment variables and platform secrets only.
 
-When execution is blocked, follow `docs/policy-compliant-workflows.md`. Use only policy-compliant workarounds: no hidden prompt extraction, no safety bypass, no credential exposure, no unauthorized access, and no destructive action without explicit user intent.
-
 ## Required setup
 
 For Codex cloud environments, set the setup command to:
