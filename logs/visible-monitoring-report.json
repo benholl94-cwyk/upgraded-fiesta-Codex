@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-06-19T19:50:00Z",
+  "ok": null,
+  "status": "pending_visibility_bridge_execution",
+  "visibility_bridge": {
+    "purpose": "make hidden CI status visible through repository files",
+    "report_path": "logs/visible-monitoring-report.json",
+    "manual_action_required": false
+  }
+}
