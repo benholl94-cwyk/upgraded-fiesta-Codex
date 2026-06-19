@@ -12,11 +12,14 @@ Production startup path for `benholl94-cmyk/upgraded-fiesta`.
 
 ## Server usage
 
+The compose stack requires `POSTGRES_PASSWORD`; export it in the shell, provide it via your deployment secret manager, or place it in a local uncommitted `.env` copied from `.env.production.example`.
+
+
 ```sh
 git clone https://github.com/benholl94-cmyk/upgraded-fiesta.git
 cd upgraded-fiesta
 cp .env.production.example .env
-# edit POSTGRES_PASSWORD before public deployment
+# set POSTGRES_PASSWORD to a strong secret before startup
 sh scripts/fullstack_up.sh
 ```
 
@@ -35,7 +38,7 @@ sh scripts/fullstack_up.sh
 
 ```sh
 python3 scripts/validate_repo.py
-docker compose -f deploy/fullstack-compose.yml config
+POSTGRES_PASSWORD="temporary-compose-check" docker compose -f deploy/fullstack-compose.yml config
 docker compose -f deploy/fullstack-compose.yml ps
 ```
 

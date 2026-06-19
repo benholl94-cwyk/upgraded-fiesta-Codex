@@ -3,9 +3,9 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: heavy
-      POSTGRES_PASSWORD: metal
-      POSTGRES_DB: heavy_metal
+      POSTGRES_USER: ${POSTGRES_USER:-heavy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-heavy_metal}
     ports: ["5432:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data

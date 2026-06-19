@@ -13,6 +13,17 @@ Generated from the uploaded Markdown specification as a Rust workspace.
 - plugin, sdk, session, vector, cron, auth and cli crates
 - ui scaffold, docker files, makefile, configuration, SQL and validator
 
+
+## Docker Compose startup
+
+The root `docker-compose.yml` intentionally does not contain a default database password. Set `POSTGRES_PASSWORD` in the shell before running Compose, or provide it through your deployment secret manager. You may also override `POSTGRES_USER` and `POSTGRES_DB`; they default to `heavy` and `heavy_metal`.
+
+```sh
+POSTGRES_PASSWORD="replace-with-a-strong-password" docker compose up -d
+```
+
+Use `.env.production.example` as a safe template only. Keep the copied `.env` file local and uncommitted.
+
 ## Codex fullstack setup
 
 Repository-level Codex behavior is defined in:
