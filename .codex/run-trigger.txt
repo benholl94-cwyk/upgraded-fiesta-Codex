@@ -1,3 +1,5 @@
-triggered_at_utc=2026-06-19T18:43:00Z
+triggered_at_utc=2026-06-19T19:32:00Z
 command=bash .codex/setup.sh
-purpose=force-codex-setup-workflow-run
+purpose=automated-production-initialization
+requires_manual_execution=false
+workflow=codex-setup
