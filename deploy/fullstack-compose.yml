@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-heavy_metal}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "${POSTGRES_BIND:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
@@ -42,7 +42,7 @@ services:
       APP_ENV: ${APP_ENV:-production}
       PORT: 8080
     volumes:
-      - ./:/app:ro
+      - ../:/app:ro
     ports:
       - "${GATEWAY_BIND:-0.0.0.0}:${GATEWAY_PORT:-8080}:8080"
     healthcheck:
@@ -55,7 +55,7 @@ services:
   ui:
     image: nginx:1.27-alpine
     volumes:
-      - ./ui/index.html:/usr/share/nginx/html/index.html:ro
+      - ../ui/index.html:/usr/share/nginx/html/index.html:ro
     depends_on:
       gateway:
         condition: service_healthy
