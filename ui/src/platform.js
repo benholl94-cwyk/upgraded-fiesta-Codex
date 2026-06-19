@@ -11,6 +11,12 @@ const state = {
   history: []
 };
 
+function $(selector) {
+  const element = document.querySelector(selector);
+  if (!element) throw new Error(`missing element: ${selector}`);
+  return element;
+}
+
 function joinUrl(baseUrl, path) {
   return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
@@ -18,6 +24,11 @@ function joinUrl(baseUrl, path) {
 function isZeroStaked(payload) {
   const text = JSON.stringify(payload || {}).toLowerCase();
   return text.includes('zero_staked') || text.includes('zero-staked') || text.includes('zero staked');
+}
+
+function record(message) {
+  state.history.unshift(`${new Date().toISOString()} ${message}`);
+  state.history = state.history.slice(0, 12);
 }
 
 async function requestJson(url, options = {}, timeoutMs = 6000) {
@@ -39,7 +50,7 @@ async function requestJson(url, options = {}, timeoutMs = 6000) {
 function rotateEndpoint(reason) {
   activeIndex = (activeIndex + 1) % endpoints.length;
   state.lastEndpoint = endpoints[activeIndex].id;
-  state.history.unshift(`${new Date().toISOString()} rotate: ${reason} -> ${state.lastEndpoint}`);
+  record(`rotate: ${reason} -> ${state.lastEndpoint}`);
   render();
 }
 
@@ -54,7 +65,7 @@ async function checkActiveEndpoint() {
       return false;
     }
     state.lastResult = `online ${endpoint.id}`;
-    state.history.unshift(`${new Date().toISOString()} health ok: ${endpoint.id}`);
+    record(`health ok: ${endpoint.id}`);
     render();
     return true;
   } catch (error) {
@@ -65,8 +76,8 @@ async function checkActiveEndpoint() {
 }
 
 async function submitTask() {
-  const objective = document.querySelector('#objective').value.trim();
-  const payloadText = document.querySelector('#payload').value.trim() || '{}';
+  const objective = $('#objective').value.trim();
+  const payloadText = $('#payload').value.trim() || '{}';
   let payload;
   try {
     payload = JSON.parse(payloadText);
@@ -86,7 +97,7 @@ async function submitTask() {
       }, 12000);
       if (result.ok && !isZeroStaked(result.payload)) {
         state.lastResult = `accepted by ${endpoint.id}`;
-        state.history.unshift(`${new Date().toISOString()} task accepted: ${endpoint.id}`);
+        record(`task accepted: ${endpoint.id}`);
         render();
         return;
       }
@@ -100,14 +111,20 @@ async function submitTask() {
 }
 
 function render() {
-  document.querySelector('#active-endpoint').textContent = endpoints[activeIndex].label;
-  document.querySelector('#status').textContent = state.lastResult;
-  document.querySelector('#history').innerHTML = state.history.slice(0, 12).map((item) => `<li>${item}</li>`).join('');
+  $('#active-endpoint').textContent = endpoints[activeIndex].label;
+  $('#status').textContent = state.lastResult;
+  const history = $('#history');
+  history.replaceChildren();
+  for (const item of state.history) {
+    const entry = document.createElement('li');
+    entry.textContent = item;
+    history.appendChild(entry);
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('#check').addEventListener('click', checkActiveEndpoint);
-  document.querySelector('#rotate').addEventListener('click', () => rotateEndpoint('manual'));
-  document.querySelector('#submit').addEventListener('click', submitTask);
+  $('#check').addEventListener('click', checkActiveEndpoint);
+  $('#rotate').addEventListener('click', () => rotateEndpoint('manual'));
+  $('#submit').addEventListener('click', submitTask);
   render();
 });
