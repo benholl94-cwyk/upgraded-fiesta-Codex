@@ -13,6 +13,17 @@ on:
       - scripts/codex_fullstack_check.sh
       - Cargo.toml
       - ui/package.json
+  pull_request:
+    paths:
+      - .github/workflows/codex-setup.yml
+      - .codex/**
+      - AGENTS.md
+      - Makefile
+      - README.md
+      - scripts/codex_fullstack_setup.sh
+      - scripts/codex_fullstack_check.sh
+      - Cargo.toml
+      - ui/package.json
 
 jobs:
   setup:
