@@ -3,49 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Heavy Metal Environment</title>
-  <link rel="stylesheet" href="/src/styles.css">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <title>Heavy Metal AI Control Plane</title>
 </head>
 <body>
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">Production Task Environment</p>
-      <h1>Heavy Metal Environment</h1>
-      <p class="subtitle">Endpoint rotation, health probing, zero_staked failover and task dispatch shell.</p>
-    </section>
-
-    <section class="grid">
-      <article class="card">
-        <h2>Endpoint</h2>
-        <p class="label">Active route</p>
-        <p id="active-endpoint" class="value">loading</p>
-        <div class="actions">
-          <button id="check" type="button">Health check</button>
-          <button id="rotate" type="button">Rotate</button>
-        </div>
-      </article>
-
-      <article class="card">
-        <h2>Status</h2>
-        <p class="label">Last result</p>
-        <p id="status" class="value">idle</p>
-      </article>
-    </section>
-
-    <section class="card">
-      <h2>Task dispatch</h2>
-      <label for="objective">Objective</label>
-      <input id="objective" type="text" value="validate production environment" autocomplete="off">
-      <label for="payload">JSON payload</label>
-      <textarea id="payload" rows="8">{"mode":"safe-production-check","priority":"normal"}</textarea>
-      <button id="submit" type="button">Dispatch task</button>
-    </section>
-
-    <section class="card">
-      <h2>Event history</h2>
-      <ol id="history" class="history"></ol>
-    </section>
-  </main>
-  <script type="module" src="/src/platform.js"></script>
+  <noscript>This platform requires JavaScript.</noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
