@@ -12,6 +12,7 @@ Generated from the uploaded Markdown specification as a Rust workspace.
 - tool crates for exec, browser, web and media
 - plugin, sdk, session, vector, cron, auth and cli crates
 - ui scaffold, docker files, makefile, configuration, SQL and validator
+- mobile-visible Open_Source deployment checkpoint documentation in `docs/open-source-mobile-status.md`
 
 
 ## Docker Compose startup
