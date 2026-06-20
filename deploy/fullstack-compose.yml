@@ -53,9 +53,8 @@ services:
     restart: unless-stopped
 
   ui:
-    image: nginx:1.27-alpine
-    volumes:
-      - ../ui/index.html:/usr/share/nginx/html/index.html:ro
+    build:
+      context: ../ui
     depends_on:
       gateway:
         condition: service_healthy

@@ -34,3 +34,12 @@ venv/
 .DS_Store
 .idea/
 .vscode/
+
+# Rust build outputs
+/target/
+
+# JavaScript dependencies and build outputs
+node_modules/
+dist/
+ui/node_modules/
+ui/dist/
