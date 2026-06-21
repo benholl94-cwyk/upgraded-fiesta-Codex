@@ -35,7 +35,11 @@ venv/
 .idea/
 .vscode/
 
-# Rust and JavaScript dependency/build output
-target/
-ui/node_modules/
+# Rust build outputs
+/target/
+
+# JavaScript dependencies and build outputs
 node_modules/
+dist/
+ui/node_modules/
+ui/dist/
