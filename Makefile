@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-https codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -29,6 +29,9 @@ safe-ops-plan:
 
 localhost-export-once:
 	python3 scripts/localhost_export_server.py --scheme https --once
+
+localhost-export-write-var:
+	python3 scripts/localhost_export_server.py --scheme https --write --output-dir "$${HOME}/usr/var/upgraded-fiesta-Codex/localhost-export"
 
 localhost-export-https:
 	python3 scripts/localhost_export_server.py --scheme https --host 127.0.0.1 --port 9443
