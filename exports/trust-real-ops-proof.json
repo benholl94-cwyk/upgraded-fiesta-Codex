@@ -1,0 +1,41 @@
+{
+  "schema": "trust-real-ops.proof.v1",
+  "generated_date": "2026-07-08",
+  "repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+  "source_head_before_export": "54beec55a699ac9e229c980be293a5d330b7de62",
+  "proof_subject": "trust_real_ops",
+  "claim_requested": "100_percent_trust_real_ops",
+  "proof_result": {
+    "code_path_proof": true,
+    "workflow_gate_proof": true,
+    "audit_streampipe_proof": true,
+    "runtime_artifact_proof": false,
+    "combined_status_proof": false,
+    "full_100_percent_operational_proof": false
+  },
+  "implemented_evidence": {
+    "finishline_workflow": ".github/workflows/finishline-debug-console.yml",
+    "trusted_ops_profile": "config/repo-trusted-ops.fullstack.json",
+    "trusted_ops_runner": "scripts/repo_trusted_ops.py",
+    "audit_valid_debug_streampipe": "scripts/audit_valid_debug_streampipe.py",
+    "audit_streampipe_docs": "docs/audit-valid-debug-streampipe.md"
+  },
+  "required_runtime_artifacts": [
+    "reports/finishline-debug-console.json",
+    "reports/repo-trusted-ops-report.json",
+    "reports/ops-route-dry-run-report.json",
+    "reports/docker-compose-ops-dry-run.config.yml",
+    "reports/docker-compose-ops-dry-run.services.txt",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif"
+  ],
+  "last_observed_runtime_state": {
+    "workflow_runs_for_source_head": [],
+    "combined_statuses_for_source_head": [],
+    "artifact_evidence_available_in_chat": false
+  },
+  "hard_gate": "Full 100 percent trust_real_ops proof requires a successful Finishline Debug Console workflow run and exported finishline-debug-console artifact for the target commit.",
+  "non_fabrication_statement": "This export does not claim full operational proof until runtime artifacts exist. It proves that the repo-side proof machinery is committed and wired."
+}
