@@ -1,0 +1,84 @@
+{
+  "schema": "ops-access.thresholds.v1",
+  "status": "repository-defined-user-acceptance-required",
+  "remote_activation_default": false,
+  "acceptance_identity": {
+    "required_actor": "repository operator",
+    "required_phrase": "USER_ACCEPT_OPS_ACCESS_THRESHOLDS",
+    "accepted_values": [true],
+    "storage_policy": "workflow_input_or_issue_checklist_only_no_secrets"
+  },
+  "thresholds": [
+    {
+      "id": "T01_HOST_IDENTITY_PIN",
+      "title": "Approved remote host identity pin exists outside Git",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "protected_environment_value_or_secret_reference",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T02_DEDICATED_LOW_PRIVILEGE_ACCOUNT",
+      "title": "Dedicated low-privilege operations account exists",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "operator_attestation",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T03_ENVIRONMENT_SCOPED_ACCESS_CREDENTIAL",
+      "title": "Environment-scoped access credential exists outside Git",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "protected_environment_secret_reference",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T04_REMOTE_GUARD_REVIEWED",
+      "title": "Reviewed remote guard implementation exists",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "reviewed_change_or_external_deployment_record",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T05_STAGING_DENIAL_AUDITED",
+      "title": "Staging validation shows unknown operations denied and audited",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "sanitized_staging_audit_record",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T06_REDACTION_PROOF_SYNTHETIC_ONLY",
+      "title": "Redaction proof uses synthetic credential markers only",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "sanitized_redaction_test_report",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": true
+    },
+    {
+      "id": "T07_REMOTE_ACTIVATION_STILL_DISABLED_BY_DEFAULT",
+      "title": "Remote activation remains disabled by default",
+      "required": true,
+      "user_accept_required": true,
+      "evidence_kind": "manifest_and_workflow_gate",
+      "secret_material_allowed_in_git": false,
+      "blocks_remote_activation": false
+    }
+  ],
+  "denied_acceptance_evidence": [
+    "raw_secret_value",
+    "credential_material",
+    "production_env_file",
+    "unredacted_remote_log",
+    "free_form_shell_transcript",
+    "host_specific_sensitive_inventory"
+  ]
+}
