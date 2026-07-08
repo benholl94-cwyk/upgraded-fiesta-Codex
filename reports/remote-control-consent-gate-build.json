@@ -1,0 +1,34 @@
+{
+  "schema": "upgraded-fiesta.remote-control.build-report.v1",
+  "generated_at_utc": "2026-07-08T16:18:00Z",
+  "branch": "remote-control-consent-gate-20260708",
+  "base_commit": "82b513df8b2c3b3e6d32effaf06a006c5bb1fe03",
+  "files": [
+    ".github/workflows/remote-control.yml",
+    "datasets/remote-control.config.json",
+    "schemas/remote-control-report.schema.json",
+    "scripts/remote_control_gate.py",
+    "Makefile",
+    "datasets/operable-repo.config.json",
+    "datasets/localhost-export.config.json",
+    "datasets/repository-synthesis.dataset.json"
+  ],
+  "master_switch": "remote_control_enable_any",
+  "enable_all_after_local_accept": true,
+  "auto_accept_popup": false,
+  "bypass_user_consent": false,
+  "routes_enabled_only_after_accept": true,
+  "blocked": [
+    "sudo",
+    "arbitrary_shell",
+    "secret_export",
+    "external_bind_without_token"
+  ],
+  "safety": {
+    "privilege_escalation": false,
+    "arbitrary_command_execution": false,
+    "secret_export": false,
+    "destructive_default_action": false,
+    "external_bind_default": false
+  }
+}
