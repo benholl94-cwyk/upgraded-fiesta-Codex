@@ -5,7 +5,11 @@
     "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
     "repository_id": "1274749256",
     "default_branch": "main",
-    "known_main_head_after_network_capabilities": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251"
+    "known_main_head_after_network_capabilities": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251",
+    "historical_anchors": {
+      "after_network_capabilities_commit": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251",
+      "semantics": "historical audit anchor, not current branch head assertion"
+    }
   },
   "depo_server": {
     "name": "depo_server_",
