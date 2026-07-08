@@ -33,7 +33,7 @@ def load_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def validate_agent_audit(audit: dict[str, Any], routes: dict[str, Any]) -> tuple[bool, list[str], list[str]]:
+def validate_agent_audit(audit: dict[str, Any], routes: dict[str, Any], *, strict_route_coverage: bool = True) -> tuple[bool, list[str], list[str]]:
     findings: list[str] = []
     warnings: list[str] = []
 
@@ -117,7 +117,11 @@ def validate_agent_audit(audit: dict[str, Any], routes: dict[str, Any]) -> tuple
 
     missing_route_objectives = sorted(route_ids - seen_routes)
     if missing_route_objectives:
-        warnings.append("routes without objective mapping: " + ", ".join(missing_route_objectives))
+        message = "routes without objective mapping: " + ", ".join(missing_route_objectives)
+        if strict_route_coverage:
+            findings.append(message)
+        else:
+            warnings.append(message)
 
     return not findings, findings, warnings
 
@@ -126,6 +130,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate hm-agent objective audit data.")
     parser.add_argument("--audit", default=str(DEFAULT_AUDIT))
     parser.add_argument("--routes", default=str(DEFAULT_ROUTES))
+    parser.add_argument("--allow-route-coverage-warnings", action="store_true", help="Downgrade missing route objective mappings to warnings.")
     args = parser.parse_args()
 
     audit_path = Path(args.audit)
@@ -137,9 +142,10 @@ def main() -> int:
 
     audit = load_json(audit_path)
     routes = load_json(route_path)
-    ok, findings, warnings = validate_agent_audit(audit, routes)
+    ok, findings, warnings = validate_agent_audit(audit, routes, strict_route_coverage=not args.allow_route_coverage_warnings)
     result = {
         "ok": ok,
+        "strict_route_coverage": not args.allow_route_coverage_warnings,
         "audit": str(audit_path.relative_to(ROOT) if audit_path.is_relative_to(ROOT) else audit_path),
         "routes": str(route_path.relative_to(ROOT) if route_path.is_relative_to(ROOT) else route_path),
         "findings": findings,
