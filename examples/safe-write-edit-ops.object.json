@@ -1,0 +1,51 @@
+{
+  "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
+  "operation_id": "safe-ops-20260708T1506Z-one-repo-control-plane",
+  "mode": "plan",
+  "actor": {
+    "type": "assistant",
+    "name": "GPT-5.5 Thinking"
+  },
+  "material": {
+    "source": "actual repository state observed through GitHub connector",
+    "target_repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "merged_prs": [7, 8],
+    "closed_stale_prs": [3, 4],
+    "synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
+    "rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
+    "policy_id": "safe-write-edit-ops-policy-20260708-main-control-plane"
+  },
+  "ops": [
+    {
+      "op": "mkdir",
+      "path": "docs/generated"
+    },
+    {
+      "op": "write_file",
+      "path": "docs/generated/safe-write-edit-ops.actual-material.json",
+      "overwrite": false,
+      "content_json": {
+        "schema": "upgraded-fiesta.safe-write-edit-ops.material.v1",
+        "generated_date": "2026-07-08",
+        "nonstandard_material": {
+          "descriptor": "actual-values-only non-template control-plane object",
+          "repo_full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+          "known_private_reference_repositories": [
+            "benholl94-cwyk/-GPTTerminalAIShell",
+            "benholl-cwyk/Xcode"
+          ],
+          "known_public_reference_repositories": [
+            "benholl94-cmyk/upgraded-fiesta"
+          ],
+          "merged_guard_commits": [
+            "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
+            "147049e6ac2b832d80c492415bf5d9f9c9c750ec"
+          ],
+          "destructive_overwrite_performed": false,
+          "secrets_copied": false
+        }
+      }
+    }
+  ]
+}

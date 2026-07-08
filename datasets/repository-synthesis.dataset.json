@@ -6,7 +6,8 @@
     "default_branch": "main",
     "role": "one-repo control-plane target",
     "merge_strategy": "audited pull request; no destructive overwrite of source repositories",
-    "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d"
+    "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
+    "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec"
   },
   "source_repositories": [
     {
@@ -38,25 +39,40 @@
     "Do not delete, force-push, archive, or overwrite source repositories as part of synthesis.",
     "Do not copy secrets, local .env files, key material, tokens, private certificates, or runtime logs into the target repository.",
     "Every import must create an auditable manifest entry before code/data is copied.",
-    "Conflicting files must be staged under integration/source/<repo-slug>/ until a maintainer-approved replacement decision exists."
+    "Conflicting files must be staged under integration/source/<repo-slug>/ until a maintainer-approved replacement decision exists.",
+    "safe_write/edit/ops apply mode must remain explicit and auditable."
   ],
   "validated_target_components": [
     "scripts/full_debug.py",
     "scripts/init_github_repo.py",
     "scripts/rebase_guard.py",
+    "scripts/safe_write_edit_ops.py",
     ".github/workflows/full-debug.yml",
     "docs/full-debug-runbook.md",
     "docs/one-repo-synthesis-audit.md",
     "docs/rebase-build-audit.md",
+    "docs/safe-write-edit-ops.md",
+    "schemas/safe-write-edit-ops.schema.json",
+    "datasets/safe-write-edit-ops.policy.json",
+    "examples/safe-write-edit-ops.object.json",
     "Makefile"
   ],
   "rest_order_cleanup": {
     "open_issues_found": 0,
     "open_pull_requests_found": [],
     "closed_stale_pull_requests": [3, 4],
-    "merged_pull_requests": [7],
+    "merged_pull_requests": [7, 8],
     "active_pull_request": null,
     "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository."
+  },
+  "safe_write_edit_ops": {
+    "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
+    "policy": "datasets/safe-write-edit-ops.policy.json",
+    "schema_file": "schemas/safe-write-edit-ops.schema.json",
+    "executor": "scripts/safe_write_edit_ops.py",
+    "example_object": "examples/safe-write-edit-ops.object.json",
+    "default_mode": "plan",
+    "apply_requires_explicit_object_mode": true
   },
   "audit_status": {
     "destructive_overwrite_performed": false,
@@ -64,6 +80,7 @@
     "source_repositories_deleted_or_archived": false,
     "synthesis_ready_for_review": false,
     "synthesis_merged": true,
-    "rebase_guard_required": true
+    "rebase_guard_required": true,
+    "safe_write_edit_ops_registered": true
   }
 }
