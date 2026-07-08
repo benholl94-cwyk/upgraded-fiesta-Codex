@@ -1,0 +1,41 @@
+name: localhost-export
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - localhost-export-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-once:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Compile export server
+        run: python3 -m py_compile scripts/localhost_export_server.py
+
+      - name: Build export bundle once
+        run: python3 scripts/localhost_export_server.py --scheme https --once > localhost-export.bundle.json
+
+      - name: Validate export bundle JSON
+        run: python3 -m json.tool localhost-export.bundle.json >/dev/null
+
+      - name: Upload localhost export bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localhost-export-bundle
+          path: localhost-export.bundle.json
+          if-no-files-found: error
