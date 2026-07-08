@@ -1,0 +1,49 @@
+{
+  "schema": "upgraded-fiesta.remote-control.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "known_main_head_after_device_exec": "82b513df8b2c3b3e6d32effaf06a006c5bb1fe03"
+  },
+  "runtime": {
+    "state_root": "runs/remote_control",
+    "consent_file": "$HOME/usr/var/upgraded-fiesta-Codex/remote_control/consent-state.json",
+    "route_state_file": "$HOME/usr/var/upgraded-fiesta-Codex/remote_control/routes-state.json",
+    "localhost_only_default": true,
+    "default_bind_host": "127.0.0.1",
+    "default_port": 9898
+  },
+  "switches": {
+    "master_switch": "remote_control_enable_any",
+    "enable_all_after_accept": true,
+    "default_enabled": false,
+    "requires_local_user_accept": true,
+    "accept_source": "local_user_screen_confirmation_or_cli_accept_command",
+    "deny_source": "local_user_screen_deny_or_cli_deny_command"
+  },
+  "routes": [
+    {"id": "status", "path": "/status", "method": "GET", "enabled_after_accept": true, "destructive": false},
+    {"id": "export", "path": "/export", "method": "GET", "enabled_after_accept": true, "destructive": false},
+    {"id": "device_exec_status", "path": "/device/exec/status", "method": "GET", "enabled_after_accept": true, "destructive": false},
+    {"id": "network_status", "path": "/network/status", "method": "GET", "enabled_after_accept": true, "destructive": false},
+    {"id": "depo_state", "path": "/depo/state", "method": "GET", "enabled_after_accept": true, "destructive": false}
+  ],
+  "blocked_routes": [
+    {"id": "sudo", "reason": "privilege escalation is not allowed"},
+    {"id": "arbitrary_shell", "reason": "arbitrary command execution is not allowed"},
+    {"id": "secret_export", "reason": "secret export is not allowed"},
+    {"id": "external_bind_without_token", "reason": "external remote-control bind is denied by default"}
+  ],
+  "security": {
+    "auto_accept_popup": false,
+    "bypass_user_consent": false,
+    "remote_root_control": false,
+    "arbitrary_command_execution": false,
+    "privilege_escalation": false,
+    "secret_export": false,
+    "destructive_default_action": false,
+    "external_bind_default": false
+  }
+}
