@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:upgraded-fiesta:localhost-export:bundle:v1",
+  "title": "upgraded-fiesta localhost export bundle",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at_utc",
+    "repository",
+    "files",
+    "endpoints",
+    "security"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "upgraded-fiesta.localhost-export.bundle.v1"
+    },
+    "generated_at_utc": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "full_name",
+        "default_branch",
+        "known_head_commit"
+      ],
+      "properties": {
+        "full_name": {
+          "type": "string"
+        },
+        "default_branch": {
+          "type": "string"
+        },
+        "known_head_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "content_utf8": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": [
+        "health",
+        "json_export",
+        "zip_export"
+      ],
+      "properties": {
+        "health": {
+          "type": "string"
+        },
+        "json_export": {
+          "type": "string"
+        },
+        "zip_export": {
+          "type": "string"
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": [
+        "localhost_only",
+        "committed_tls_private_key",
+        "secret_export"
+      ],
+      "properties": {
+        "localhost_only": {
+          "type": "boolean"
+        },
+        "committed_tls_private_key": {
+          "type": "boolean"
+        },
+        "secret_export": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

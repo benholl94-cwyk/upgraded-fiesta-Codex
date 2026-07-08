@@ -8,7 +8,8 @@
     "merge_strategy": "audited pull request; no destructive overwrite of source repositories",
     "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
     "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
-    "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3"
+    "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
+    "last_debug_export_merge_commit": "26011779db5849559e819690304b69cfe64929ca"
   },
   "source_repositories": [
     {
@@ -41,20 +42,28 @@
     "Do not copy secrets, local .env files, key material, tokens, private certificates, or runtime logs into the target repository.",
     "Every import must create an auditable manifest entry before code/data is copied.",
     "Conflicting files must be staged under integration/source/<repo-slug>/ until a maintainer-approved replacement decision exists.",
-    "safe_write/edit/ops apply mode must remain explicit and auditable."
+    "safe_write/edit/ops apply mode must remain explicit and auditable.",
+    "localhost export must bind only to localhost and must not commit TLS private keys."
   ],
   "validated_target_components": [
     "scripts/full_debug.py",
     "scripts/init_github_repo.py",
     "scripts/rebase_guard.py",
     "scripts/safe_write_edit_ops.py",
+    "scripts/localhost_export_server.py",
     ".github/workflows/full-debug.yml",
+    ".github/workflows/localhost-export.yml",
     "docs/full-debug-runbook.md",
     "docs/one-repo-synthesis-audit.md",
     "docs/rebase-build-audit.md",
     "docs/safe-write-edit-ops.md",
+    "docs/debug-export-20260708.md",
     "schemas/safe-write-edit-ops.schema.json",
+    "schemas/localhost-export.schema.json",
     "datasets/safe-write-edit-ops.policy.json",
+    "datasets/localhost-export.config.json",
+    "datasets/localhost-export.object.json",
+    "datasets/debug-export-20260708.dataset.json",
     "examples/safe-write-edit-ops.object.json",
     "Makefile"
   ],
@@ -62,9 +71,9 @@
     "open_issues_found": 0,
     "open_pull_requests_found": [],
     "closed_stale_pull_requests": [3, 4],
-    "merged_pull_requests": [7, 8, 9],
+    "merged_pull_requests": [7, 8, 9, 10],
     "active_pull_request": null,
-    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository. PR 9 added safe_write/edit/ops tooling."
+    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository. PR 9 added safe_write/edit/ops tooling. PR 10 exported the GitHub debug state."
   },
   "safe_write_edit_ops": {
     "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
@@ -75,6 +84,19 @@
     "default_mode": "plan",
     "apply_requires_explicit_object_mode": true
   },
+  "localhost_export": {
+    "schema": "upgraded-fiesta.localhost-export.bundle.v1",
+    "config": "datasets/localhost-export.config.json",
+    "object": "datasets/localhost-export.object.json",
+    "schema_file": "schemas/localhost-export.schema.json",
+    "server": "scripts/localhost_export_server.py",
+    "base_url": "https://localhost:9443",
+    "json_endpoint": "https://localhost:9443/export",
+    "zip_endpoint": "https://localhost:9443/export.zip",
+    "health_endpoint": "https://localhost:9443/health",
+    "committed_tls_private_key": false,
+    "localhost_only": true
+  },
   "audit_status": {
     "destructive_overwrite_performed": false,
     "secrets_copied": false,
@@ -83,6 +105,7 @@
     "synthesis_merged": true,
     "rebase_guard_required": true,
     "safe_write_edit_ops_registered": true,
-    "debug_export_registered": true
+    "debug_export_registered": true,
+    "localhost_export_registered": true
   }
 }
