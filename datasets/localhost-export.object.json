@@ -1,7 +1,7 @@
 {
   "schema": "upgraded-fiesta.localhost-export.object.v1",
   "operation_id": "localhost-export-20260708T1534Z-main-control-plane",
-  "mode": "serve_https",
+  "mode": "serve_https_and_write_home_usr_var",
   "repository": {
     "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
     "default_branch": "main",
@@ -13,7 +13,9 @@
     "port": 9443,
     "scheme": "https",
     "tls_private_key_committed": false,
-    "tls_runtime_dir": ".tmp/localhost_export_tls"
+    "tls_runtime_dir": ".tmp/localhost_export_tls",
+    "runtime_export_root_raw": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export",
+    "runtime_export_root_alias_accepted": "$home/usr/var/upgraded-fiesta-Codex/localhost-export"
   },
   "endpoints": {
     "index": "https://localhost:9443/index.json",
@@ -24,12 +26,24 @@
   "server": {
     "script": "scripts/localhost_export_server.py",
     "config": "datasets/localhost-export.config.json",
-    "schema": "schemas/localhost-export.schema.json"
+    "schema": "schemas/localhost-export.schema.json",
+    "write_command_surface": "localhost-export-write-var"
   },
   "export_format": {
     "json_schema": "upgraded-fiesta.localhost-export.bundle.v1",
+    "runtime_written_files": [
+      "export.bundle.json",
+      "export-manifest.json",
+      "export.zip"
+    ],
     "zip_manifest": "export-manifest.json",
     "encoding": "utf-8",
     "secret_export": false
+  },
+  "safety": {
+    "commits_local_usr_var_contents": false,
+    "exports_repo_artifacts_only": true,
+    "external_network_bind": false,
+    "localhost_only": true
   }
 }
