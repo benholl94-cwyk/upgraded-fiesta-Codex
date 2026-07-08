@@ -22,6 +22,8 @@ require_cmd npm
 python3 scripts/validate_repo.py
 python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes config/ops-route-matrix.example.json
 python3 scripts/repo_trusted_ops.py validate --profile config/repo-trusted-ops.fullstack.json
+python3 scripts/validate_workflow_dispatch_dataset.py --dataset datasets/workflow-dispatch.fullstacked.dataset.json
+python3 scripts/validate_v1_released_system.py --manifest releases/v1/released-fullworking-system.manifest.json
 
 if cargo fmt --version >/dev/null 2>&1; then
   cargo fmt --all -- --check
