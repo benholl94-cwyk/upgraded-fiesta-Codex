@@ -34,6 +34,7 @@ jobs:
       OPS_ROUTE_MATRIX: config/ops-route-matrix.example.json
       OPS_ROUTE_REPORT: reports/ops-route-dry-run-report.json
       FINISHLINE_REPORT: reports/finishline-debug-console.json
+      STREAMPipe_DIR: reports/audit-valid-debug-streampipe
       POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
     steps:
       - name: Checkout
@@ -146,6 +147,9 @@ jobs:
           raise SystemExit(0 if payload["ok"] else 1)
           PY
 
+      - name: Build audit-valid debug streampipe
+        run: python3 scripts/audit_valid_debug_streampipe.py --output-dir "$STREAMPipe_DIR"
+
       - name: Upload finishline debug console artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -156,6 +160,10 @@ jobs:
             reports/ops-route-dry-run-report.json
             reports/docker-compose-ops-dry-run.config.yml
             reports/docker-compose-ops-dry-run.services.txt
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif
           if-no-files-found: error
 
       - name: Summary
@@ -168,6 +176,8 @@ jobs:
             echo "- Report: $FINISHLINE_REPORT"
             echo "- Trusted ops report: $TRUSTED_OPS_REPORT"
             echo "- Route report: $OPS_ROUTE_REPORT"
+            echo "- Audit streampipe: $STREAMPipe_DIR"
+            echo "- Stream formats: json, jsonl, markdown, sarif"
             echo "- Interactive console: false"
             echo "- Runtime artifact only: true"
           } >> "$GITHUB_STEP_SUMMARY"
