@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -50,6 +50,18 @@ operable-doctor:
 
 operable-serve:
 	python3 scripts/operable_repo.py serve
+
+operable-network:
+	python3 scripts/operable_repo.py network measure
+
+network-status:
+	python3 scripts/network_capabilities.py status
+
+network-measure:
+	python3 scripts/network_capabilities.py measure
+
+network-doctor:
+	python3 scripts/network_capabilities.py doctor
 
 codex-setup:
 	bash .codex/setup.sh

@@ -21,7 +21,8 @@
     "full_debug": "scripts/full_debug.py",
     "rebase_guard": "scripts/rebase_guard.py",
     "safe_write_edit_ops": "scripts/safe_write_edit_ops.py",
-    "localhost_export": "scripts/localhost_export_server.py"
+    "localhost_export": "scripts/localhost_export_server.py",
+    "network_capabilities": "scripts/network_capabilities.py"
   },
   "required_files": [
     "Makefile",
@@ -32,17 +33,21 @@
     "scripts/rebase_guard.py",
     "scripts/safe_write_edit_ops.py",
     "scripts/localhost_export_server.py",
+    "scripts/network_capabilities.py",
     "datasets/repository-synthesis.dataset.json",
     "datasets/safe-write-edit-ops.policy.json",
     "datasets/localhost-export.config.json",
     "datasets/localhost-export.object.json",
     "datasets/operable-repo.config.json",
+    "datasets/network-capabilities.config.json",
     "schemas/safe-write-edit-ops.schema.json",
     "schemas/localhost-export.schema.json",
     "schemas/operable-repo-report.schema.json",
+    "schemas/network-capabilities-report.schema.json",
     ".github/workflows/full-debug.yml",
     ".github/workflows/localhost-export.yml",
-    ".github/workflows/operable-repo.yml"
+    ".github/workflows/operable-repo.yml",
+    ".github/workflows/network-capabilities.yml"
   ],
   "commands": {
     "status": {
@@ -64,6 +69,10 @@
     "serve": {
       "description": "serve localhost HTTPS export endpoints",
       "argv": ["python3", "scripts/operable_repo.py", "serve"]
+    },
+    "network": {
+      "description": "inventory network capabilities and measure real standalone loopback bandwidth",
+      "argv": ["python3", "scripts/operable_repo.py", "network", "measure"]
     }
   },
   "security": {
@@ -71,6 +80,8 @@
     "secret_export": false,
     "external_network_bind": false,
     "destructive_default_action": false,
-    "delete_supported": false
+    "delete_supported": false,
+    "packet_capture": false,
+    "promiscuous_mode": false
   }
 }

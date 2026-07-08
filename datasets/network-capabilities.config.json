@@ -1,0 +1,51 @@
+{
+  "schema": "upgraded-fiesta.network-capabilities.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "known_main_head_after_operable_repo": "ef43c6b5392eea9b0a04e3a7afca8c867ff2f695"
+  },
+  "runtime": {
+    "state_root": "runs/network_capabilities",
+    "bind_host": "127.0.0.1",
+    "loopback_payload_bytes": 8388608,
+    "loopback_samples": 3,
+    "loopback_timeout_seconds": 20,
+    "dns_targets": [
+      "localhost"
+    ],
+    "tcp_probe_targets": [
+      {
+        "host": "127.0.0.1",
+        "port": 9443,
+        "required": false,
+        "label": "localhost_export_https"
+      }
+    ]
+  },
+  "capabilities": {
+    "interface_inventory": true,
+    "dns_resolution": true,
+    "loopback_tcp_bandwidth": true,
+    "tcp_port_probe": true,
+    "tls_runtime_available": true,
+    "external_bandwidth_test": false,
+    "standalone_no_third_party_dependency": true
+  },
+  "bandwidth_units": {
+    "bytes_per_second": true,
+    "bits_per_second": true,
+    "megabits_per_second_decimal": true,
+    "mebibytes_per_second_binary": true
+  },
+  "security": {
+    "external_probe_default": false,
+    "secrets_required": false,
+    "packet_capture": false,
+    "promiscuous_mode": false,
+    "destructive_network_action": false,
+    "localhost_only_measurement": true
+  }
+}

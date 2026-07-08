@@ -9,7 +9,8 @@
     "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
     "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
     "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
-    "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545"
+    "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545",
+    "last_operable_repo_merge_commit": "ef43c6b5392eea9b0a04e3a7afca8c867ff2f695"
   },
   "localhost": {
     "bind_host": "127.0.0.1",
@@ -37,17 +38,21 @@
       "datasets/localhost-export.object.json",
       "datasets/operable-repo.config.json",
       "datasets/operable-repo.object.json",
+      "datasets/network-capabilities.config.json",
       "schemas/safe-write-edit-ops.schema.json",
       "schemas/localhost-export.schema.json",
       "schemas/operable-repo-report.schema.json",
+      "schemas/network-capabilities-report.schema.json",
       "scripts/full_debug.py",
       "scripts/init_github_repo.py",
       "scripts/rebase_guard.py",
       "scripts/safe_write_edit_ops.py",
       "scripts/localhost_export_server.py",
       "scripts/operable_repo.py",
+      "scripts/network_capabilities.py",
       ".github/workflows/operable-repo.yml",
       ".github/workflows/localhost-export.yml",
+      ".github/workflows/network-capabilities.yml",
       "docs/full-debug-runbook.md",
       "docs/one-repo-synthesis-audit.md",
       "docs/rebase-build-audit.md",
@@ -85,6 +90,7 @@
     "destructive_export": false,
     "secret_export": false,
     "runtime_export_root_is_home_usr_var": true,
-    "operable_repo_files_included": true
+    "operable_repo_files_included": true,
+    "network_capability_files_included": true
   }
 }
