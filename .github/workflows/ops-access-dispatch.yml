@@ -133,7 +133,7 @@ jobs:
             "evidence": {
               "source": "github_actions_workflow_dispatch_inputs",
               "sanitized": True,
-              "contains_secret_material": False
+              "sensitive_material_present": False
             }
           }
           Path(".ops-runtime/user-acceptance.json").write_text(json.dumps(acceptance, indent=2, sort_keys=True), encoding="utf-8")
