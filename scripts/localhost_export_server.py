@@ -2,8 +2,9 @@
 """Localhost-only export server for upgraded-fiesta-Codex.
 
 Exports selected repository artifacts as machine-readable JSON and ZIP over
-https://localhost:9443 by default. No TLS key is committed; the runtime keypair is
-created under .tmp when OpenSSL is available.
+https://localhost:9443 by default. It can also write the same export bundle into
+$HOME/usr/var/... for local runtime handoff. No TLS key is committed; the
+runtime keypair is created under .tmp when OpenSSL is available.
 """
 from __future__ import annotations
 
@@ -20,7 +21,6 @@ import shutil
 import ssl
 import subprocess
 import sys
-import tempfile
 import zipfile
 from typing import Any
 from urllib.parse import urlparse
@@ -59,6 +59,17 @@ def normalize_repo_path(raw: str) -> Path:
     return resolved
 
 
+def expand_runtime_path(raw: str) -> Path:
+    if not isinstance(raw, str) or not raw.strip():
+        raise RuntimeError("runtime export path must be a non-empty string")
+    home = os.environ.get("HOME", str(Path.home()))
+    expanded_raw = raw.replace("${home}", home).replace("$home", home).replace("${HOME}", home).replace("$HOME", home)
+    expanded = Path(os.path.expandvars(os.path.expanduser(expanded_raw))).resolve()
+    if str(expanded) in {"/", home}:
+        raise RuntimeError(f"refusing broad runtime export root: {expanded}")
+    return expanded
+
+
 def denied(path: str, patterns: list[str]) -> str | None:
     for pattern in patterns:
         if fnmatch.fnmatch(path, pattern):
@@ -92,6 +103,7 @@ def read_export_files(config: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_bundle(config: dict[str, Any], base_url: str) -> dict[str, Any]:
+    export_root = config["export"].get("runtime_output_root", "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export")
     return {
         "schema": SCHEMA,
         "generated_at_utc": utc_now(),
@@ -99,6 +111,11 @@ def build_bundle(config: dict[str, Any], base_url: str) -> dict[str, Any]:
             "full_name": config["repository"]["full_name"],
             "default_branch": config["repository"]["default_branch"],
             "known_head_commit": KNOWN_HEAD_COMMIT,
+        },
+        "runtime_export": {
+            "raw_root": export_root,
+            "expanded_root": str(expand_runtime_path(str(export_root))),
+            "secret_export": False,
         },
         "files": read_export_files(config),
         "endpoints": {
@@ -110,22 +127,51 @@ def build_bundle(config: dict[str, Any], base_url: str) -> dict[str, Any]:
             "localhost_only": True,
             "committed_tls_private_key": False,
             "secret_export": False,
+            "runtime_export_under_home_usr_var": True,
         },
     }
+
+
+def manifest_without_inline_content(bundle: dict[str, Any]) -> dict[str, Any]:
+    manifest = {k: v for k, v in bundle.items() if k != "files"}
+    manifest["files"] = [{k: f[k] for k in ("path", "bytes", "sha256")} for f in bundle["files"]]
+    return manifest
 
 
 def build_zip(bundle: dict[str, Any]) -> bytes:
     memory = io.BytesIO()
     with zipfile.ZipFile(memory, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        manifest = {k: v for k, v in bundle.items() if k != "files"}
-        manifest["files"] = [{k: f[k] for k in ("path", "bytes", "sha256")} for f in bundle["files"]]
-        archive.writestr("export-manifest.json", json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        archive.writestr("export-manifest.json", json.dumps(manifest_without_inline_content(bundle), indent=2, sort_keys=True) + "\n")
         for item in bundle["files"]:
             archive.writestr(item["path"], item["content_utf8"])
     return memory.getvalue()
 
 
-def json_bytes(payload: dict[str, Any], status: int = 200) -> bytes:
+def write_runtime_export(bundle: dict[str, Any], output_dir: Path) -> dict[str, Any]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    bundle_payload = json.dumps(bundle, indent=2, sort_keys=True) + "\n"
+    manifest_payload = json.dumps(manifest_without_inline_content(bundle), indent=2, sort_keys=True) + "\n"
+    zip_payload = build_zip(bundle)
+    bundle_path = output_dir / "export.bundle.json"
+    manifest_path = output_dir / "export-manifest.json"
+    zip_path = output_dir / "export.zip"
+    bundle_path.write_text(bundle_payload, encoding="utf-8")
+    manifest_path.write_text(manifest_payload, encoding="utf-8")
+    zip_path.write_bytes(zip_payload)
+    return {
+        "schema": "upgraded-fiesta.localhost-export.runtime-write.v1",
+        "ok": True,
+        "output_dir": str(output_dir),
+        "files": [
+            {"path": str(bundle_path), "bytes": len(bundle_payload.encode("utf-8")), "sha256": sha256_bytes(bundle_payload.encode("utf-8"))},
+            {"path": str(manifest_path), "bytes": len(manifest_payload.encode("utf-8")), "sha256": sha256_bytes(manifest_payload.encode("utf-8"))},
+            {"path": str(zip_path), "bytes": len(zip_payload), "sha256": sha256_bytes(zip_payload)},
+        ],
+        "secret_export": False,
+    }
+
+
+def json_bytes(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n"
 
 
@@ -166,7 +212,7 @@ def ensure_runtime_tls(config: dict[str, Any]) -> tuple[Path, Path]:
 
 
 class ExportHandler(http.server.BaseHTTPRequestHandler):
-    server_version = "upgraded-fiesta-localhost-export/1.0"
+    server_version = "upgraded-fiesta-localhost-export/1.1"
 
     def write_response(self, status: int, content_type: str, body: bytes) -> None:
         self.send_response(status)
@@ -189,6 +235,7 @@ class ExportHandler(http.server.BaseHTTPRequestHandler):
                     "health": f"{base_url}{config['export']['health_endpoint']}",
                     "json_export": f"{base_url}{config['export']['json_endpoint']}",
                     "zip_export": f"{base_url}{config['export']['zip_endpoint']}",
+                    "home_usr_var_export": str(expand_runtime_path(str(config['export'].get('runtime_output_root')))),
                 }
                 self.write_response(200, "application/json; charset=utf-8", json_bytes(payload))
             elif parsed.path == config["export"]["health_endpoint"]:
@@ -230,11 +277,14 @@ class ExportHandler(http.server.BaseHTTPRequestHandler):
 
 def serve(argv: list[str] | None = None) -> int:
     config = load_config()
-    parser = argparse.ArgumentParser(description="Serve repository export over localhost.")
+    default_output = str(config["export"].get("runtime_output_root", "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export"))
+    parser = argparse.ArgumentParser(description="Serve or write repository export over localhost/home usr var.")
     parser.add_argument("--host", default=config["localhost"]["bind_host"])
     parser.add_argument("--port", type=int, default=int(config["localhost"]["https_port"]))
     parser.add_argument("--scheme", choices=["https", "http"], default="https")
     parser.add_argument("--once", action="store_true", help="Build bundle once and print JSON instead of serving.")
+    parser.add_argument("--write", action="store_true", help="Write JSON/manifest/ZIP export into --output-dir.")
+    parser.add_argument("--output-dir", default=default_output, help="Runtime export directory; supports $HOME and $home.")
     args = parser.parse_args(argv)
 
     if args.host not in {"127.0.0.1", "localhost", "::1"}:
@@ -246,8 +296,13 @@ def serve(argv: list[str] | None = None) -> int:
         }, indent=2, sort_keys=True))
 
     base_url = f"{args.scheme}://localhost:{args.port}"
-    if args.once:
-        print(json.dumps(build_bundle(config, base_url), indent=2, sort_keys=True))
+    if args.once or args.write:
+        bundle = build_bundle(config, base_url)
+        if args.write:
+            report = write_runtime_export(bundle, expand_runtime_path(args.output_dir))
+            print(json.dumps(report, indent=2, sort_keys=True))
+        else:
+            print(json.dumps(bundle, indent=2, sort_keys=True))
         return 0
 
     server = http.server.ThreadingHTTPServer((args.host, args.port), ExportHandler)
@@ -266,6 +321,7 @@ def serve(argv: list[str] | None = None) -> int:
         "bind_host": args.host,
         "port": args.port,
         "scheme": args.scheme,
+        "home_usr_var_export": str(expand_runtime_path(args.output_dir)),
         "endpoints": {
             "health": f"{base_url}{config['export']['health_endpoint']}",
             "json_export": f"{base_url}{config['export']['json_endpoint']}",
