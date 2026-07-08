@@ -10,33 +10,13 @@
     "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
     "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
     "last_debug_export_merge_commit": "26011779db5849559e819690304b69cfe64929ca",
-    "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545"
+    "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545",
+    "last_operable_repo_merge_commit": "ef43c6b5392eea9b0a04e3a7afca8c867ff2f695"
   },
   "source_repositories": [
-    {
-      "full_name": "benholl94-cmyk/upgraded-fiesta",
-      "default_branch": "main",
-      "visibility": "public",
-      "size_kb": 6995,
-      "access": "admin",
-      "synthesis_role": "legacy/mobile agent operating base; import only through explicit audited paths"
-    },
-    {
-      "full_name": "benholl94-cwyk/-GPTTerminalAIShell",
-      "default_branch": "main",
-      "visibility": "private",
-      "size_kb": 41,
-      "access": "admin",
-      "synthesis_role": "terminal-shell reference; import only non-secret implementation artifacts"
-    },
-    {
-      "full_name": "benholl-cwyk/Xcode",
-      "default_branch": "main",
-      "visibility": "private",
-      "size_kb": 2671,
-      "access": "admin",
-      "synthesis_role": "Apple/Xcode reference; import only portable source/config/data artifacts"
-    }
+    {"full_name": "benholl94-cmyk/upgraded-fiesta", "default_branch": "main", "visibility": "public", "size_kb": 6995, "access": "admin", "synthesis_role": "legacy/mobile agent operating base; import only through explicit audited paths"},
+    {"full_name": "benholl94-cwyk/-GPTTerminalAIShell", "default_branch": "main", "visibility": "private", "size_kb": 41, "access": "admin", "synthesis_role": "terminal-shell reference; import only non-secret implementation artifacts"},
+    {"full_name": "benholl-cwyk/Xcode", "default_branch": "main", "visibility": "private", "size_kb": 2671, "access": "admin", "synthesis_role": "Apple/Xcode reference; import only portable source/config/data artifacts"}
   ],
   "non_destructive_constraints": [
     "Do not delete, force-push, archive, or overwrite source repositories as part of synthesis.",
@@ -45,87 +25,28 @@
     "Conflicting files must be staged under integration/source/<repo-slug>/ until a maintainer-approved replacement decision exists.",
     "safe_write/edit/ops apply mode must remain explicit and auditable.",
     "localhost export must bind only to localhost and must not commit TLS private keys.",
-    "operable repo commands must emit machine-readable JSON and must not perform destructive default actions."
+    "operable repo commands must emit machine-readable JSON and must not perform destructive default actions.",
+    "network capability measurement must not use packet capture, promiscuous mode, destructive probes, or default external bandwidth targets."
   ],
   "validated_target_components": [
-    "scripts/full_debug.py",
-    "scripts/init_github_repo.py",
-    "scripts/rebase_guard.py",
-    "scripts/safe_write_edit_ops.py",
-    "scripts/localhost_export_server.py",
-    "scripts/operable_repo.py",
-    ".github/workflows/full-debug.yml",
-    ".github/workflows/localhost-export.yml",
-    ".github/workflows/operable-repo.yml",
-    "docs/full-debug-runbook.md",
-    "docs/one-repo-synthesis-audit.md",
-    "docs/rebase-build-audit.md",
-    "docs/safe-write-edit-ops.md",
-    "docs/debug-export-20260708.md",
-    "schemas/safe-write-edit-ops.schema.json",
-    "schemas/localhost-export.schema.json",
-    "schemas/operable-repo-report.schema.json",
-    "datasets/safe-write-edit-ops.policy.json",
-    "datasets/localhost-export.config.json",
-    "datasets/localhost-export.object.json",
-    "datasets/debug-export-20260708.dataset.json",
-    "datasets/operable-repo.config.json",
-    "datasets/operable-repo.object.json",
-    "examples/safe-write-edit-ops.object.json",
-    "Makefile"
+    "scripts/full_debug.py", "scripts/init_github_repo.py", "scripts/rebase_guard.py", "scripts/safe_write_edit_ops.py", "scripts/localhost_export_server.py", "scripts/operable_repo.py", "scripts/network_capabilities.py",
+    ".github/workflows/full-debug.yml", ".github/workflows/localhost-export.yml", ".github/workflows/operable-repo.yml", ".github/workflows/network-capabilities.yml",
+    "docs/full-debug-runbook.md", "docs/one-repo-synthesis-audit.md", "docs/rebase-build-audit.md", "docs/safe-write-edit-ops.md", "docs/debug-export-20260708.md",
+    "schemas/safe-write-edit-ops.schema.json", "schemas/localhost-export.schema.json", "schemas/operable-repo-report.schema.json", "schemas/network-capabilities-report.schema.json",
+    "datasets/safe-write-edit-ops.policy.json", "datasets/localhost-export.config.json", "datasets/localhost-export.object.json", "datasets/debug-export-20260708.dataset.json", "datasets/operable-repo.config.json", "datasets/operable-repo.object.json", "datasets/network-capabilities.config.json",
+    "examples/safe-write-edit-ops.object.json", "Makefile"
   ],
   "rest_order_cleanup": {
     "open_issues_found": 0,
     "open_pull_requests_found": [],
     "closed_stale_pull_requests": [3, 4],
-    "merged_pull_requests": [7, 8, 9, 10, 11],
+    "merged_pull_requests": [7, 8, 9, 10, 11, 12],
     "active_pull_request": null,
-    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository. PR 9 added safe_write/edit/ops tooling. PR 10 exported the GitHub debug state. PR 11 added localhost/$HOME/usr/var export."
+    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed. PR 9 added safe_write/edit/ops tooling. PR 10 exported GitHub debug state. PR 11 added localhost/$HOME/usr/var export. PR 12 added the operable repo controller."
   },
-  "safe_write_edit_ops": {
-    "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
-    "policy": "datasets/safe-write-edit-ops.policy.json",
-    "schema_file": "schemas/safe-write-edit-ops.schema.json",
-    "executor": "scripts/safe_write_edit_ops.py",
-    "example_object": "examples/safe-write-edit-ops.object.json",
-    "default_mode": "plan",
-    "apply_requires_explicit_object_mode": true
-  },
-  "localhost_export": {
-    "schema": "upgraded-fiesta.localhost-export.bundle.v1",
-    "config": "datasets/localhost-export.config.json",
-    "object": "datasets/localhost-export.object.json",
-    "schema_file": "schemas/localhost-export.schema.json",
-    "server": "scripts/localhost_export_server.py",
-    "base_url": "https://localhost:9443",
-    "json_endpoint": "https://localhost:9443/export",
-    "zip_endpoint": "https://localhost:9443/export.zip",
-    "health_endpoint": "https://localhost:9443/health",
-    "runtime_output_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export",
-    "committed_tls_private_key": false,
-    "localhost_only": true
-  },
-  "operable_repo": {
-    "schema": "upgraded-fiesta.operable-repo.config.v1",
-    "controller": "scripts/operable_repo.py",
-    "config": "datasets/operable-repo.config.json",
-    "object": "datasets/operable-repo.object.json",
-    "report_schema": "schemas/operable-repo-report.schema.json",
-    "workflow": ".github/workflows/operable-repo.yml",
-    "commands": ["status", "validate", "export", "doctor", "serve"],
-    "machine_readable_output": true,
-    "destructive_default_action": false
-  },
-  "audit_status": {
-    "destructive_overwrite_performed": false,
-    "secrets_copied": false,
-    "source_repositories_deleted_or_archived": false,
-    "synthesis_ready_for_review": false,
-    "synthesis_merged": true,
-    "rebase_guard_required": true,
-    "safe_write_edit_ops_registered": true,
-    "debug_export_registered": true,
-    "localhost_export_registered": true,
-    "operable_repo_registered": true
-  }
+  "safe_write_edit_ops": {"schema": "upgraded-fiesta.safe-write-edit-ops.v1", "policy": "datasets/safe-write-edit-ops.policy.json", "schema_file": "schemas/safe-write-edit-ops.schema.json", "executor": "scripts/safe_write_edit_ops.py", "example_object": "examples/safe-write-edit-ops.object.json", "default_mode": "plan", "apply_requires_explicit_object_mode": true},
+  "localhost_export": {"schema": "upgraded-fiesta.localhost-export.bundle.v1", "config": "datasets/localhost-export.config.json", "object": "datasets/localhost-export.object.json", "schema_file": "schemas/localhost-export.schema.json", "server": "scripts/localhost_export_server.py", "base_url": "https://localhost:9443", "json_endpoint": "https://localhost:9443/export", "zip_endpoint": "https://localhost:9443/export.zip", "health_endpoint": "https://localhost:9443/health", "runtime_output_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export", "committed_tls_private_key": false, "localhost_only": true},
+  "operable_repo": {"schema": "upgraded-fiesta.operable-repo.config.v1", "controller": "scripts/operable_repo.py", "config": "datasets/operable-repo.config.json", "object": "datasets/operable-repo.object.json", "report_schema": "schemas/operable-repo-report.schema.json", "workflow": ".github/workflows/operable-repo.yml", "commands": ["status", "validate", "export", "doctor", "serve", "network"], "machine_readable_output": true, "destructive_default_action": false},
+  "network_capabilities": {"schema": "upgraded-fiesta.network-capabilities.config.v1", "config": "datasets/network-capabilities.config.json", "report_schema": "schemas/network-capabilities-report.schema.json", "executor": "scripts/network_capabilities.py", "workflow": ".github/workflows/network-capabilities.yml", "commands": ["status", "measure", "doctor"], "real_bandwidth_method": "localhost_tcp_loopback_send_recv", "default_payload_bytes": 8388608, "default_samples": 3, "external_bandwidth_test_default": false, "packet_capture": false, "promiscuous_mode": false},
+  "audit_status": {"destructive_overwrite_performed": false, "secrets_copied": false, "source_repositories_deleted_or_archived": false, "synthesis_ready_for_review": false, "synthesis_merged": true, "rebase_guard_required": true, "safe_write_edit_ops_registered": true, "debug_export_registered": true, "localhost_export_registered": true, "operable_repo_registered": true, "network_capabilities_registered": true}
 }
