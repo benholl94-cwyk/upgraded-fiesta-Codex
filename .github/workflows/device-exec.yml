@@ -1,0 +1,50 @@
+name: device-exec
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - device-root-exec-check-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      HOME: ${{ runner.temp }}/home
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile device exec checker
+        run: python3 -m py_compile scripts/device_exec_check.py
+
+      - name: Build localhost export bundle for device check
+        run: python3 scripts/localhost_export_server.py --scheme http --write --output-dir "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export" > localhost-export.write.json
+
+      - name: Device exec status
+        run: python3 scripts/device_exec_check.py status > device-exec-status.json
+
+      - name: Validate device exec status JSON
+        run: python3 -m json.tool device-exec-status.json >/dev/null
+
+      - name: Device exec doctor
+        run: python3 scripts/device_exec_check.py doctor > device-exec-doctor.json
+
+      - name: Validate device exec doctor JSON
+        run: python3 -m json.tool device-exec-doctor.json >/dev/null
+
+      - name: Upload device exec reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-exec-reports
+          path: |
+            localhost-export.write.json
+            device-exec-status.json
+            device-exec-doctor.json
+          if-no-files-found: error

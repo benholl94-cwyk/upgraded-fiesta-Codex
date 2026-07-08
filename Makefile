@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -71,6 +71,12 @@ depo-connect:
 
 depo-serve:
 	python3 scripts/depo_server.py serve --host 127.0.0.1 --port 9797
+
+device-exec-status:
+	python3 scripts/device_exec_check.py status
+
+device-exec-doctor:
+	python3 scripts/device_exec_check.py doctor
 
 codex-setup:
 	bash .codex/setup.sh
