@@ -1,0 +1,39 @@
+{
+  "schema": "user-space.finishline-debug-console.build-request.v1",
+  "generated_date": "2026-07-08",
+  "repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+  "source_head_before_request": "1b0cee024eac41bbdd93c776bce113a6358dc755",
+  "requested_operation": "build_finishline_debug_console_artifact",
+  "force_overwrites": true,
+  "global_export_target": "user_space",
+  "trigger_mode": "push_to_main",
+  "workflow": {
+    "name": "Finishline Debug Console",
+    "path": ".github/workflows/finishline-debug-console.yml",
+    "artifact_name": "finishline-debug-console",
+    "expected_trigger": "push",
+    "workflow_dispatch_inputs_equivalent": {
+      "execute_local": true,
+      "probe_external": false
+    }
+  },
+  "expected_artifacts": [
+    "reports/finishline-debug-console.json",
+    "reports/repo-trusted-ops-report.json",
+    "reports/ops-route-dry-run-report.json",
+    "reports/docker-compose-ops-dry-run.config.yml",
+    "reports/docker-compose-ops-dry-run.services.txt",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif"
+  ],
+  "execution_boundaries": {
+    "interactive_console": false,
+    "runtime_artifact_only": true,
+    "secret_read_allowed": false,
+    "remote_shell_allowed": false,
+    "destructive_execution_allowed": false
+  },
+  "proof_condition": "Artifact build is proven only when GitHub Actions publishes artifact finishline-debug-console for this request commit."
+}
