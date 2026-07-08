@@ -1,0 +1,4 @@
+{
+  "schema": "upgraded-fiesta.remote-control.noop.v1",
+  "noop": true
+}
