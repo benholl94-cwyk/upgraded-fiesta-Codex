@@ -1,0 +1,73 @@
+name: Ops User Acceptance
+
+description: Explicit operator acceptance for live-operations access thresholds. This does not activate remote execution.
+
+title: "ops-access: user acceptance for activation thresholds"
+
+labels:
+  - ops-access
+  - user-acceptance
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue records explicit acceptance of the repository-defined operations access thresholds.
+
+        Do not paste secrets, credentials, raw `.env` content, host-specific sensitive inventory, or unredacted logs into this issue.
+
+        Required phrase: `USER_ACCEPT_OPS_ACCESS_THRESHOLDS`
+
+  - type: input
+    id: accept_phrase
+    attributes:
+      label: Acceptance phrase
+      description: Enter the exact phrase USER_ACCEPT_OPS_ACCESS_THRESHOLDS.
+      placeholder: USER_ACCEPT_OPS_ACCESS_THRESHOLDS
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: thresholds
+    attributes:
+      label: Threshold acceptance
+      options:
+        - label: T01_HOST_IDENTITY_PIN — approved remote host identity pin exists outside Git.
+          required: true
+        - label: T02_DEDICATED_LOW_PRIVILEGE_ACCOUNT — dedicated low-privilege operations account exists.
+          required: true
+        - label: T03_ENVIRONMENT_SCOPED_ACCESS_CREDENTIAL — environment-scoped access credential exists outside Git.
+          required: true
+        - label: T04_REMOTE_GUARD_REVIEWED — reviewed remote guard implementation exists.
+          required: true
+        - label: T05_STAGING_DENIAL_AUDITED — staging validation shows unknown operations denied and audited.
+          required: true
+        - label: T06_REDACTION_PROOF_SYNTHETIC_ONLY — redaction proof uses synthetic credential markers only.
+          required: true
+        - label: T07_REMOTE_ACTIVATION_STILL_DISABLED_BY_DEFAULT — remote activation remains disabled by default.
+          required: true
+
+  - type: checkboxes
+    id: denied_evidence_confirmation
+    attributes:
+      label: Denied evidence confirmation
+      options:
+        - label: I confirm that this issue does not contain raw secrets, credential material, production `.env` content, unredacted remote logs, unrestricted shell transcripts, or host-specific sensitive inventory.
+          required: true
+
+  - type: textarea
+    id: sanitized_evidence_references
+    attributes:
+      label: Sanitized evidence references
+      description: Add only sanitized references such as workflow run IDs, reviewed change IDs, or synthetic redaction test report references. Do not paste secret values.
+      placeholder: "Example: staging audit artifact name, reviewed change reference, synthetic redaction test report reference."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: remote_activation_boundary
+    attributes:
+      label: Remote activation boundary
+      options:
+        - label: I understand that creating this issue records acceptance only and does not activate remote execution.
+          required: true
