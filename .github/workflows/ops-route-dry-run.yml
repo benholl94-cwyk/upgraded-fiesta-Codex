@@ -45,6 +45,9 @@ jobs:
       - name: Validate route matrix
         run: python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --validate-only
 
+      - name: Validate agent audit objectives
+        run: python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes "$OPS_ROUTE_MATRIX"
+
       - name: Execute route safety dry-run
         run: |
           set -euo pipefail
@@ -101,6 +104,7 @@ jobs:
             echo ""
             echo "- Execute safe routes: $OPS_EXECUTE_SAFE"
             echo "- Include Docker parse: $OPS_INCLUDE_DOCKER_PARSE"
+            echo "- Agent audit validation: required"
             echo "- Remote execution performed: false"
             echo "- Docker destructive execution performed: false"
             echo "- Live sync mode: report_only"
