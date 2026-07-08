@@ -14,35 +14,32 @@ permissions:
 jobs:
   export-once:
     runs-on: ubuntu-latest
+    env:
+      LOCALHOST_EXPORT_OUT: ${{ runner.temp }}/home/usr/var/upgraded-fiesta-Codex/localhost-export
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
+      - name: Show Python
+        run: python3 --version
 
       - name: Compile export server
         run: python3 -m py_compile scripts/localhost_export_server.py
 
       - name: Build export bundle once
-        run: python3 scripts/localhost_export_server.py --scheme https --once > localhost-export.bundle.json
+        run: python3 scripts/localhost_export_server.py --scheme http --once > localhost-export.bundle.json
 
       - name: Validate export bundle JSON
         run: python3 -m json.tool localhost-export.bundle.json >/dev/null
 
-      - name: Write runtime export under HOME usr var
-        run: python3 scripts/localhost_export_server.py --scheme https --write --output-dir "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export" > localhost-export.write-report.json
+      - name: Write runtime export under home usr var shape
+        run: python3 scripts/localhost_export_server.py --scheme http --write --output-dir "$LOCALHOST_EXPORT_OUT" > localhost-export.write-report.json
 
       - name: Validate write report JSON
         run: python3 -m json.tool localhost-export.write-report.json >/dev/null
 
       - name: Check written export files
-        run: |
-          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json"
-          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export-manifest.json"
-          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.zip"
+        run: test -s "$LOCALHOST_EXPORT_OUT/export.bundle.json" && test -s "$LOCALHOST_EXPORT_OUT/export-manifest.json" && test -s "$LOCALHOST_EXPORT_OUT/export.zip"
 
       - name: Upload localhost export bundle
         if: always()
