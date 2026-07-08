@@ -1,0 +1,75 @@
+{
+  "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
+  "generated_date": "2026-07-08",
+  "policy_id": "safe-write-edit-ops-policy-20260708-main-control-plane",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "visibility": "public",
+    "admin_access_confirmed": true,
+    "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
+    "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec"
+  },
+  "allowed_roots": [
+    "docs",
+    "datasets",
+    "schemas",
+    "scripts",
+    "examples",
+    "tests",
+    "policies",
+    ".github/workflows",
+    "Makefile"
+  ],
+  "quarantine_root": ".tmp/safe_write_edit_ops_quarantine",
+  "denied_globs": [
+    ".git/**",
+    ".env",
+    ".env.*",
+    "**/.env",
+    "**/.env.*",
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.pfx",
+    "**/*.secret",
+    "**/*.secrets",
+    "**/id_rsa",
+    "**/id_ed25519",
+    "logs/**",
+    "runs/**",
+    "backups/**",
+    "exports/**",
+    "target/**",
+    "node_modules/**",
+    "ui/node_modules/**",
+    "ui/dist/**"
+  ],
+  "limits": {
+    "max_path_bytes": 240,
+    "max_file_bytes": 1048576,
+    "max_object_bytes": 262144,
+    "max_operations": 200
+  },
+  "write_guards": {
+    "default_mode": "plan",
+    "apply_requires_object_mode_apply": true,
+    "overwrite_requires_explicit_boolean": true,
+    "edit_replace_requires_expected_sha256": true,
+    "copy_can_require_source_hash": true,
+    "delete_is_not_supported": true,
+    "destructive_ops_are_quarantine_only": true,
+    "atomic_write": "tempfile-fsync-os.replace",
+    "backup_root": ".tmp/safe_write_edit_ops_backups",
+    "audit_root": "runs/safe_write_edit_ops"
+  },
+  "actual_material": {
+    "closed_stale_pull_requests": [3, 4],
+    "merged_pull_requests": [7, 8],
+    "open_pull_requests_after_rebase_guard": [],
+    "known_source_repositories": [
+      "benholl94-cmyk/upgraded-fiesta",
+      "benholl94-cwyk/-GPTTerminalAIShell",
+      "benholl-cwyk/Xcode"
+    ]
+  }
+}
