@@ -1,0 +1,44 @@
+{
+  "schema": "released-fullworking-system.object.v1",
+  "object_id": "v1.released_fullworking_system.autonomous_ai_product",
+  "generated_date": "2026-07-08",
+  "role": "machine_contract",
+  "product_surface": {
+    "local_ops": true,
+    "repo_trusted_ops": true,
+    "workflow_dispatch_dataset": true,
+    "finishline_debug_console": true,
+    "audit_valid_debug_streampipe": true,
+    "mobile_first_operator_model": true
+  },
+  "autonomous_ai_operating_model": {
+    "agent_objectives": "config/agent-objectives.audit.json",
+    "route_matrix": "config/ops-route-matrix.example.json",
+    "trusted_ops_profile": "config/repo-trusted-ops.fullstack.json",
+    "workflow_dispatch_dataset": "datasets/workflow-dispatch.fullstacked.dataset.json",
+    "release_dataset": "datasets/v1-released-fullworking-system.dataset.json",
+    "release_manifest": "releases/v1/released-fullworking-system.manifest.json"
+  },
+  "format_outputs": {
+    "json": true,
+    "jsonl": true,
+    "markdown": true,
+    "sarif": true,
+    "workflow_artifact": true
+  },
+  "release_assertions": {
+    "formative_documents_present": true,
+    "machine_objects_present": true,
+    "validators_present": true,
+    "workflows_present": true,
+    "runtime_artifact_required": true,
+    "runtime_artifact_embedded": false
+  },
+  "prohibited_defaults": {
+    "read_secrets": false,
+    "open_remote_shell": false,
+    "destructive_docker": false,
+    "arbitrary_shell": false,
+    "claim_runtime_success_without_artifact": false
+  }
+}
