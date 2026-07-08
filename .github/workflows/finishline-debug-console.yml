@@ -33,6 +33,7 @@ jobs:
       TRUSTED_OPS_REPORT: reports/repo-trusted-ops-report.json
       OPS_ROUTE_MATRIX: config/ops-route-matrix.example.json
       OPS_ROUTE_REPORT: reports/ops-route-dry-run-report.json
+      WORKFLOW_DISPATCH_DATASET: datasets/workflow-dispatch.fullstacked.dataset.json
       FINISHLINE_REPORT: reports/finishline-debug-console.json
       STREAMPipe_DIR: reports/audit-valid-debug-streampipe
       POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
@@ -61,7 +62,8 @@ jobs:
               "branch": cmd(["git", "branch", "--show-current"]),
               "trusted_ops_profile_exists": (root / "config/repo-trusted-ops.fullstack.json").is_file(),
               "agent_audit_exists": (root / "config/agent-objectives.audit.json").is_file(),
-              "route_matrix_exists": (root / "config/ops-route-matrix.example.json").is_file()
+              "route_matrix_exists": (root / "config/ops-route-matrix.example.json").is_file(),
+              "workflow_dispatch_dataset_exists": (root / "datasets/workflow-dispatch.fullstacked.dataset.json").is_file()
           }, indent=2, sort_keys=True))
           PY
 
@@ -73,6 +75,9 @@ jobs:
 
       - name: Validate trusted ops profile
         run: python3 scripts/repo_trusted_ops.py validate --profile "$TRUSTED_OPS_PROFILE"
+
+      - name: Validate workflow dispatch dataset
+        run: python3 scripts/validate_workflow_dispatch_dataset.py --dataset "$WORKFLOW_DISPATCH_DATASET"
 
       - name: Generate trusted ops report
         run: |
@@ -135,6 +140,7 @@ jobs:
               "ok": all(item["exists"] for item in artifacts),
               "github_sha": os.environ.get("GITHUB_SHA"),
               "git_head": cmd(["git", "rev-parse", "HEAD"]),
+              "workflow_dispatch_dataset": os.environ.get("WORKFLOW_DISPATCH_DATASET"),
               "artifacts": artifacts,
               "repo_trusted_ops_enabled": True,
               "enterprise_first_mobile": True,
@@ -176,6 +182,7 @@ jobs:
             echo "- Report: $FINISHLINE_REPORT"
             echo "- Trusted ops report: $TRUSTED_OPS_REPORT"
             echo "- Route report: $OPS_ROUTE_REPORT"
+            echo "- Workflow dispatch dataset: $WORKFLOW_DISPATCH_DATASET"
             echo "- Audit streampipe: $STREAMPipe_DIR"
             echo "- Stream formats: json, jsonl, markdown, sarif"
             echo "- Interactive console: false"
