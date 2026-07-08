@@ -1,0 +1,16 @@
+{
+  "schema": "upgraded-fiesta.remote-control.pr-open.v1",
+  "generated_at_utc": "2026-07-08T16:18:30Z",
+  "base": "main",
+  "head": "remote-control-consent-gate-20260708",
+  "ahead_by": 9,
+  "behind_by": 0,
+  "status": "ready_for_pull_request",
+  "consent_model": {
+    "accept_required": true,
+    "enable_all_after_accept": true,
+    "deny_disables_all": true,
+    "auto_accept_popup": false,
+    "bypass_user_consent": false
+  }
+}
