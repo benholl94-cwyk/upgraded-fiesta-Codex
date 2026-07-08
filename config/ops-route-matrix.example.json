@@ -1,0 +1,116 @@
+{
+  "schema": "ops-access.route-matrix.v1",
+  "status": "safety-dry-run-first",
+  "remote_execution_enabled": false,
+  "docker_destructive_execution_enabled": false,
+  "live_sync_mode": "report_only",
+  "default_timeout_seconds": 120,
+  "default_output_limit_bytes": 200000,
+  "routes": [
+    {
+      "id": "R01_REPO_VALIDATE",
+      "operation": "repo.validate",
+      "criticality": "standard",
+      "mode": "safe_execute_allowed",
+      "command": ["python3", "scripts/validate_repo.py"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "deny",
+      "destructive": false
+    },
+    {
+      "id": "R02_OPS_MANIFEST_VALIDATE",
+      "operation": "ops.validate_manifest",
+      "criticality": "standard",
+      "mode": "safe_execute_allowed",
+      "command": ["python3", "scripts/validate_ops_access_config.py", "--manifest", "config/ops-command-manifest.example.json"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "deny",
+      "destructive": false
+    },
+    {
+      "id": "R03_OPS_THRESHOLDS_VALIDATE",
+      "operation": "ops.validate_thresholds_shape",
+      "criticality": "standard",
+      "mode": "safe_execute_allowed",
+      "command": ["python3", "scripts/ops_route_runner.py", "--route-matrix", "config/ops-route-matrix.example.json", "--validate-only"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "deny",
+      "destructive": false
+    },
+    {
+      "id": "R04_DOCKER_COMPOSE_PARSE",
+      "operation": "docker.compose.parse_only",
+      "criticality": "critical-near",
+      "mode": "plan_only",
+      "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "parse_only",
+      "destructive": false,
+      "requires_environment": {
+        "POSTGRES_PASSWORD": "required_for_compose_parser_only_from_runner_environment"
+      }
+    },
+    {
+      "id": "R05_DOCKER_OVERWRITE_PLAN",
+      "operation": "docker.overwrite.plan_only",
+      "criticality": "critical-near",
+      "mode": "plan_only",
+      "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config", "--services"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "parse_only",
+      "destructive": false,
+      "blocked_live_commands": ["docker compose up", "docker compose down", "docker compose down -v", "docker compose rm", "docker volume rm", "docker system prune"]
+    },
+    {
+      "id": "R06_SERVICE_STATUS_RESERVED",
+      "operation": "service.status",
+      "criticality": "critical-near",
+      "mode": "blocked_until_remote_guard",
+      "command": ["ops-access-guard", "service.status"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "deny",
+      "destructive": false,
+      "blocked_reason": "remote guard not installed and remote execution disabled"
+    },
+    {
+      "id": "R07_EXTERNAL_API_CHECK_RESERVED",
+      "operation": "external.api.check",
+      "criticality": "critical-near",
+      "mode": "blocked_until_declared_targets",
+      "command": ["ops-access-guard", "external.api.check"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "declared_targets_only",
+      "docker": "deny",
+      "destructive": false,
+      "blocked_reason": "declared target inventory and remote guard not installed"
+    },
+    {
+      "id": "R08_LIVE_SYNC_REPORT",
+      "operation": "live.sync.report_only",
+      "criticality": "standard",
+      "mode": "safe_execute_allowed",
+      "command": ["python3", "scripts/ops_route_runner.py", "--route-matrix", "config/ops-route-matrix.example.json", "--write-report", "reports/ops-route-dry-run-report.json"],
+      "expected_artifact": "reports/ops-route-dry-run-report.json",
+      "network": "deny",
+      "docker": "deny",
+      "destructive": false
+    }
+  ],
+  "global_blocks": [
+    "remote_shell",
+    "interactive_root_shell",
+    "environment_dump",
+    "secret_dump",
+    "docker_volume_delete",
+    "docker_system_prune",
+    "docker_socket_mount",
+    "unbounded_network_scan",
+    "unreviewed_live_remote_execution"
+  ]
+}
