@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor ops-route-validate ops-route-dry-run ops-route-dry-run-execute docker-ops-config docker-ops-services codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -77,6 +77,21 @@ device-exec-status:
 
 device-exec-doctor:
 	python3 scripts/device_exec_check.py doctor
+
+ops-route-validate:
+	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --validate-only
+
+ops-route-dry-run:
+	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --write-report reports/ops-route-dry-run-report.json
+
+ops-route-dry-run-execute:
+	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --execute-safe --write-report reports/ops-route-dry-run-report.json
+
+docker-ops-config:
+	POSTGRES_PASSWORD=OPS_DRY_RUN_COMPOSE_PARSER_ONLY docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config
+
+docker-ops-services:
+	POSTGRES_PASSWORD=OPS_DRY_RUN_COMPOSE_PARSER_ONLY docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config --services
 
 codex-setup:
 	bash .codex/setup.sh
