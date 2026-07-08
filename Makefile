@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -35,6 +35,21 @@ localhost-export-write-var:
 
 localhost-export-https:
 	python3 scripts/localhost_export_server.py --scheme https --host 127.0.0.1 --port 9443
+
+operable-status:
+	python3 scripts/operable_repo.py status
+
+operable-validate:
+	python3 scripts/operable_repo.py validate
+
+operable-export:
+	python3 scripts/operable_repo.py export
+
+operable-doctor:
+	python3 scripts/operable_repo.py doctor
+
+operable-serve:
+	python3 scripts/operable_repo.py serve
 
 codex-setup:
 	bash .codex/setup.sh
