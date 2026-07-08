@@ -1,0 +1,79 @@
+{
+  "schema": "upgraded-fiesta.localhost-export.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "visibility": "public",
+    "last_debug_export_merge_commit": "26011779db5849559e819690304b69cfe64929ca",
+    "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
+    "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
+    "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d"
+  },
+  "localhost": {
+    "bind_host": "127.0.0.1",
+    "https_port": 9443,
+    "base_url": "https://localhost:9443",
+    "tls_runtime_dir": ".tmp/localhost_export_tls",
+    "certificate_common_name": "localhost",
+    "certificate_subject_alt_names": [
+      "DNS:localhost",
+      "IP:127.0.0.1",
+      "IP:::1"
+    ]
+  },
+  "export": {
+    "schema": "upgraded-fiesta.localhost-export.bundle.v1",
+    "name": "upgraded-fiesta-Codex-localhost-export",
+    "runtime_output_root": "exports/localhost",
+    "include_paths": [
+      "Makefile",
+      "datasets/repository-synthesis.dataset.json",
+      "datasets/debug-export-20260708.dataset.json",
+      "datasets/safe-write-edit-ops.policy.json",
+      "datasets/localhost-export.config.json",
+      "schemas/safe-write-edit-ops.schema.json",
+      "schemas/localhost-export.schema.json",
+      "scripts/full_debug.py",
+      "scripts/init_github_repo.py",
+      "scripts/rebase_guard.py",
+      "scripts/safe_write_edit_ops.py",
+      "scripts/localhost_export_server.py",
+      "docs/full-debug-runbook.md",
+      "docs/one-repo-synthesis-audit.md",
+      "docs/rebase-build-audit.md",
+      "docs/safe-write-edit-ops.md",
+      "docs/debug-export-20260708.md"
+    ],
+    "deny_globs": [
+      ".git/**",
+      ".env",
+      ".env.*",
+      "**/.env",
+      "**/.env.*",
+      "**/*.pem",
+      "**/*.key",
+      "**/*.p12",
+      "**/*.pfx",
+      "logs/**",
+      "runs/**",
+      "backups/**",
+      "target/**",
+      "node_modules/**",
+      "ui/node_modules/**",
+      "ui/dist/**",
+      ".tmp/**"
+    ],
+    "max_file_bytes": 1048576,
+    "zip_endpoint": "/export.zip",
+    "json_endpoint": "/export",
+    "health_endpoint": "/health"
+  },
+  "security": {
+    "committed_tls_private_key": false,
+    "runtime_tls_generation": "openssl req -x509 runtime-only self-signed localhost certificate",
+    "external_network_bind": false,
+    "destructive_export": false,
+    "secret_export": false
+  }
+}
