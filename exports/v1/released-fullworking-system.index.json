@@ -1,0 +1,37 @@
+{
+  "schema": "released-fullworking-system.index.v1",
+  "generated_date": "2026-07-08",
+  "repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+  "release_line": "v1/released_fullworking_system-software-autonomes-ai-produkt",
+  "source_contract": {
+    "manifest": "releases/v1/released-fullworking-system.manifest.json",
+    "object": "config/v1-released-fullworking-system.object.json",
+    "dataset": "datasets/v1-released-fullworking-system.dataset.json",
+    "validator": "scripts/validate_v1_released_system.py",
+    "workflow": ".github/workflows/v1-release-gate.yml"
+  },
+  "formative_documents": [
+    "docs/v1/system-overview.md",
+    "docs/v1/autonomous-ai-product-spec.md",
+    "docs/v1/release-runbook.md",
+    "docs/v1/acceptance-criteria.md",
+    "docs/v1/security-boundaries.md",
+    "docs/v1/operability-proof-map.md"
+  ],
+  "standard_checks": [
+    "python3 scripts/validate_repo.py",
+    "python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes config/ops-route-matrix.example.json",
+    "python3 scripts/repo_trusted_ops.py validate --profile config/repo-trusted-ops.fullstack.json",
+    "python3 scripts/validate_workflow_dispatch_dataset.py --dataset datasets/workflow-dispatch.fullstacked.dataset.json",
+    "python3 scripts/validate_v1_released_system.py --manifest releases/v1/released-fullworking-system.manifest.json",
+    "make hard-scan-full-space",
+    "bash scripts/codex_fullstack_check.sh"
+  ],
+  "runtime_artifact_required_for_final_100_percent_claim": true,
+  "expected_artifacts": [
+    "v1-release-proof",
+    "finishline-debug-console",
+    "repo-trusted-ops-report",
+    "ops-route-dry-run-reports"
+  ]
+}
