@@ -32,10 +32,24 @@ jobs:
       - name: Validate export bundle JSON
         run: python3 -m json.tool localhost-export.bundle.json >/dev/null
 
+      - name: Write runtime export under HOME usr var
+        run: python3 scripts/localhost_export_server.py --scheme https --write --output-dir "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export" > localhost-export.write-report.json
+
+      - name: Validate write report JSON
+        run: python3 -m json.tool localhost-export.write-report.json >/dev/null
+
+      - name: Check written export files
+        run: |
+          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json"
+          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export-manifest.json"
+          test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.zip"
+
       - name: Upload localhost export bundle
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: localhost-export-bundle
-          path: localhost-export.bundle.json
+          path: |
+            localhost-export.bundle.json
+            localhost-export.write-report.json
           if-no-files-found: error
