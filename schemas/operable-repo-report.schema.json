@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:upgraded-fiesta:operable-repo:report:v1",
+  "title": "upgraded-fiesta operable repo report",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at_utc",
+    "repository",
+    "command",
+    "ok",
+    "checks",
+    "security"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "const": "upgraded-fiesta.operable-repo.report.v1"
+    },
+    "generated_at_utc": {
+      "type": "string"
+    },
+    "command": {
+      "type": "string"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "full_name",
+        "default_branch",
+        "known_main_head"
+      ],
+      "properties": {
+        "full_name": {"type": "string"},
+        "default_branch": {"type": "string"},
+        "known_main_head": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "ok"],
+        "properties": {
+          "name": {"type": "string"},
+          "ok": {"type": "boolean"},
+          "severity": {"enum": ["info", "warning", "error"]},
+          "detail": {}
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": [
+        "committed_tls_private_key",
+        "secret_export",
+        "external_network_bind",
+        "destructive_default_action"
+      ],
+      "properties": {
+        "committed_tls_private_key": {"type": "boolean"},
+        "secret_export": {"type": "boolean"},
+        "external_network_bind": {"type": "boolean"},
+        "destructive_default_action": {"type": "boolean"}
+      }
+    }
+  }
+}
