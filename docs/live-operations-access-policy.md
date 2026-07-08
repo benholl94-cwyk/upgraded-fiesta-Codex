@@ -1,6 +1,6 @@
 # Live Operations Access Policy
 
-Status: planned, not activated
+Status: repository gates implemented, remote activation disabled
 Date anchor: 2026-07-08
 Scope: upgraded-fiesta-Codex
 
@@ -32,15 +32,26 @@ The access layer must use explicit operator authorization, environment-scoped cr
 9. Disabling the environment credentials fully disables remote operations.
 10. Production activation requires a successful staging validation pass.
 
-## Recommended repository additions
+## Implemented repository additions
 
-- `config/ops-command-manifest.example.json`
-- `scripts/validate_ops_access_config.py`
-- `docs/ops-access-remote-host-bootstrap.md`
-- `.github/workflows/ops-access-dispatch.yml`
-
-These additions must remain non-secret and fail closed when required environment values are missing.
+| Path | Status | Purpose |
+|---|---:|---|
+| `config/ops-command-manifest.example.json` | implemented | Fail-closed operation manifest with disabled remote profiles. |
+| `scripts/validate_ops_access_config.py` | implemented | Static validator for schema, denied command tokens, timeouts, output limits, audit requirements, and network policy. |
+| `docs/ops-access-remote-host-bootstrap.md` | implemented | Remote host eligibility contract without credentials or host-specific secrets. |
+| `.github/workflows/ops-access-dispatch.yml` | implemented | Manual dispatch workflow that validates gates and refuses remote activation. |
 
 ## Current hard stop
 
-The live connection is not activated in this context because no approved remote host identity, dedicated remote account, or environment-scoped credential is available here. That is the correct secure state.
+The live connection is not activated in this context because no approved remote host identity, dedicated remote account, reviewed remote guard, or environment-scoped credential is available here. That is the correct secure state.
+
+## Next activation threshold
+
+Remote operations may only move beyond repository validation after all of these are present outside Git:
+
+1. Approved remote host identity pin.
+2. Dedicated low-privilege operations account.
+3. Environment-scoped access credential.
+4. Reviewed remote guard implementation.
+5. Staging validation showing unknown operations denied and audited.
+6. Redaction proof using synthetic credential markers only.
