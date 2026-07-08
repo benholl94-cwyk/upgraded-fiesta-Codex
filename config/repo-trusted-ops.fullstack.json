@@ -1,0 +1,128 @@
+{
+  "schema": "repo-trusted-ops.fullstack.v1",
+  "status": "enabled_repo_trusted_ops_tools",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "trusted_ops_enabled": true,
+    "enterprise_first_mobile": true
+  },
+  "runtime_policy": {
+    "live_datetime_required": true,
+    "write_reports": true,
+    "report_path": "reports/repo-trusted-ops-report.json",
+    "local_operations_enabled": true,
+    "external_operations_enabled": true,
+    "external_probe_default": false,
+    "declared_targets_only": true,
+    "secrets_required": false,
+    "secret_read_allowed": false,
+    "remote_execution_allowed": false,
+    "destructive_execution_allowed": false,
+    "arbitrary_shell_allowed": false
+  },
+  "local_fullstack_sets": [
+    {
+      "id": "L01_REPO_STRUCTURE",
+      "kind": "validator",
+      "command": ["python3", "scripts/validate_repo.py"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L02_AGENT_AUDIT",
+      "kind": "validator",
+      "command": ["python3", "scripts/validate_agent_audit.py", "--audit", "config/agent-objectives.audit.json", "--routes", "config/ops-route-matrix.example.json"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L03_OPS_MANIFEST",
+      "kind": "validator",
+      "command": ["python3", "scripts/validate_ops_access_config.py", "--manifest", "config/ops-command-manifest.example.json"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L04_ROUTE_MATRIX",
+      "kind": "validator",
+      "command": ["python3", "scripts/ops_route_runner.py", "--route-matrix", "config/ops-route-matrix.example.json", "--validate-only"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L05_DEVICE_EXEC_STATUS",
+      "kind": "status_report",
+      "command": ["python3", "scripts/device_exec_check.py", "status"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L06_DEPO_STATUS",
+      "kind": "status_report",
+      "command": ["python3", "scripts/depo_server.py", "status"],
+      "required": true,
+      "expected_signal": "ok_true"
+    },
+    {
+      "id": "L07_DOCKER_PARSE",
+      "kind": "parse_only",
+      "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config"],
+      "required": false,
+      "expected_signal": "parse_ok",
+      "environment": {
+        "POSTGRES_PASSWORD": "OPS_DRY_RUN_COMPOSE_PARSER_ONLY"
+      }
+    },
+    {
+      "id": "L08_DOCKER_SERVICES",
+      "kind": "parse_only",
+      "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config", "--services"],
+      "required": false,
+      "expected_signal": "services_list_ok",
+      "environment": {
+        "POSTGRES_PASSWORD": "OPS_DRY_RUN_COMPOSE_PARSER_ONLY"
+      }
+    }
+  ],
+  "external_fullstack_sets": [
+    {
+      "id": "E01_GITHUB_REPOSITORY_API",
+      "kind": "https_json_probe",
+      "url": "https://api.github.com/repos/benholl94-cwyk/upgraded-fiesta-Codex",
+      "required": false,
+      "expected_status": 200,
+      "timeout_seconds": 10
+    },
+    {
+      "id": "E02_GITHUB_ACTIONS_WORKFLOW_FILE",
+      "kind": "repo_file_presence",
+      "path": ".github/workflows/ops-route-dry-run.yml",
+      "required": true,
+      "expected_signal": "file_present"
+    },
+    {
+      "id": "E03_GITHUB_ACTIONS_TRUSTED_OPS_WORKFLOW_FILE",
+      "kind": "repo_file_presence",
+      "path": ".github/workflows/repo-trusted-ops.yml",
+      "required": false,
+      "expected_signal": "file_present_after_patch"
+    }
+  ],
+  "gap_classes": [
+    "missing_required_file",
+    "missing_required_route_mapping",
+    "validator_failure",
+    "optional_tool_unavailable",
+    "external_probe_not_requested",
+    "external_probe_failed",
+    "runtime_artifact_missing"
+  ],
+  "trusted_outputs": [
+    "reports/repo-trusted-ops-report.json",
+    "reports/ops-route-dry-run-report.json",
+    "reports/docker-compose-ops-dry-run.config.yml",
+    "reports/docker-compose-ops-dry-run.services.txt"
+  ]
+}
