@@ -1,0 +1,78 @@
+name: depo-server
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - depo-server-localhost-connect-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    env:
+      HOME: ${{ runner.temp }}/home
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile depo server
+        run: python3 -m py_compile scripts/depo_server.py scripts/localhost_export_server.py scripts/operable_repo.py
+
+      - name: Build localhost export bundle for local user
+        run: python3 scripts/localhost_export_server.py --scheme http --write --output-dir "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export" > localhost-export.write.json
+
+      - name: Depo status
+        run: python3 scripts/depo_server.py status > depo-status.json
+
+      - name: Validate depo status JSON
+        run: python3 -m json.tool depo-status.json >/dev/null
+
+      - name: Start depo server
+        run: python3 scripts/depo_server.py serve --host 127.0.0.1 --port 9797 > depo-server.log 2>&1 & echo $! > depo-server.pid
+
+      - name: Wait depo health
+        run: python3 - <<'PY'
+import json, time, urllib.request
+for _ in range(50):
+    try:
+        with urllib.request.urlopen('http://127.0.0.1:9797/health', timeout=1) as r:
+            print(r.read().decode())
+            raise SystemExit(0)
+    except Exception:
+        time.sleep(0.1)
+raise SystemExit(1)
+PY
+
+      - name: Connect local user outbound to depo
+        run: DEPO_SERVER_URL=http://127.0.0.1:9797 python3 scripts/depo_server.py connect > depo-connect.json
+
+      - name: Validate depo connect JSON
+        run: python3 -m json.tool depo-connect.json >/dev/null
+
+      - name: Pull depo state
+        run: python3 - <<'PY' > depo-pull.json
+import urllib.request
+with urllib.request.urlopen('http://127.0.0.1:9797/state/pull', timeout=5) as r:
+    print(r.read().decode())
+PY
+
+      - name: Validate depo pull JSON
+        run: python3 -m json.tool depo-pull.json >/dev/null
+
+      - name: Upload depo reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: depo-server-reports
+          path: |
+            localhost-export.write.json
+            depo-status.json
+            depo-connect.json
+            depo-pull.json
+            depo-server.log
+          if-no-files-found: error

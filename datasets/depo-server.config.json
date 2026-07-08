@@ -1,0 +1,46 @@
+{
+  "schema": "upgraded-fiesta.depo-server.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "known_main_head_after_network_capabilities": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251"
+  },
+  "depo_server": {
+    "name": "depo_server_",
+    "mode": "online_server_and_localhost_user_outbound_client",
+    "server_bind_host_default": "127.0.0.1",
+    "server_port_default": 9797,
+    "server_base_url_default": "http://127.0.0.1:9797",
+    "online_url_env": "DEPO_SERVER_URL",
+    "shared_token_env": "DEPO_SERVER_TOKEN",
+    "runtime_root": "runs/depo_server",
+    "spool_root": "$HOME/usr/var/upgraded-fiesta-Codex/depo_server",
+    "localhost_export_bundle": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json"
+  },
+  "endpoints": {
+    "health": "/health",
+    "connect": "/connect/local-user",
+    "push_bundle": "/bundle/push",
+    "pull_state": "/state/pull",
+    "events": "/events"
+  },
+  "local_user_connection": {
+    "direction": "outbound_from_localhost_user_to_depo_server",
+    "reason": "online services cannot safely or reliably initiate direct access into another machine's localhost namespace",
+    "localhost_private": true,
+    "supports_offline_spool": true,
+    "pushes_localhost_export_bundle": true,
+    "polls_depo_state": true
+  },
+  "security": {
+    "hardcoded_token": false,
+    "token_optional_for_localhost": true,
+    "token_required_for_non_loopback_server_url": true,
+    "secrets_committed": false,
+    "external_bind_default": false,
+    "destructive_default_action": false,
+    "localhost_user_data_committed": false
+  }
+}
