@@ -1,0 +1,74 @@
+name: Repo Trusted Ops
+
+on:
+  workflow_dispatch:
+    inputs:
+      execute_local:
+        description: Execute declared local trusted ops checks.
+        required: true
+        default: true
+        type: boolean
+      probe_external:
+        description: Probe declared external trusted ops targets.
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  repo-trusted-ops:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TRUSTED_OPS_PROFILE: config/repo-trusted-ops.fullstack.json
+      TRUSTED_OPS_REPORT: reports/repo-trusted-ops-report.json
+      POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate trusted ops profile
+        run: python3 scripts/repo_trusted_ops.py validate --profile "$TRUSTED_OPS_PROFILE"
+
+      - name: Generate trusted ops report
+        run: |
+          set -euo pipefail
+          args=(report --profile "$TRUSTED_OPS_PROFILE" --write-report "$TRUSTED_OPS_REPORT")
+          if [ "${{ inputs.execute_local || 'true' }}" = "true" ]; then
+            args+=(--execute-local)
+          fi
+          if [ "${{ inputs.probe_external || 'false' }}" = "true" ]; then
+            args+=(--probe-external)
+          fi
+          python3 scripts/repo_trusted_ops.py "${args[@]}"
+
+      - name: Upload trusted ops report
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-trusted-ops-report
+          path: reports/repo-trusted-ops-report.json
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Repo Trusted Ops"
+            echo ""
+            echo "- Profile: $TRUSTED_OPS_PROFILE"
+            echo "- Report: $TRUSTED_OPS_REPORT"
+            echo "- Local execution requested: ${{ inputs.execute_local || 'true' }}"
+            echo "- External probe requested: ${{ inputs.probe_external || 'false' }}"
+            echo "- Secrets required: false"
+            echo "- Remote execution allowed: false"
+            echo "- Destructive execution allowed: false"
+          } >> "$GITHUB_STEP_SUMMARY"
