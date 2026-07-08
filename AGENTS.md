@@ -32,6 +32,7 @@ Use these commands from the repository root:
 
 ```sh
 python3 scripts/validate_repo.py
+python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes config/ops-route-matrix.example.json
 bash scripts/codex_fullstack_check.sh
 cargo check --workspace
 cargo test --workspace
@@ -40,11 +41,15 @@ cd ui && npm run build
 
 `bash scripts/codex_fullstack_check.sh` is the preferred single verification command. It validates the repository structure, checks Rust formatting when `cargo fmt` is available, runs Rust workspace checks/tests, installs UI dependencies without writing a package lock, and builds the UI.
 
+## Agent audit rules
+
+Agent-facing changes must keep `config/agent-objectives.audit.json`, `scripts/validate_agent_audit.py`, and `.github/workflows/ops-route-dry-run.yml` aligned. Every agent objective must map to a route, define an objective success metric, and keep remote/destructive execution disabled unless a separate reviewed gate changes that policy.
+
 ## Engineering rules
 
 Keep changes minimal and scoped to the requested task. Preserve the Rust workspace layout in `Cargo.toml`. Keep generated or dependency directories such as `target/`, `node_modules/`, and local caches out of commits. Do not replace the mobile-first operating model with desktop-only instructions.
 
-When changing backend code, run at least `cargo check --workspace`; run `cargo test --workspace` when behavior changes. When changing UI code, run the UI build from `ui/`. When changing repository structure, run `python3 scripts/validate_repo.py`.
+When changing backend code, run at least `cargo check --workspace`; run `cargo test --workspace` when behavior changes. When changing UI code, run the UI build from `ui/`. When changing repository structure or agent objective data, run `python3 scripts/validate_repo.py` and `python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes config/ops-route-matrix.example.json`.
 
 ## Completion criteria
 
