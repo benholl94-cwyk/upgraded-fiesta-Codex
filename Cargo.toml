@@ -19,8 +19,7 @@ members = [
   "crates/hm-vector",
   "crates/hm-cron",
   "crates/hm-auth",
-  "crates/hm-cli",
-  "crates/hm-self-compiled-agent"
+  "crates/hm-cli"
 ]
 
 [workspace.package]
