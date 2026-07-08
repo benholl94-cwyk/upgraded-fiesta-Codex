@@ -1,0 +1,130 @@
+name: v1 Release Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      execute_runtime_reports:
+        description: Execute runtime report generators before building v1 proof.
+        required: true
+        default: true
+        type: boolean
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  v1-release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      V1_MANIFEST: releases/v1/released-fullworking-system.manifest.json
+      V1_PROOF: reports/v1-release-proof.json
+      TRUSTED_OPS_PROFILE: config/repo-trusted-ops.fullstack.json
+      TRUSTED_OPS_REPORT: reports/repo-trusted-ops-report.json
+      OPS_ROUTE_MATRIX: config/ops-route-matrix.example.json
+      OPS_ROUTE_REPORT: reports/ops-route-dry-run-report.json
+      POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate v1 release source contract
+        run: python3 scripts/validate_v1_released_system.py --manifest "$V1_MANIFEST"
+
+      - name: Full-space hard scan
+        run: make hard-scan-full-space
+
+      - name: Generate runtime reports
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.execute_runtime_reports }}" = "true" ]; then
+            python3 scripts/repo_trusted_ops.py report --profile "$TRUSTED_OPS_PROFILE" --execute-local --write-report "$TRUSTED_OPS_REPORT"
+            python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --execute-safe --write-report "$OPS_ROUTE_REPORT"
+            docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config > reports/docker-compose-ops-dry-run.config.yml
+            docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config --services > reports/docker-compose-ops-dry-run.services.txt
+            python3 scripts/audit_valid_debug_streampipe.py --output-dir reports/audit-valid-debug-streampipe
+          fi
+
+      - name: Write v1 release proof
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime as dt
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          root = Path.cwd()
+          paths = [
+              "reports/repo-trusted-ops-report.json",
+              "reports/ops-route-dry-run-report.json",
+              "reports/docker-compose-ops-dry-run.config.yml",
+              "reports/docker-compose-ops-dry-run.services.txt",
+              "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json",
+              "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl",
+              "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md",
+              "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif"
+          ]
+          artifacts = []
+          for rel in paths:
+              path = root / rel
+              data = path.read_bytes() if path.is_file() else b""
+              artifacts.append({
+                  "path": rel,
+                  "exists": path.is_file(),
+                  "bytes": len(data) if path.is_file() else None,
+                  "sha256": hashlib.sha256(data).hexdigest() if path.is_file() else None
+              })
+          payload = {
+              "schema": "v1-release-proof.v1",
+              "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+              "ok": all(item["exists"] for item in artifacts),
+              "github_sha": os.environ.get("GITHUB_SHA"),
+              "manifest": os.environ.get("V1_MANIFEST"),
+              "runtime_artifact_proof": all(item["exists"] for item in artifacts),
+              "source_contract_validated": True,
+              "full_space_hard_scan_executed": True,
+              "artifacts": artifacts
+          }
+          out = root / os.environ["V1_PROOF"]
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(json.dumps(payload, indent=2, sort_keys=True))
+          raise SystemExit(0 if payload["ok"] else 1)
+          PY
+
+      - name: Upload v1 release proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-release-proof
+          path: |
+            reports/v1-release-proof.json
+            reports/repo-trusted-ops-report.json
+            reports/ops-route-dry-run-report.json
+            reports/docker-compose-ops-dry-run.config.yml
+            reports/docker-compose-ops-dry-run.services.txt
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md
+            reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## v1 Release Gate"
+            echo ""
+            echo "- Manifest: $V1_MANIFEST"
+            echo "- Proof: $V1_PROOF"
+            echo "- Artifact: v1-release-proof"
+            echo "- Runtime artifact proof required: true"
+          } >> "$GITHUB_STEP_SUMMARY"
