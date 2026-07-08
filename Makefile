@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor agent-audit-validate trusted-ops-validate trusted-ops-report trusted-ops-report-local trusted-ops-report-external ops-route-validate ops-route-dry-run ops-route-dry-run-execute docker-ops-config docker-ops-services codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor agent-audit-validate trusted-ops-validate trusted-ops-report trusted-ops-report-local trusted-ops-report-external audit-streampipe audit-streampipe-full ops-route-validate ops-route-dry-run ops-route-dry-run-execute docker-ops-config docker-ops-services codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -92,6 +92,11 @@ trusted-ops-report-local:
 
 trusted-ops-report-external:
 	python3 scripts/repo_trusted_ops.py report --profile config/repo-trusted-ops.fullstack.json --execute-local --probe-external --write-report reports/repo-trusted-ops-report.json
+
+audit-streampipe:
+	python3 scripts/audit_valid_debug_streampipe.py --output-dir reports/audit-valid-debug-streampipe
+
+audit-streampipe-full: trusted-ops-report-local ops-route-dry-run-execute docker-ops-config docker-ops-services audit-streampipe
 
 ops-route-validate:
 	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --validate-only
