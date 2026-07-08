@@ -1,0 +1,152 @@
+{
+  "schema": "upgraded-fiesta.github-debug-export.v1",
+  "generated_at_utc": "2026-07-08T15:22:00Z",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "id": "1274749256",
+    "visibility": "public",
+    "default_branch": "main",
+    "size_kb": 311,
+    "archived": false,
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "pull": true,
+      "triage": true
+    },
+    "merge_settings": {
+      "allow_auto_merge": false,
+      "allow_merge_commit": true,
+      "allow_rebase_merge": true,
+      "allow_squash_merge": true,
+      "allow_update_branch": false
+    }
+  },
+  "current_main_known_head": {
+    "source": "PR #9 merge result",
+    "merge_commit_sha": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
+    "workflow_runs_for_merge_commit": []
+  },
+  "pull_request_state": {
+    "open_pull_requests": [],
+    "open_issues": [],
+    "closed_stale_pull_requests": [3, 4],
+    "merged_pull_requests": [7, 8, 9],
+    "latest_merged": {
+      "number": 9,
+      "title": "Add safe write edit ops object tool",
+      "merge_commit_sha": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
+      "merged_at": "2026-07-08T15:16:35Z",
+      "changed_files": 7,
+      "additions": 612,
+      "deletions": 5
+    }
+  },
+  "workflow_state": {
+    "latest_pr9_head_sha": "9721a7c419fc8be041e0a6d7b7ea9001d0068ab4",
+    "pr9_head_runs": [
+      {
+        "name": "full-debug",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 18
+      },
+      {
+        "name": "codex-setup",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 14
+      },
+      {
+        "name": "platform-monitoring",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 46
+      },
+      {
+        "name": "rust-ci",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 46
+      },
+      {
+        "name": "CodeQL Advanced",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 20
+      }
+    ],
+    "full_debug_jobs": [
+      {
+        "name": "static-debug",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "compose-check",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "rust-check",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "ui-check",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ],
+    "full_debug_artifacts": [],
+    "connector_log_gap": "workflow job logs/artifacts were unavailable through the GitHub connector for the failing run"
+  },
+  "component_state": {
+    "full_debug_harness": {
+      "merged_by_pr": 7,
+      "merge_commit_sha": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d"
+    },
+    "rebase_guard": {
+      "merged_by_pr": 8,
+      "merge_commit_sha": "147049e6ac2b832d80c492415bf5d9f9c9c750ec"
+    },
+    "safe_write_edit_ops": {
+      "merged_by_pr": 9,
+      "merge_commit_sha": "0274479cdb67dd6d670b7cd93a7603e7442a86d3",
+      "executor": "scripts/safe_write_edit_ops.py",
+      "policy": "datasets/safe-write-edit-ops.policy.json",
+      "schema": "schemas/safe-write-edit-ops.schema.json",
+      "example_object": "examples/safe-write-edit-ops.object.json"
+    }
+  },
+  "debug_findings": [
+    {
+      "id": "debug-export-001",
+      "severity": "info",
+      "finding": "No open PRs or open issues were returned during export scan."
+    },
+    {
+      "id": "debug-export-002",
+      "severity": "warning",
+      "finding": "PR #9 merge commit has no workflow runs returned directly by commit query."
+    },
+    {
+      "id": "debug-export-003",
+      "severity": "warning",
+      "finding": "PR #9 head workflows show failures across full-debug, codex-setup, platform-monitoring, rust-ci, and CodeQL Advanced."
+    },
+    {
+      "id": "debug-export-004",
+      "severity": "warning",
+      "finding": "repository-synthesis.dataset.json on main did not include PR #9 in merged_pull_requests before this export patch."
+    }
+  ],
+  "safety_boundary": {
+    "force_push_performed": false,
+    "history_rewrite_performed": false,
+    "source_repository_overwrite_performed": false,
+    "secrets_exported": false,
+    "destructive_cleanup_performed": false
+  }
+}

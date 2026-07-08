@@ -7,7 +7,8 @@
     "role": "one-repo control-plane target",
     "merge_strategy": "audited pull request; no destructive overwrite of source repositories",
     "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d",
-    "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec"
+    "last_rebase_guard_merge_commit": "147049e6ac2b832d80c492415bf5d9f9c9c750ec",
+    "last_safe_write_edit_ops_merge_commit": "0274479cdb67dd6d670b7cd93a7603e7442a86d3"
   },
   "source_repositories": [
     {
@@ -61,9 +62,9 @@
     "open_issues_found": 0,
     "open_pull_requests_found": [],
     "closed_stale_pull_requests": [3, 4],
-    "merged_pull_requests": [7, 8],
+    "merged_pull_requests": [7, 8, 9],
     "active_pull_request": null,
-    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository."
+    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository. PR 9 added safe_write/edit/ops tooling."
   },
   "safe_write_edit_ops": {
     "schema": "upgraded-fiesta.safe-write-edit-ops.v1",
@@ -81,6 +82,7 @@
     "synthesis_ready_for_review": false,
     "synthesis_merged": true,
     "rebase_guard_required": true,
-    "safe_write_edit_ops_registered": true
+    "safe_write_edit_ops_registered": true,
+    "debug_export_registered": true
   }
 }
