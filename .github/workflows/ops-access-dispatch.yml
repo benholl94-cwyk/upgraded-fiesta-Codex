@@ -1,0 +1,118 @@
+name: Ops Access Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Operations profile
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+          - mobile-lab
+      operation:
+        description: Named operation to validate for dispatch
+        required: true
+        default: ops.validate
+        type: choice
+        options:
+          - ops.validate
+          - repo.validate
+          - service.status
+          - external.api.check
+      activate_remote:
+        description: Remote execution activation gate. Must remain false until reviewed guard and environment secrets exist.
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validate-ops-access:
+    name: Validate ops access gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPS_MANIFEST: config/ops-command-manifest.example.json
+      OPS_SELECTED_PROFILE: ${{ inputs.profile }}
+      OPS_SELECTED_OPERATION: ${{ inputs.operation }}
+      OPS_ACTIVATE_REMOTE: ${{ inputs.activate_remote }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate repository structure
+        run: python3 scripts/validate_repo.py
+
+      - name: Validate operations manifest
+        run: python3 scripts/validate_ops_access_config.py --manifest "$OPS_MANIFEST"
+
+      - name: Enforce fail-closed remote activation gate
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          manifest_path = Path(os.environ["OPS_MANIFEST"])
+          profile = os.environ["OPS_SELECTED_PROFILE"]
+          operation = os.environ["OPS_SELECTED_OPERATION"]
+          activate_remote = os.environ["OPS_ACTIVATE_REMOTE"].lower() == "true"
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+          errors = []
+          profiles = manifest.get("profiles", {})
+          operations = manifest.get("operations", {})
+
+          if profile not in profiles:
+            errors.append(f"unknown profile: {profile}")
+          if operation not in operations:
+            errors.append(f"unknown operation: {operation}")
+
+          selected_profile = profiles.get(profile, {})
+          selected_operation = operations.get(operation, {})
+
+          if selected_profile.get("remote_execution_enabled") is not False:
+            errors.append("manifest must default remote_execution_enabled to false")
+
+          if activate_remote:
+            errors.append("remote activation is intentionally disabled in this workflow until reviewed remote guard and environment-scoped credentials exist")
+
+          if selected_operation.get("disabled_until_remote_guard_installed") is True:
+            errors.append(f"operation is reserved and disabled until remote guard installation: {operation}")
+
+          result = {
+            "ok": not errors,
+            "profile": profile,
+            "operation": operation,
+            "remote_activation_requested": activate_remote,
+            "remote_execution_performed": False,
+            "errors": errors,
+          }
+          print(json.dumps(result, indent=2, sort_keys=True))
+          sys.exit(0 if not errors else 1)
+          PY
+
+      - name: Emit sanitized dispatch summary
+        if: always()
+        run: |
+          {
+            echo "## Ops Access Dispatch"
+            echo ""
+            echo "- Profile: $OPS_SELECTED_PROFILE"
+            echo "- Operation: $OPS_SELECTED_OPERATION"
+            echo "- Remote execution performed: false"
+            echo "- Activation mode: fail-closed"
+            echo ""
+            echo "Remote execution remains disabled until the reviewed remote guard, host identity pin, dedicated account, and environment-scoped credentials are present."
+          } >> "$GITHUB_STEP_SUMMARY"
