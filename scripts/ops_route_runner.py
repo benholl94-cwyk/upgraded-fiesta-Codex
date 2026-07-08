@@ -189,7 +189,7 @@ def run_safe_command(command: list[str], timeout: int, output_limit: int) -> dic
 
 
 def build_report(matrix: dict[str, Any], execute_safe: bool) -> dict[str, Any]:
-    ok, findings = validate_route_matrix(matrix)
+    matrix_ok, findings = validate_route_matrix(matrix)
     routes = matrix.get("routes", []) if isinstance(matrix.get("routes"), list) else []
     route_results: list[dict[str, Any]] = []
 
@@ -230,15 +230,27 @@ def build_report(matrix: dict[str, Any], execute_safe: bool) -> dict[str, Any]:
             "execution": execution,
         })
 
+    execution_failures = [
+        {
+            "id": result["id"],
+            "operation": result["operation"],
+            "exit_code": result["execution"].get("exit_code"),
+        }
+        for result in route_results
+        if isinstance(result.get("execution"), dict) and result["execution"].get("exit_code") != 0
+    ]
+
+    report_ok = matrix_ok and all(not result["findings"] for result in route_results) and not execution_failures
     return {
         "schema": "ops-access.route-dry-run-report.v1",
         "generated_at": utc_now(),
-        "ok": ok and all(not result["findings"] for result in route_results),
+        "ok": report_ok,
         "remote_execution_performed": False,
         "docker_destructive_execution_performed": False,
         "live_sync_mode": matrix.get("live_sync_mode"),
         "execute_safe_requested": execute_safe,
         "matrix_findings": findings,
+        "execution_failures": execution_failures,
         "routes": route_results,
         "environment": scrub_environment({
             "GITHUB_ACTIONS": os.environ.get("GITHUB_ACTIONS", ""),
