@@ -1,18 +1,5 @@
 #!/usr/bin/env python3
-"""Unified operable repository controller.
-
-This dependency-free controller makes the repository operable through one
-machine-readable command surface:
-
-- status: inventory and configuration state
-- validate: deterministic local checks for required files/configs/scripts
-- export: write the localhost export bundle into $HOME/usr/var
-- doctor: run status + validate + export dry path checks and persist report
-- serve: delegate to localhost HTTPS export server
-
-All outputs are JSON. No command exports secrets, binds externally, deletes files,
-or commits local runtime material.
-"""
+"""Unified operable repository controller with network capability integration."""
 from __future__ import annotations
 
 import argparse
@@ -74,12 +61,7 @@ def expand_runtime_path(raw: str) -> Path:
 def run_command(argv: list[str], timeout: int = 120) -> dict[str, Any]:
     try:
         completed = subprocess.run(argv, cwd=str(ROOT), text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=False)
-        return {
-            "argv": argv,
-            "returncode": completed.returncode,
-            "ok": completed.returncode == 0,
-            "output_tail": completed.stdout[-12000:]
-        }
+        return {"argv": argv, "returncode": completed.returncode, "ok": completed.returncode == 0, "output_tail": completed.stdout[-12000:]}
     except FileNotFoundError:
         return {"argv": argv, "returncode": 127, "ok": False, "output_tail": f"command not found: {argv[0]}"}
     except subprocess.TimeoutExpired as exc:
@@ -131,9 +113,11 @@ def validate_report(config: dict[str, Any]) -> dict[str, Any]:
         "datasets/localhost-export.config.json",
         "datasets/localhost-export.object.json",
         "datasets/operable-repo.config.json",
+        "datasets/network-capabilities.config.json",
         "schemas/safe-write-edit-ops.schema.json",
         "schemas/localhost-export.schema.json",
         "schemas/operable-repo-report.schema.json",
+        "schemas/network-capabilities-report.schema.json",
     ]:
         path = ROOT / json_path
         try:
@@ -145,6 +129,7 @@ def validate_report(config: dict[str, Any]) -> dict[str, Any]:
         ["python3", "scripts/rebase_guard.py"],
         ["python3", "scripts/safe_write_edit_ops.py", "validate", "--object", "examples/safe-write-edit-ops.object.json"],
         ["python3", "scripts/localhost_export_server.py", "--scheme", "http", "--once"],
+        ["python3", "scripts/network_capabilities.py", "status"],
     ]:
         result = run_command(argv, timeout=120)
         add_check(report, "command:" + " ".join(argv), bool(result["ok"]), result)
@@ -164,9 +149,17 @@ def export_report(config: dict[str, Any]) -> dict[str, Any]:
     return report
 
 
+def network_report(config: dict[str, Any], measure: bool) -> dict[str, Any]:
+    report = base_report("network", config)
+    command = "measure" if measure else "status"
+    result = run_command(["python3", "scripts/network_capabilities.py", command], timeout=180)
+    add_check(report, f"network_capabilities:{command}", bool(result["ok"]), result)
+    return report
+
+
 def doctor_report(config: dict[str, Any]) -> dict[str, Any]:
     report = base_report("doctor", config)
-    subreports = [status_report(config), validate_report(config), export_report(config)]
+    subreports = [status_report(config), validate_report(config), export_report(config), network_report(config, measure=True)]
     for item in subreports:
         add_check(report, f"subreport:{item['command']}", bool(item["ok"]), item, "info" if item["ok"] else "error")
     state_root = ROOT / config["runtime"]["state_root"]
@@ -186,7 +179,7 @@ def serve(config: dict[str, Any], argv_tail: list[str]) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Operate upgraded-fiesta-Codex as a machine-readable software repository.")
-    parser.add_argument("command", choices=["status", "validate", "export", "doctor", "serve"])
+    parser.add_argument("command", choices=["status", "validate", "export", "doctor", "serve", "network"])
     parser.add_argument("args", nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     try:
@@ -199,17 +192,14 @@ def main(argv: list[str] | None = None) -> int:
             report = export_report(config)
         elif args.command == "doctor":
             report = doctor_report(config)
+        elif args.command == "network":
+            report = network_report(config, measure="--measure" in args.args or "measure" in args.args)
         elif args.command == "serve":
             return serve(config, args.args)
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0 if report.get("ok") else 1
     except Exception as exc:
-        print(json.dumps({
-            "schema": "upgraded-fiesta.operable-repo.error.v1",
-            "generated_at_utc": utc_now(),
-            "ok": False,
-            "error": str(exc),
-        }, indent=2, sort_keys=True), file=sys.stderr)
+        print(json.dumps({"schema": "upgraded-fiesta.operable-repo.error.v1", "generated_at_utc": utc_now(), "ok": False, "error": str(exc)}, indent=2, sort_keys=True), file=sys.stderr)
         return 1
 
 
