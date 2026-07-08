@@ -1,0 +1,63 @@
+{
+  "schema": "released-fullworking-system.manifest.v1",
+  "generated_date": "2026-07-08",
+  "product": {
+    "name": "upgraded-fiesta-Codex autonomous AI operations product",
+    "version": "v1",
+    "release_line": "released_fullworking_system-software-autonomes-ai-produkt",
+    "enterprise_first_mobile": true,
+    "repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main"
+  },
+  "release_state": {
+    "code_contract_complete": true,
+    "formative_documents_complete": true,
+    "machine_objects_complete": true,
+    "workflow_gates_complete": true,
+    "runtime_artifact_proof_required": true,
+    "runtime_artifact_proof_currently_embedded": false,
+    "fullworking_runtime_claim_allowed_without_artifact": false
+  },
+  "required_formative_documents": [
+    "docs/v1/system-overview.md",
+    "docs/v1/autonomous-ai-product-spec.md",
+    "docs/v1/release-runbook.md",
+    "docs/v1/acceptance-criteria.md",
+    "docs/v1/security-boundaries.md",
+    "docs/v1/operability-proof-map.md"
+  ],
+  "required_machine_objects": [
+    "config/v1-released-fullworking-system.object.json",
+    "datasets/v1-released-fullworking-system.dataset.json",
+    "datasets/workflow-dispatch.fullstacked.dataset.json",
+    "config/repo-trusted-ops.fullstack.json",
+    "config/agent-objectives.audit.json",
+    "config/ops-route-matrix.example.json"
+  ],
+  "required_validators": [
+    "scripts/validate_v1_released_system.py",
+    "scripts/validate_repo.py",
+    "scripts/validate_agent_audit.py",
+    "scripts/repo_trusted_ops.py",
+    "scripts/validate_workflow_dispatch_dataset.py",
+    "scripts/ops_route_runner.py"
+  ],
+  "required_workflows": [
+    ".github/workflows/v1-release-gate.yml",
+    ".github/workflows/finishline-debug-console.yml",
+    ".github/workflows/repo-trusted-ops.yml",
+    ".github/workflows/ops-route-dry-run.yml"
+  ],
+  "required_runtime_artifacts_for_100_percent_fullworking_proof": [
+    "finishline-debug-console",
+    "repo-trusted-ops-report",
+    "ops-route-dry-run-reports"
+  ],
+  "execution_boundaries": {
+    "secret_read_allowed": false,
+    "remote_shell_allowed": false,
+    "destructive_execution_allowed": false,
+    "arbitrary_shell_allowed": false,
+    "artifact_evidence_required_for_final_claim": true
+  }
+}
