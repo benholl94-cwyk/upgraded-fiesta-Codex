@@ -1,0 +1,108 @@
+name: Ops Route Safety Dry Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      execute_safe:
+        description: Execute only routes marked safe_execute_allowed. Destructive and remote routes remain blocked.
+        required: true
+        default: true
+        type: boolean
+      include_docker_parse:
+        description: Include Docker Compose parse-only routes. No up/down/rm/prune is executed.
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ops-route-dry-run:
+    name: Route safety dry-run and report-only live sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
+      OPS_ROUTE_MATRIX: config/ops-route-matrix.example.json
+      OPS_ROUTE_REPORT: reports/ops-route-dry-run-report.json
+      OPS_EXECUTE_SAFE: ${{ inputs.execute_safe }}
+      OPS_INCLUDE_DOCKER_PARSE: ${{ inputs.include_docker_parse }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate repository structure
+        run: python3 scripts/validate_repo.py
+
+      - name: Validate ops access manifest
+        run: python3 scripts/validate_ops_access_config.py --manifest config/ops-command-manifest.example.json
+
+      - name: Validate route matrix
+        run: python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --validate-only
+
+      - name: Execute route safety dry-run
+        run: |
+          set -euo pipefail
+          if [ "$OPS_EXECUTE_SAFE" = "true" ]; then
+            python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --execute-safe --write-report "$OPS_ROUTE_REPORT"
+          else
+            python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --write-report "$OPS_ROUTE_REPORT"
+          fi
+
+      - name: Docker compose parser assertion
+        if: ${{ inputs.include_docker_parse }}
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config > reports/docker-compose-ops-dry-run.config.yml
+          docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config --services > reports/docker-compose-ops-dry-run.services.txt
+
+      - name: Assert destructive Docker operations were not executed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("reports/ops-route-dry-run-report.json").read_text(encoding="utf-8"))
+          assert report["remote_execution_performed"] is False
+          assert report["docker_destructive_execution_performed"] is False
+          forbidden = {"up", "down", "rm", "restart", "kill", "prune", "push", "pull", "build", "create", "start", "stop"}
+          for route in report.get("routes", []):
+            command = route.get("command") or []
+            if command and command[0] == "docker":
+              illegal = forbidden.intersection(command)
+              assert not illegal, {"route": route.get("id"), "illegal": sorted(illegal)}
+          print(json.dumps({
+            "ok": True,
+            "remote_execution_performed": False,
+            "docker_destructive_execution_performed": False
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload route dry-run reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-route-dry-run-reports
+          path: |
+            reports/ops-route-dry-run-report.json
+            reports/docker-compose-ops-dry-run.config.yml
+            reports/docker-compose-ops-dry-run.services.txt
+          if-no-files-found: warn
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo "## Ops Route Safety Dry Run"
+            echo ""
+            echo "- Execute safe routes: $OPS_EXECUTE_SAFE"
+            echo "- Include Docker parse: $OPS_INCLUDE_DOCKER_PARSE"
+            echo "- Remote execution performed: false"
+            echo "- Docker destructive execution performed: false"
+            echo "- Live sync mode: report_only"
+            echo "- Report: $OPS_ROUTE_REPORT"
+          } >> "$GITHUB_STEP_SUMMARY"
