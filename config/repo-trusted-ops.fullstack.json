@@ -123,6 +123,10 @@
     "reports/repo-trusted-ops-report.json",
     "reports/ops-route-dry-run-report.json",
     "reports/docker-compose-ops-dry-run.config.yml",
-    "reports/docker-compose-ops-dry-run.services.txt"
+    "reports/docker-compose-ops-dry-run.services.txt",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md",
+    "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif"
   ]
 }
