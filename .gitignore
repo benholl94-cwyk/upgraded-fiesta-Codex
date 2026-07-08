@@ -20,6 +20,8 @@ logs/
 runs/
 backups/
 exports/
+reports/
+.ops-runtime/
 .tmp/
 .cache/
 
