@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:upgraded-fiesta:network-capabilities:report:v1",
+  "title": "upgraded-fiesta network capabilities report",
+  "type": "object",
+  "required": [
+    "schema",
+    "generated_at_utc",
+    "ok",
+    "command",
+    "repository",
+    "capabilities",
+    "measurements",
+    "security"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "upgraded-fiesta.network-capabilities.report.v1"},
+    "generated_at_utc": {"type": "string"},
+    "ok": {"type": "boolean"},
+    "command": {"type": "string"},
+    "repository": {
+      "type": "object",
+      "required": ["full_name", "default_branch", "known_main_head"],
+      "properties": {
+        "full_name": {"type": "string"},
+        "default_branch": {"type": "string"},
+        "known_main_head": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+      }
+    },
+    "capabilities": {"type": "object"},
+    "measurements": {"type": "object"},
+    "security": {
+      "type": "object",
+      "required": ["external_probe_default", "secrets_required", "packet_capture", "promiscuous_mode", "destructive_network_action"],
+      "properties": {
+        "external_probe_default": {"type": "boolean"},
+        "secrets_required": {"type": "boolean"},
+        "packet_capture": {"type": "boolean"},
+        "promiscuous_mode": {"type": "boolean"},
+        "destructive_network_action": {"type": "boolean"}
+      }
+    }
+  }
+}
