@@ -25,13 +25,15 @@
   "export": {
     "schema": "upgraded-fiesta.localhost-export.bundle.v1",
     "name": "upgraded-fiesta-Codex-localhost-export",
-    "runtime_output_root": "exports/localhost",
+    "object": "datasets/localhost-export.object.json",
+    "runtime_output_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export",
     "include_paths": [
       "Makefile",
       "datasets/repository-synthesis.dataset.json",
       "datasets/debug-export-20260708.dataset.json",
       "datasets/safe-write-edit-ops.policy.json",
       "datasets/localhost-export.config.json",
+      "datasets/localhost-export.object.json",
       "schemas/safe-write-edit-ops.schema.json",
       "schemas/localhost-export.schema.json",
       "scripts/full_debug.py",
@@ -74,6 +76,7 @@
     "runtime_tls_generation": "openssl req -x509 runtime-only self-signed localhost certificate",
     "external_network_bind": false,
     "destructive_export": false,
-    "secret_export": false
+    "secret_export": false,
+    "runtime_export_root_is_home_usr_var": true
   }
 }
