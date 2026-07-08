@@ -17,7 +17,7 @@ PRIVATE_KEY_RE = re.compile(r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?PRIVATE
 HIGH_ENTROPY_RE = re.compile(r"\b[A-Za-z0-9_=-]{48,}\b")
 PLACEHOLDER_RE = re.compile(r"(?i)(replace-with|change-me|changeme|dummy|example\.com|placeholder|todo\b|fixme\b)")
 CONTROL_PATH_RE = re.compile(r"[\x00-\x1f]")
-SAFE_VALUE_PREFIXES = ("$", "${", "<", "replace", "change-me", "changeme", "dummy", "example", "placeholder", "not-set", "unset", "your-", "debug-", "required")
+SAFE_VALUE_PREFIXES = ("$", "${", "<", "(", "[", "{", "r\"", "r'", "re.compile", "path(", "replace", "change-me", "changeme", "dummy", "example", "placeholder", "not-set", "unset", "your-", "debug-", "required")
 
 @dataclass
 class Finding:
