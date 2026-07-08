@@ -5,10 +5,9 @@ Date anchor: 2026-07-08
 
 ## Result
 
-The live-operations access path now has explicit user-acceptance thresholds. Acceptance is interactive through either:
+The live-operations access path now has explicit user-acceptance thresholds. Acceptance is interactive through GitHub Actions `workflow_dispatch` inputs.
 
-1. GitHub Actions `workflow_dispatch` inputs, or
-2. the GitHub issue template `.github/ISSUE_TEMPLATE/ops-user-acceptance.yml`.
+A reusable GitHub issue template also exists at `.github/ISSUE_TEMPLATE/ops-user-acceptance.yml`. It is a review-record fallback for repositories where Issues are enabled. If repository Issues are disabled, the active interactive acceptance path is the workflow dispatch form.
 
 Acceptance does not activate remote execution. It validates that the operator explicitly acknowledges every required threshold before any later remote activation stage is considered.
 
@@ -53,6 +52,18 @@ Denied evidence:
 
 ## Workflow acceptance mode
 
+The workflow exposes these interactive inputs:
+
+- `accept_phrase`
+- `accept_t01_host_identity_pin`
+- `accept_t02_dedicated_low_privilege_account`
+- `accept_t03_environment_scoped_access_credential`
+- `accept_t04_remote_guard_reviewed`
+- `accept_t05_staging_denial_audited`
+- `accept_t06_redaction_proof_synthetic_only`
+- `accept_t07_remote_activation_disabled_by_default`
+- `activate_remote`
+
 The workflow builds a temporary acceptance JSON from interactive `workflow_dispatch` inputs and validates it with:
 
 ```text
@@ -63,7 +74,7 @@ The temporary file exists only in the workflow runner. It is not committed to Gi
 
 ## Issue acceptance mode
 
-The issue template provides a human-readable acceptance checklist. It is suitable for review records and operator sign-off, but it does not activate remote execution.
+The issue template provides a human-readable acceptance checklist. It is suitable for review records and operator sign-off when Issues are enabled, but it does not activate remote execution.
 
 ## Activation boundary
 
