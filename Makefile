@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard safe-ops-validate safe-ops-plan localhost-export-once localhost-export-write-var localhost-export-https operable-status operable-validate operable-export operable-doctor operable-serve operable-network network-status network-measure network-doctor depo-status depo-connect depo-serve device-exec-status device-exec-doctor remote-control-status remote-control-accept remote-control-deny remote-control-serve codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -77,6 +77,18 @@ device-exec-status:
 
 device-exec-doctor:
 	python3 scripts/device_exec_check.py doctor
+
+remote-control-status:
+	python3 scripts/remote_control_gate.py status
+
+remote-control-accept:
+	python3 scripts/remote_control_gate.py accept --source local_user_cli_accept
+
+remote-control-deny:
+	python3 scripts/remote_control_gate.py deny --source local_user_cli_deny
+
+remote-control-serve:
+	python3 scripts/remote_control_gate.py serve
 
 codex-setup:
 	bash .codex/setup.sh
