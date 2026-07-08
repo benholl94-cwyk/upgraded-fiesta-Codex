@@ -28,7 +28,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "datasets" / "localhost-export.config.json"
 SCHEMA = "upgraded-fiesta.localhost-export.bundle.v1"
-KNOWN_HEAD_COMMIT = "26011779db5849559e819690304b69cfe64929ca"
+KNOWN_HEAD_COMMIT = "517a27c57ca7634ba2d016bfd4eef0ec50a60545"
 
 
 def utc_now() -> str:
@@ -40,7 +40,10 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def rel(path: Path) -> str:
-    return path.relative_to(ROOT).as_posix()
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def load_config() -> dict[str, Any]:

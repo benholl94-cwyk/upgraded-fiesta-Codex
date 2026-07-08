@@ -1,0 +1,76 @@
+{
+  "schema": "upgraded-fiesta.operable-repo.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "visibility": "public",
+    "known_main_head_after_localhost_export": "517a27c57ca7634ba2d016bfd4eef0ec50a60545",
+    "known_previous_main_head_after_debug_export": "26011779db5849559e819690304b69cfe64929ca"
+  },
+  "runtime": {
+    "state_root": "runs/operable_repo",
+    "export_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export",
+    "localhost_base_url": "https://localhost:9443",
+    "localhost_bind_host": "127.0.0.1",
+    "localhost_https_port": 9443
+  },
+  "entrypoints": {
+    "controller": "scripts/operable_repo.py",
+    "full_debug": "scripts/full_debug.py",
+    "rebase_guard": "scripts/rebase_guard.py",
+    "safe_write_edit_ops": "scripts/safe_write_edit_ops.py",
+    "localhost_export": "scripts/localhost_export_server.py"
+  },
+  "required_files": [
+    "Makefile",
+    "Cargo.toml",
+    "docker-compose.yml",
+    "scripts/operable_repo.py",
+    "scripts/full_debug.py",
+    "scripts/rebase_guard.py",
+    "scripts/safe_write_edit_ops.py",
+    "scripts/localhost_export_server.py",
+    "datasets/repository-synthesis.dataset.json",
+    "datasets/safe-write-edit-ops.policy.json",
+    "datasets/localhost-export.config.json",
+    "datasets/localhost-export.object.json",
+    "datasets/operable-repo.config.json",
+    "schemas/safe-write-edit-ops.schema.json",
+    "schemas/localhost-export.schema.json",
+    "schemas/operable-repo-report.schema.json",
+    ".github/workflows/full-debug.yml",
+    ".github/workflows/localhost-export.yml",
+    ".github/workflows/operable-repo.yml"
+  ],
+  "commands": {
+    "status": {
+      "description": "machine-readable inventory and status report",
+      "argv": ["python3", "scripts/operable_repo.py", "status"]
+    },
+    "validate": {
+      "description": "repository-local deterministic validation across required control-plane components",
+      "argv": ["python3", "scripts/operable_repo.py", "validate"]
+    },
+    "export": {
+      "description": "write repository export bundle into $HOME/usr/var runtime root",
+      "argv": ["python3", "scripts/operable_repo.py", "export"]
+    },
+    "doctor": {
+      "description": "run integrated operational checks and write runtime report",
+      "argv": ["python3", "scripts/operable_repo.py", "doctor"]
+    },
+    "serve": {
+      "description": "serve localhost HTTPS export endpoints",
+      "argv": ["python3", "scripts/operable_repo.py", "serve"]
+    }
+  },
+  "security": {
+    "committed_tls_private_key": false,
+    "secret_export": false,
+    "external_network_bind": false,
+    "destructive_default_action": false,
+    "delete_supported": false
+  }
+}
