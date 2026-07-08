@@ -1,0 +1,66 @@
+name: operable-repo
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - operable-repo-software-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  operate:
+    runs-on: ubuntu-latest
+    env:
+      HOME: ${{ runner.temp }}/home
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Python
+        run: python3 --version
+
+      - name: Compile operable controller
+        run: python3 -m py_compile scripts/operable_repo.py scripts/localhost_export_server.py scripts/safe_write_edit_ops.py scripts/rebase_guard.py
+
+      - name: Operable status
+        run: python3 scripts/operable_repo.py status > operable-status.json
+
+      - name: Validate status JSON
+        run: python3 -m json.tool operable-status.json >/dev/null
+
+      - name: Operable validate
+        run: python3 scripts/operable_repo.py validate > operable-validate.json
+
+      - name: Validate validate JSON
+        run: python3 -m json.tool operable-validate.json >/dev/null
+
+      - name: Operable export
+        run: python3 scripts/operable_repo.py export > operable-export.json
+
+      - name: Validate export JSON
+        run: python3 -m json.tool operable-export.json >/dev/null
+
+      - name: Operable doctor
+        run: python3 scripts/operable_repo.py doctor > operable-doctor.json
+
+      - name: Validate doctor JSON
+        run: python3 -m json.tool operable-doctor.json >/dev/null
+
+      - name: Check home usr var export files
+        run: test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json" && test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export-manifest.json" && test -s "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.zip"
+
+      - name: Upload operable reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: operable-repo-reports
+          path: |
+            operable-status.json
+            operable-validate.json
+            operable-export.json
+            operable-doctor.json
+          if-no-files-found: error
