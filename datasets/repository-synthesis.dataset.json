@@ -1,0 +1,62 @@
+{
+  "schema": "upgraded-fiesta.repository-synthesis.v1",
+  "generated_date": "2026-07-08",
+  "target_repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "role": "one-repo control-plane target",
+    "merge_strategy": "audited pull request; no destructive overwrite of source repositories"
+  },
+  "source_repositories": [
+    {
+      "full_name": "benholl94-cmyk/upgraded-fiesta",
+      "default_branch": "main",
+      "visibility": "public",
+      "size_kb": 6995,
+      "access": "admin",
+      "synthesis_role": "legacy/mobile agent operating base; import only through explicit audited paths"
+    },
+    {
+      "full_name": "benholl94-cwyk/-GPTTerminalAIShell",
+      "default_branch": "main",
+      "visibility": "private",
+      "size_kb": 41,
+      "access": "admin",
+      "synthesis_role": "terminal-shell reference; import only non-secret implementation artifacts"
+    },
+    {
+      "full_name": "benholl-cwyk/Xcode",
+      "default_branch": "main",
+      "visibility": "private",
+      "size_kb": 2671,
+      "access": "admin",
+      "synthesis_role": "Apple/Xcode reference; import only portable source/config/data artifacts"
+    }
+  ],
+  "non_destructive_constraints": [
+    "Do not delete, force-push, archive, or overwrite source repositories as part of synthesis.",
+    "Do not copy secrets, local .env files, key material, tokens, private certificates, or runtime logs into the target repository.",
+    "Every import must create an auditable manifest entry before code/data is copied.",
+    "Conflicting files must be staged under integration/source/<repo-slug>/ until a maintainer-approved replacement decision exists."
+  ],
+  "validated_target_components": [
+    "scripts/full_debug.py",
+    "scripts/init_github_repo.py",
+    ".github/workflows/full-debug.yml",
+    "docs/full-debug-runbook.md",
+    "Makefile"
+  ],
+  "rest_order_cleanup": {
+    "open_issues_found": 0,
+    "open_pull_requests_found": [3, 4, 7],
+    "stale_pull_requests": [3, 4],
+    "active_pull_request": 7,
+    "cleanup_decision": "PRs 3 and 4 are stale/diverged and their intended UI production deployment content is already represented in the current target tree; close only after PR 7 lands or after explicit maintainer review."
+  },
+  "audit_status": {
+    "destructive_overwrite_performed": false,
+    "secrets_copied": false,
+    "source_repositories_deleted_or_archived": false,
+    "synthesis_ready_for_review": true
+  }
+}
