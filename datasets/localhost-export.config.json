@@ -12,7 +12,8 @@
     "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545",
     "last_operable_repo_merge_commit": "ef43c6b5392eea9b0a04e3a7afca8c867ff2f695",
     "last_network_capabilities_merge_commit": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251",
-    "last_depo_server_merge_commit": "159818484fdd59ee2c41d5e3bd9d114d83ea279d"
+    "last_depo_server_merge_commit": "159818484fdd59ee2c41d5e3bd9d114d83ea279d",
+    "last_device_exec_merge_commit": "82b513df8b2c3b3e6d32effaf06a006c5bb1fe03"
   },
   "localhost": {
     "bind_host": "127.0.0.1",
@@ -39,12 +40,14 @@
       "datasets/network-capabilities.config.json",
       "datasets/depo-server.config.json",
       "datasets/device-exec.config.json",
+      "datasets/remote-control.config.json",
       "schemas/safe-write-edit-ops.schema.json",
       "schemas/localhost-export.schema.json",
       "schemas/operable-repo-report.schema.json",
       "schemas/network-capabilities-report.schema.json",
       "schemas/depo-server-report.schema.json",
       "schemas/device-exec-report.schema.json",
+      "schemas/remote-control-report.schema.json",
       "scripts/full_debug.py",
       "scripts/init_github_repo.py",
       "scripts/rebase_guard.py",
@@ -54,11 +57,13 @@
       "scripts/network_capabilities.py",
       "scripts/depo_server.py",
       "scripts/device_exec_check.py",
+      "scripts/remote_control_gate.py",
       ".github/workflows/operable-repo.yml",
       ".github/workflows/localhost-export.yml",
       ".github/workflows/network-capabilities.yml",
       ".github/workflows/depo-server.yml",
       ".github/workflows/device-exec.yml",
+      ".github/workflows/remote-control.yml",
       "docs/full-debug-runbook.md",
       "docs/one-repo-synthesis-audit.md",
       "docs/rebase-build-audit.md",
@@ -99,6 +104,7 @@
     "operable_repo_files_included": true,
     "network_capability_files_included": true,
     "depo_server_files_included": true,
-    "device_exec_files_included": true
+    "device_exec_files_included": true,
+    "remote_control_files_included": true
   }
 }
