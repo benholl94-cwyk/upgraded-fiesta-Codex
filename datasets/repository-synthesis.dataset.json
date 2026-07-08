@@ -12,7 +12,8 @@
     "last_debug_export_merge_commit": "26011779db5849559e819690304b69cfe64929ca",
     "last_localhost_export_merge_commit": "517a27c57ca7634ba2d016bfd4eef0ec50a60545",
     "last_operable_repo_merge_commit": "ef43c6b5392eea9b0a04e3a7afca8c867ff2f695",
-    "last_network_capabilities_merge_commit": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251"
+    "last_network_capabilities_merge_commit": "42c9a51d7a8b1b68f77b30199b4fd3bdf51e2251",
+    "last_depo_server_merge_commit": "159818484fdd59ee2c41d5e3bd9d114d83ea279d"
   },
   "source_repositories": [
     {"full_name": "benholl94-cmyk/upgraded-fiesta", "default_branch": "main", "visibility": "public", "size_kb": 6995, "access": "admin", "synthesis_role": "legacy/mobile agent operating base; import only through explicit audited paths"},
@@ -28,28 +29,30 @@
     "localhost export must bind only to localhost and must not commit TLS private keys.",
     "operable repo commands must emit machine-readable JSON and must not perform destructive default actions.",
     "network capability measurement must not use packet capture, promiscuous mode, destructive probes, or default external bandwidth targets.",
-    "depo_server_ online connection must be initiated outbound by the localhost user and must not assume direct remote access into localhost."
+    "depo_server_ online connection must be initiated outbound by the localhost user and must not assume direct remote access into localhost.",
+    "device root /exec check must report actual UID/EUID and must not attempt privilege escalation, sudo, or arbitrary command execution."
   ],
   "validated_target_components": [
-    "scripts/full_debug.py", "scripts/init_github_repo.py", "scripts/rebase_guard.py", "scripts/safe_write_edit_ops.py", "scripts/localhost_export_server.py", "scripts/operable_repo.py", "scripts/network_capabilities.py", "scripts/depo_server.py",
-    ".github/workflows/full-debug.yml", ".github/workflows/localhost-export.yml", ".github/workflows/operable-repo.yml", ".github/workflows/network-capabilities.yml", ".github/workflows/depo-server.yml",
+    "scripts/full_debug.py", "scripts/init_github_repo.py", "scripts/rebase_guard.py", "scripts/safe_write_edit_ops.py", "scripts/localhost_export_server.py", "scripts/operable_repo.py", "scripts/network_capabilities.py", "scripts/depo_server.py", "scripts/device_exec_check.py",
+    ".github/workflows/full-debug.yml", ".github/workflows/localhost-export.yml", ".github/workflows/operable-repo.yml", ".github/workflows/network-capabilities.yml", ".github/workflows/depo-server.yml", ".github/workflows/device-exec.yml",
     "docs/full-debug-runbook.md", "docs/one-repo-synthesis-audit.md", "docs/rebase-build-audit.md", "docs/safe-write-edit-ops.md", "docs/debug-export-20260708.md",
-    "schemas/safe-write-edit-ops.schema.json", "schemas/localhost-export.schema.json", "schemas/operable-repo-report.schema.json", "schemas/network-capabilities-report.schema.json", "schemas/depo-server-report.schema.json",
-    "datasets/safe-write-edit-ops.policy.json", "datasets/localhost-export.config.json", "datasets/localhost-export.object.json", "datasets/debug-export-20260708.dataset.json", "datasets/operable-repo.config.json", "datasets/operable-repo.object.json", "datasets/network-capabilities.config.json", "datasets/depo-server.config.json",
+    "schemas/safe-write-edit-ops.schema.json", "schemas/localhost-export.schema.json", "schemas/operable-repo-report.schema.json", "schemas/network-capabilities-report.schema.json", "schemas/depo-server-report.schema.json", "schemas/device-exec-report.schema.json",
+    "datasets/safe-write-edit-ops.policy.json", "datasets/localhost-export.config.json", "datasets/localhost-export.object.json", "datasets/debug-export-20260708.dataset.json", "datasets/operable-repo.config.json", "datasets/operable-repo.object.json", "datasets/network-capabilities.config.json", "datasets/depo-server.config.json", "datasets/device-exec.config.json",
     "examples/safe-write-edit-ops.object.json", "Makefile"
   ],
   "rest_order_cleanup": {
     "open_issues_found": 0,
     "open_pull_requests_found": [],
     "closed_stale_pull_requests": [3, 4],
-    "merged_pull_requests": [7, 8, 9, 10, 11, 12, 13],
+    "merged_pull_requests": [7, 8, 9, 10, 11, 12, 13, 14],
     "active_pull_request": null,
-    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed. PR 9 added safe_write/edit/ops tooling. PR 10 exported GitHub debug state. PR 11 added localhost/$HOME/usr/var export. PR 12 added the operable repo controller. PR 13 added network capabilities."
+    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed. PR 9 added safe_write/edit/ops tooling. PR 10 exported GitHub debug state. PR 11 added localhost/$HOME/usr/var export. PR 12 added the operable repo controller. PR 13 added network capabilities. PR 14 connected depo_server_ to localhost user through outbound local-user model."
   },
   "safe_write_edit_ops": {"schema": "upgraded-fiesta.safe-write-edit-ops.v1", "policy": "datasets/safe-write-edit-ops.policy.json", "schema_file": "schemas/safe-write-edit-ops.schema.json", "executor": "scripts/safe_write_edit_ops.py", "example_object": "examples/safe-write-edit-ops.object.json", "default_mode": "plan", "apply_requires_explicit_object_mode": true},
   "localhost_export": {"schema": "upgraded-fiesta.localhost-export.bundle.v1", "config": "datasets/localhost-export.config.json", "object": "datasets/localhost-export.object.json", "schema_file": "schemas/localhost-export.schema.json", "server": "scripts/localhost_export_server.py", "base_url": "https://localhost:9443", "json_endpoint": "https://localhost:9443/export", "zip_endpoint": "https://localhost:9443/export.zip", "health_endpoint": "https://localhost:9443/health", "runtime_output_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export", "committed_tls_private_key": false, "localhost_only": true},
-  "operable_repo": {"schema": "upgraded-fiesta.operable-repo.config.v1", "controller": "scripts/operable_repo.py", "config": "datasets/operable-repo.config.json", "object": "datasets/operable-repo.object.json", "report_schema": "schemas/operable-repo-report.schema.json", "workflow": ".github/workflows/operable-repo.yml", "commands": ["status", "validate", "export", "doctor", "serve", "network", "depo_status", "depo_connect", "depo_serve"], "machine_readable_output": true, "destructive_default_action": false},
+  "operable_repo": {"schema": "upgraded-fiesta.operable-repo.config.v1", "controller": "scripts/operable_repo.py", "config": "datasets/operable-repo.config.json", "object": "datasets/operable-repo.object.json", "report_schema": "schemas/operable-repo-report.schema.json", "workflow": ".github/workflows/operable-repo.yml", "commands": ["status", "validate", "export", "doctor", "serve", "network", "depo_status", "depo_connect", "depo_serve", "device_exec_status", "device_exec_doctor"], "machine_readable_output": true, "destructive_default_action": false},
   "network_capabilities": {"schema": "upgraded-fiesta.network-capabilities.config.v1", "config": "datasets/network-capabilities.config.json", "report_schema": "schemas/network-capabilities-report.schema.json", "executor": "scripts/network_capabilities.py", "workflow": ".github/workflows/network-capabilities.yml", "commands": ["status", "measure", "doctor"], "real_bandwidth_method": "localhost_tcp_loopback_send_recv", "default_payload_bytes": 8388608, "default_samples": 3, "external_bandwidth_test_default": false, "packet_capture": false, "promiscuous_mode": false},
   "depo_server": {"schema": "upgraded-fiesta.depo-server.config.v1", "config": "datasets/depo-server.config.json", "report_schema": "schemas/depo-server-report.schema.json", "executor": "scripts/depo_server.py", "workflow": ".github/workflows/depo-server.yml", "commands": ["status", "connect", "serve"], "connect_direction": "outbound_from_localhost_user_to_depo_server", "server_default_url": "http://127.0.0.1:9797", "online_url_env": "DEPO_SERVER_URL", "token_env": "DEPO_SERVER_TOKEN", "hardcoded_token": false},
-  "audit_status": {"destructive_overwrite_performed": false, "secrets_copied": false, "source_repositories_deleted_or_archived": false, "synthesis_ready_for_review": false, "synthesis_merged": true, "rebase_guard_required": true, "safe_write_edit_ops_registered": true, "debug_export_registered": true, "localhost_export_registered": true, "operable_repo_registered": true, "network_capabilities_registered": true, "depo_server_registered": true}
+  "device_exec": {"schema": "upgraded-fiesta.device-exec.config.v1", "config": "datasets/device-exec.config.json", "report_schema": "schemas/device-exec-report.schema.json", "executor": "scripts/device_exec_check.py", "workflow": ".github/workflows/device-exec.yml", "commands": ["status", "doctor"], "reports_uid_euid_gid_egid": true, "root_escalation_attempted": false, "sudo_executed": false, "arbitrary_user_command_execution": false},
+  "audit_status": {"destructive_overwrite_performed": false, "secrets_copied": false, "source_repositories_deleted_or_archived": false, "synthesis_ready_for_review": false, "synthesis_merged": true, "rebase_guard_required": true, "safe_write_edit_ops_registered": true, "debug_export_registered": true, "localhost_export_registered": true, "operable_repo_registered": true, "network_capabilities_registered": true, "depo_server_registered": true, "device_exec_registered": true}
 }
