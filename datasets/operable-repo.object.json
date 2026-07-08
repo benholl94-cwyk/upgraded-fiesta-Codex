@@ -1,0 +1,37 @@
+{
+  "schema": "upgraded-fiesta.operable-repo.object.v1",
+  "operation_id": "operable-repo-20260708-main-control-plane",
+  "mode": "status_validate_export_doctor_serve",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "known_main_head": "517a27c57ca7634ba2d016bfd4eef0ec50a60545"
+  },
+  "software": {
+    "controller": "scripts/operable_repo.py",
+    "config": "datasets/operable-repo.config.json",
+    "report_schema": "schemas/operable-repo-report.schema.json",
+    "workflow": ".github/workflows/operable-repo.yml"
+  },
+  "commands": {
+    "status": "python3 scripts/operable_repo.py status",
+    "validate": "python3 scripts/operable_repo.py validate",
+    "export": "python3 scripts/operable_repo.py export",
+    "doctor": "python3 scripts/operable_repo.py doctor",
+    "serve": "python3 scripts/operable_repo.py serve"
+  },
+  "runtime_outputs": {
+    "doctor_report": "runs/operable_repo/operable-repo.doctor.json",
+    "home_usr_var_export_bundle": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json",
+    "home_usr_var_export_manifest": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export-manifest.json",
+    "home_usr_var_export_zip": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.zip"
+  },
+  "security": {
+    "committed_tls_private_key": false,
+    "secret_export": false,
+    "external_network_bind": false,
+    "destructive_default_action": false,
+    "delete_supported": false
+  }
+}
