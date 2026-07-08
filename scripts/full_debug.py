@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Repository-wide diagnostic harness for upgraded-fiesta-Codex.
-
-The script is intentionally dependency-free. It performs deterministic static
-checks by default and optional expensive build checks with --deep.
-"""
+"""Deterministic repository debug harness for upgraded-fiesta-Codex."""
 from __future__ import annotations
 
 import argparse
@@ -26,70 +22,34 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT_DIR = ROOT / "reports"
 
 EXPECTED_FILES = [
-    "Cargo.toml",
-    "README.md",
-    "Dockerfile",
-    "docker-compose.yml",
-    "Makefile",
-    "config/heavy-metal.json",
-    "config/heavy-metal.toml",
-    "scripts/init-db.sql",
-    "scripts/validate_repo.py",
-    "ui/package.json",
+    "Cargo.toml", "README.md", "Dockerfile", "docker-compose.yml", "Makefile",
+    "config/heavy-metal.json", "config/heavy-metal.toml", "scripts/init-db.sql",
+    "scripts/validate_repo.py", "ui/package.json",
 ]
-
 EXCLUDED_DIRS = {
-    ".git",
-    ".cache",
-    ".pytest_cache",
-    ".tmp",
-    ".venv",
-    "backups",
-    "dist",
-    "exports",
-    "logs",
-    "node_modules",
-    "reports",
-    "runs",
-    "target",
-    "ui/dist",
-    "ui/node_modules",
-    "venv",
+    ".git", ".cache", ".pytest_cache", ".tmp", ".venv", "backups", "dist",
+    "exports", "logs", "node_modules", "reports", "runs", "target", "venv",
+    "ui/dist", "ui/node_modules",
 }
-
 TEXT_SUFFIXES = {
-    ".c",
-    ".css",
-    ".env",
-    ".h",
-    ".html",
-    ".js",
-    ".json",
-    ".jsx",
-    ".lock",
-    ".md",
-    ".py",
-    ".rs",
-    ".sh",
-    ".sql",
-    ".toml",
-    ".ts",
-    ".tsx",
-    ".txt",
-    ".yaml",
-    ".yml",
+    ".c", ".css", ".env", ".h", ".html", ".js", ".json", ".jsx", ".lock",
+    ".md", ".py", ".rs", ".sh", ".sql", ".toml", ".ts", ".tsx", ".txt",
+    ".yaml", ".yml",
 }
-
 SECRET_NAME_RE = re.compile(
     r"(^|[/_.-])(key|token|secret|credential|credentials|password|passwd|private|pem|p12|pfx)([/_.-]|$)",
     re.IGNORECASE,
 )
 SECRET_VALUE_RE = re.compile(
-    r"(?i)(api[_-]?key|secret|token|password|passwd|private[_-]?key)\s*[:=]\s*['\"]?([^'\"\s]{12,})"
+    r"(?i)(api[_-]?key|secret|token|password|passwd|private[_-]?key)\s*[:=]\s*['\"]?([^'\"\s]{8,})"
 )
 PRIVATE_KEY_RE = re.compile(r"-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?PRIVATE KEY-----")
-HIGH_ENTROPY_RE = re.compile(r"\b[A-Za-z0-9_=-]{32,}\b")
-PLACEHOLDER_RE = re.compile(r"(?i)(replace-with|changeme|dummy|example\.com|placeholder|todo\b|fixme\b)")
+HIGH_ENTROPY_RE = re.compile(r"\b[A-Za-z0-9_=-]{40,}\b")
+PLACEHOLDER_RE = re.compile(r"(?i)(replace-with|change-me|changeme|dummy|example\.com|placeholder|todo\b|fixme\b)")
+SAFE_PLACEHOLDER_PREFIXES = (
+    "replace", "replace-with", "change-me", "changeme", "dummy", "example",
+    "placeholder", "not-set", "unset", "your-", "<",
+)
 CONTROL_PATH_RE = re.compile(r"[\x00-\x1f]")
 
 
@@ -107,16 +67,13 @@ class Audit:
         self.metrics: dict[str, object] = {}
 
     def add(self, severity: str, check: str, path: str, message: str) -> None:
-        self.findings.append(Finding(severity=severity, check=check, path=path, message=message))
+        self.findings.append(Finding(severity, check, path, message))
 
     def error(self, check: str, path: str, message: str) -> None:
         self.add("error", check, path, message)
 
     def warn(self, check: str, path: str, message: str) -> None:
         self.add("warning", check, path, message)
-
-    def info(self, check: str, path: str, message: str) -> None:
-        self.add("info", check, path, message)
 
     @property
     def ok(self) -> bool:
@@ -134,13 +91,12 @@ def iter_repo_files() -> Iterable[Path]:
     for base, dirs, files in os.walk(ROOT):
         base_path = Path(base)
         rel_base = rel(base_path)
-        kept_dirs = []
-        for name in dirs:
-            candidate = name if rel_base == "." else f"{rel_base}/{name}"
-            if name in EXCLUDED_DIRS or candidate in EXCLUDED_DIRS:
-                continue
-            kept_dirs.append(name)
-        dirs[:] = kept_dirs
+        kept: list[str] = []
+        for dirname in dirs:
+            candidate = dirname if rel_base == "." else f"{rel_base}/{dirname}"
+            if dirname not in EXCLUDED_DIRS and candidate not in EXCLUDED_DIRS:
+                kept.append(dirname)
+        dirs[:] = kept
         for filename in files:
             yield base_path / filename
 
@@ -156,13 +112,8 @@ def command_available(name: str) -> bool:
 def run_command(command: list[str], *, cwd: Path = ROOT, timeout: int = 120) -> tuple[int, str]:
     try:
         completed = subprocess.run(
-            command,
-            cwd=str(cwd),
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=timeout,
-            check=False,
+            command, cwd=str(cwd), text=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, timeout=timeout, check=False,
         )
         return completed.returncode, completed.stdout[-12000:]
     except FileNotFoundError:
@@ -175,15 +126,27 @@ def shannon_entropy(value: str) -> float:
     if not value:
         return 0.0
     import math
-
     counts = {ch: value.count(ch) for ch in set(value)}
     length = len(value)
     return -sum((count / length) * math.log2(count / length) for count in counts.values())
 
 
+def is_safe_placeholder(value: str) -> bool:
+    cleaned = value.strip().strip('"\'').lower()
+    return cleaned.startswith(SAFE_PLACEHOLDER_PREFIXES) or bool(PLACEHOLDER_RE.search(cleaned))
+
+
+def should_scan_text(path: Path) -> bool:
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        return True
+    try:
+        return b"\0" not in path.read_bytes()[:512]
+    except OSError:
+        return False
+
+
 def check_expected_files(audit: Audit) -> None:
-    missing: list[str] = []
-    empty: list[str] = []
+    missing, empty = [], []
     for item in EXPECTED_FILES:
         path = ROOT / item
         if not path.is_file():
@@ -197,9 +160,8 @@ def check_expected_files(audit: Audit) -> None:
 
 
 def check_workspace(audit: Audit) -> None:
-    cargo_path = ROOT / "Cargo.toml"
     try:
-        cargo = tomllib.loads(read_text(cargo_path))
+        cargo = tomllib.loads(read_text(ROOT / "Cargo.toml"))
     except Exception as exc:
         audit.error("cargo-workspace", "Cargo.toml", f"failed to parse workspace TOML: {exc}")
         return
@@ -207,8 +169,7 @@ def check_workspace(audit: Audit) -> None:
     if not isinstance(members, list) or not members:
         audit.error("cargo-workspace", "Cargo.toml", "workspace.members is missing or empty")
         return
-    missing_manifests: list[str] = []
-    missing_sources: list[str] = []
+    missing_manifests, missing_sources = [], []
     for member in members:
         member_path = ROOT / str(member)
         if not (member_path / "Cargo.toml").is_file():
@@ -238,12 +199,11 @@ def check_json_toml(audit: Audit) -> None:
 
 
 def check_python_compile(audit: Audit) -> None:
-    scripts_dir = ROOT / "scripts"
-    if not scripts_dir.is_dir():
+    scripts = ROOT / "scripts"
+    if not scripts.is_dir():
         audit.error("python-compile", "scripts", "scripts directory is missing")
         return
-    ok = compileall.compile_dir(str(scripts_dir), quiet=1, force=True)
-    if not ok:
+    if not compileall.compile_dir(str(scripts), quiet=1, force=True):
         audit.error("python-compile", "scripts", "one or more Python files failed bytecode compilation")
 
 
@@ -278,21 +238,8 @@ def check_paths(audit: Audit) -> None:
     audit.metrics["repo_files_scanned"] = total
 
 
-def should_scan_text(path: Path) -> bool:
-    if path.suffix.lower() in TEXT_SUFFIXES:
-        return True
-    try:
-        chunk = path.read_bytes()[:512]
-    except OSError:
-        return False
-    return b"\0" not in chunk
-
-
 def check_secrets_and_placeholders(audit: Audit) -> None:
-    sensitive_names: list[str] = []
-    secret_value_hits = 0
-    placeholder_hits = 0
-    entropy_hits = 0
+    sensitive_names, secret_value_hits, placeholder_hits, entropy_hits = [], 0, 0, 0
     for path in iter_repo_files():
         rp = rel(path)
         if SECRET_NAME_RE.search(rp):
@@ -309,15 +256,13 @@ def check_secrets_and_placeholders(audit: Audit) -> None:
             audit.error("secret-material", rp, "private key material detected")
         for match in SECRET_VALUE_RE.finditer(text):
             key, value = match.group(1), match.group(2)
-            if value.lower().startswith(("replace", "example", "dummy", "placeholder")):
+            if is_safe_placeholder(value):
                 continue
             secret_value_hits += 1
             audit.error("secret-material", rp, f"possible hard-coded secret value near {key}")
         for match in HIGH_ENTROPY_RE.finditer(text):
             value = match.group(0)
-            if len(value) < 40:
-                continue
-            if value.startswith(("sha256", "http", "https")):
+            if value.startswith(("sha256", "http", "https")) or is_safe_placeholder(value):
                 continue
             if shannon_entropy(value) >= 4.5:
                 entropy_hits += 1
@@ -347,9 +292,23 @@ def check_mobile_constraints(audit: Audit) -> None:
             audit.warn("mobile-shell", rp, "mobile-facing text references docker compose; ensure cloud/non-mobile boundary is explicit")
 
 
+def check_runtime_layout(audit: Audit) -> None:
+    for dirname in ("logs", "runs", "backups", "exports", "reports"):
+        path = ROOT / dirname
+        if path.exists() and not path.is_dir():
+            audit.error("runtime-layout", dirname, "runtime path exists but is not a directory")
+    gitignore = ROOT / ".gitignore"
+    if not gitignore.is_file():
+        audit.error("gitignore", ".gitignore", ".gitignore is missing")
+        return
+    text = read_text(gitignore)
+    for pattern in ("logs/", "runs/", "backups/", "exports/", ".env"):
+        if pattern not in text:
+            audit.warn("gitignore", ".gitignore", f"missing protective ignore pattern: {pattern}")
+
+
 def check_external_tools(audit: Audit, deep: bool) -> None:
-    required = ["python3"]
-    optional = ["cargo", "npm", "docker"]
+    required, optional = ["python3"], ["cargo", "npm", "docker"]
     availability = {name: command_available(name) for name in required + optional}
     audit.metrics["tool_availability"] = availability
     for name in required:
@@ -379,29 +338,13 @@ def check_external_tools(audit: Audit, deep: bool) -> None:
             audit.warn("deep-docker", "docker-compose.yml", output.strip() or "docker compose config failed")
 
 
-def check_runtime_layout(audit: Audit) -> None:
-    for dirname in ("logs", "runs", "backups", "exports", "reports"):
-        path = ROOT / dirname
-        if path.exists() and not path.is_dir():
-            audit.error("runtime-layout", dirname, "runtime path exists but is not a directory")
-    gitignore = ROOT / ".gitignore"
-    if gitignore.is_file():
-        text = read_text(gitignore)
-        for pattern in ("logs/", "runs/", "backups/", "exports/", ".env"):
-            if pattern not in text:
-                audit.warn("gitignore", ".gitignore", f"missing protective ignore pattern: {pattern}")
-    else:
-        audit.error("gitignore", ".gitignore", ".gitignore is missing")
-
-
 def build_report(audit: Audit, args: argparse.Namespace) -> dict[str, object]:
     counts = {"error": 0, "warning": 0, "info": 0}
     for finding in audit.findings:
         counts[finding.severity] = counts.get(finding.severity, 0) + 1
-    generated_at = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     return {
         "schema": "upgraded-fiesta.full-debug.v1",
-        "generated_at_utc": generated_at,
+        "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "root": str(ROOT),
         "mode": "deep" if args.deep else "static",
         "ok": audit.ok,
@@ -419,10 +362,8 @@ def build_report(audit: Audit, args: argparse.Namespace) -> dict[str, object]:
 
 def write_reports(report: dict[str, object]) -> None:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    json_path = REPORT_DIR / "full_debug_report.json"
-    txt_path = REPORT_DIR / "full_debug_report.txt"
     json_payload = json.dumps(report, indent=2, sort_keys=True)
-    json_path.write_text(json_payload + "\n", encoding="utf-8")
+    (REPORT_DIR / "full_debug_report.json").write_text(json_payload + "\n", encoding="utf-8")
     lines = [
         "Full Debug Report",
         f"schema: {report['schema']}",
@@ -430,14 +371,12 @@ def write_reports(report: dict[str, object]) -> None:
         f"mode: {report['mode']}",
         f"ok: {report['ok']}",
         f"counts: {json.dumps(report['counts'], sort_keys=True)}",
-        "",
-        "Findings:",
+        "", "Findings:",
     ]
     for finding in report["findings"]:  # type: ignore[index]
         lines.append(f"- [{finding['severity']}] {finding['check']} {finding['path']}: {finding['message']}")
-    digest = hashlib.sha256(json_payload.encode("utf-8")).hexdigest()
-    lines.extend(["", f"json_sha256: {digest}"])
-    txt_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    lines.extend(["", f"json_sha256: {hashlib.sha256(json_payload.encode('utf-8')).hexdigest()}"])
+    (REPORT_DIR / "full_debug_report.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -445,19 +384,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--deep", action="store_true", help="Run cargo/npm/docker checks when tools are available.")
     parser.add_argument("--write-report", action="store_true", help="Write reports/full_debug_report.{json,txt}.")
     args = parser.parse_args(argv)
-
     audit = Audit()
-    check_expected_files(audit)
-    check_workspace(audit)
-    check_json_toml(audit)
-    check_python_compile(audit)
-    check_shell_scripts(audit)
-    check_paths(audit)
-    check_secrets_and_placeholders(audit)
-    check_mobile_constraints(audit)
-    check_runtime_layout(audit)
+    for check in (
+        check_expected_files, check_workspace, check_json_toml, check_python_compile,
+        check_shell_scripts, check_paths, check_secrets_and_placeholders,
+        check_mobile_constraints, check_runtime_layout,
+    ):
+        check(audit)
     check_external_tools(audit, args.deep)
-
     report = build_report(audit, args)
     if args.write_report:
         write_reports(report)
