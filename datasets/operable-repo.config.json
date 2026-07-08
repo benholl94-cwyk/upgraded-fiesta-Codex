@@ -24,7 +24,8 @@
     "localhost_export": "scripts/localhost_export_server.py",
     "network_capabilities": "scripts/network_capabilities.py",
     "depo_server": "scripts/depo_server.py",
-    "device_exec_check": "scripts/device_exec_check.py"
+    "device_exec_check": "scripts/device_exec_check.py",
+    "remote_control_gate": "scripts/remote_control_gate.py"
   },
   "required_files": [
     "Makefile",
@@ -38,6 +39,7 @@
     "scripts/network_capabilities.py",
     "scripts/depo_server.py",
     "scripts/device_exec_check.py",
+    "scripts/remote_control_gate.py",
     "datasets/repository-synthesis.dataset.json",
     "datasets/safe-write-edit-ops.policy.json",
     "datasets/localhost-export.config.json",
@@ -46,18 +48,21 @@
     "datasets/network-capabilities.config.json",
     "datasets/depo-server.config.json",
     "datasets/device-exec.config.json",
+    "datasets/remote-control.config.json",
     "schemas/safe-write-edit-ops.schema.json",
     "schemas/localhost-export.schema.json",
     "schemas/operable-repo-report.schema.json",
     "schemas/network-capabilities-report.schema.json",
     "schemas/depo-server-report.schema.json",
     "schemas/device-exec-report.schema.json",
+    "schemas/remote-control-report.schema.json",
     ".github/workflows/full-debug.yml",
     ".github/workflows/localhost-export.yml",
     ".github/workflows/operable-repo.yml",
     ".github/workflows/network-capabilities.yml",
     ".github/workflows/depo-server.yml",
-    ".github/workflows/device-exec.yml"
+    ".github/workflows/device-exec.yml",
+    ".github/workflows/remote-control.yml"
   ],
   "commands": {
     "status": {"description": "machine-readable inventory and status report", "argv": ["python3", "scripts/operable_repo.py", "status"]},
@@ -70,7 +75,10 @@
     "depo_connect": {"description": "connect localhost user outbound to depo_server_", "argv": ["python3", "scripts/depo_server.py", "connect"]},
     "depo_serve": {"description": "serve depo_server_ on localhost", "argv": ["python3", "scripts/depo_server.py", "serve", "--host", "127.0.0.1", "--port", "9797"]},
     "device_exec_status": {"description": "check real local /exec and root state without escalation", "argv": ["python3", "scripts/device_exec_check.py", "status"]},
-    "device_exec_doctor": {"description": "write runtime report for real local /exec and root state", "argv": ["python3", "scripts/device_exec_check.py", "doctor"]}
+    "device_exec_doctor": {"description": "write runtime report for real local /exec and root state", "argv": ["python3", "scripts/device_exec_check.py", "doctor"]},
+    "remote_control_status": {"description": "inspect remote-control consent and route gate", "argv": ["python3", "scripts/remote_control_gate.py", "status"]},
+    "remote_control_accept": {"description": "local user accept enables all safe routes", "argv": ["python3", "scripts/remote_control_gate.py", "accept", "--source", "local_user_cli_accept"]},
+    "remote_control_deny": {"description": "local user deny disables all routes", "argv": ["python3", "scripts/remote_control_gate.py", "deny", "--source", "local_user_cli_deny"]}
   },
   "security": {
     "committed_tls_private_key": false,
@@ -81,6 +89,8 @@
     "packet_capture": false,
     "promiscuous_mode": false,
     "depo_server_hardcoded_token": false,
-    "device_root_escalation_attempted": false
+    "device_root_escalation_attempted": false,
+    "remote_control_auto_accept_popup": false,
+    "remote_control_bypass_user_consent": false
   }
 }
