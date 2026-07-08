@@ -1,0 +1,41 @@
+{
+  "schema": "upgraded-fiesta.device-exec.config.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "repository_id": "1274749256",
+    "default_branch": "main",
+    "known_main_head_after_depo_server": "159818484fdd59ee2c41d5e3bd9d114d83ea279d"
+  },
+  "runtime": {
+    "state_root": "runs/device_exec",
+    "expected_repo_tail": "upgraded-fiesta-Codex",
+    "expected_runtime_export_root": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export",
+    "localhost_export_bundle": "$HOME/usr/var/upgraded-fiesta-Codex/localhost-export/export.bundle.json"
+  },
+  "exec_check": {
+    "checks_uid_gid": true,
+    "checks_effective_uid_gid": true,
+    "checks_root_status": true,
+    "checks_workspace_writable": true,
+    "checks_runtime_export_bundle": true,
+    "checks_git_metadata_if_available": true,
+    "attempts_privilege_escalation": false,
+    "executes_arbitrary_user_commands": false,
+    "runs_sudo": false,
+    "requires_root": false
+  },
+  "root_policy": {
+    "root_required_for_repo_operability": false,
+    "root_allowed_if_environment_already_is_root": true,
+    "root_escalation_supported": false,
+    "root_escalation_attempted": false
+  },
+  "security": {
+    "secrets_required": false,
+    "secret_export": false,
+    "destructive_default_action": false,
+    "external_network_required": false,
+    "device_root_remote_control": false
+  }
+}
