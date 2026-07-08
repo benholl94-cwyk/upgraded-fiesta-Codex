@@ -1,0 +1,80 @@
+{
+  "schema": "ops-access.manifest.v1",
+  "default_timeout_seconds": 120,
+  "default_output_limit_bytes": 200000,
+  "profiles": {
+    "staging": {
+      "remote_execution_enabled": false,
+      "network_policy": "deny"
+    },
+    "production": {
+      "remote_execution_enabled": false,
+      "network_policy": "deny"
+    },
+    "mobile-lab": {
+      "remote_execution_enabled": false,
+      "network_policy": "deny"
+    }
+  },
+  "operations": {
+    "repo.validate": {
+      "description": "Validate repository structure without reading secrets.",
+      "command": ["python3", "scripts/validate_repo.py"],
+      "working_directory": ".",
+      "timeout_seconds": 180,
+      "output_limit_bytes": 200000,
+      "network": "deny",
+      "audit_required": true,
+      "redaction_required": true
+    },
+    "ops.validate": {
+      "description": "Validate operations access configuration and fail closed.",
+      "command": ["python3", "scripts/validate_ops_access_config.py", "--manifest", "config/ops-command-manifest.example.json"],
+      "working_directory": ".",
+      "timeout_seconds": 120,
+      "output_limit_bytes": 200000,
+      "network": "deny",
+      "audit_required": true,
+      "redaction_required": true
+    },
+    "service.status": {
+      "description": "Reserved read-only status operation for approved named services. Disabled until remote guard exists.",
+      "command": ["ops-access-guard", "service.status"],
+      "working_directory": ".",
+      "timeout_seconds": 60,
+      "output_limit_bytes": 100000,
+      "network": "deny",
+      "audit_required": true,
+      "redaction_required": true,
+      "disabled_until_remote_guard_installed": true,
+      "allowed_services": ["gateway", "ui", "postgres", "redis"]
+    },
+    "external.api.check": {
+      "description": "Reserved declared-target API health check. Disabled until target inventory and remote guard exist.",
+      "command": ["ops-access-guard", "external.api.check"],
+      "working_directory": ".",
+      "timeout_seconds": 60,
+      "output_limit_bytes": 100000,
+      "network": "declared_targets_only",
+      "audit_required": true,
+      "redaction_required": true,
+      "disabled_until_remote_guard_installed": true,
+      "allowed_targets_file": "config/api-targets.example.json"
+    }
+  },
+  "denied_capabilities": [
+    "interactive_root_shell",
+    "unrestricted_shell",
+    "secret_dump",
+    "environment_dump",
+    "unbounded_network_scan",
+    "agent_forwarding",
+    "tcp_forwarding_by_default",
+    "silent_persistence"
+  ],
+  "audit": {
+    "format": "jsonl",
+    "required_fields": ["timestamp", "actor", "profile", "operation", "repository", "revision", "decision", "exit_code"],
+    "redaction_patterns": ["private_key", "api_key", "token", "password", "secret", "authorization"]
+  }
+}
