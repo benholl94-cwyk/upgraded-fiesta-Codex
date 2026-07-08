@@ -62,6 +62,7 @@
     "schemas/localhost-export.schema.json",
     "datasets/safe-write-edit-ops.policy.json",
     "datasets/localhost-export.config.json",
+    "datasets/localhost-export.object.json",
     "datasets/debug-export-20260708.dataset.json",
     "examples/safe-write-edit-ops.object.json",
     "Makefile"
@@ -86,6 +87,7 @@
   "localhost_export": {
     "schema": "upgraded-fiesta.localhost-export.bundle.v1",
     "config": "datasets/localhost-export.config.json",
+    "object": "datasets/localhost-export.object.json",
     "schema_file": "schemas/localhost-export.schema.json",
     "server": "scripts/localhost_export_server.py",
     "base_url": "https://localhost:9443",
