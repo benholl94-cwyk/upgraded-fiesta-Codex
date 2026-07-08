@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 import socket
 import sys
-import time
 from typing import Any
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
@@ -71,17 +70,25 @@ def require_token_for_url(url: str, config: dict[str, Any]) -> str | None:
     return token or None
 
 
+def repository_report(config: dict[str, Any]) -> dict[str, Any]:
+    repo = config["repository"]
+    return {
+        "full_name": repo["full_name"],
+        "default_branch": repo["default_branch"],
+        "historical_anchors": repo.get("historical_anchors", {
+            "after_network_capabilities_commit": repo.get("known_main_head_after_network_capabilities"),
+            "semantics": "historical audit anchor, not current branch head assertion",
+        }),
+    }
+
+
 def base_report(command: str, config: dict[str, Any], ok: bool = True) -> dict[str, Any]:
     return {
         "schema": REPORT_SCHEMA,
         "generated_at_utc": utc_now(),
         "ok": ok,
         "command": command,
-        "repository": {
-            "full_name": config["repository"]["full_name"],
-            "default_branch": config["repository"]["default_branch"],
-            "known_main_head": config["repository"]["known_main_head_after_network_capabilities"],
-        },
+        "repository": repository_report(config),
         "depo_server": config["depo_server"],
         "security": config["security"],
     }
