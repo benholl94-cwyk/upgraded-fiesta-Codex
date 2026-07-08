@@ -1,0 +1,14 @@
+{
+  "schema": "upgraded-fiesta.remote-control.final-gate.v1",
+  "generated_at_utc": "2026-07-08T16:19:00Z",
+  "ready": true,
+  "branch": "remote-control-consent-gate-20260708",
+  "implementation": "consent-gated enable_any switch with safe-route enable_all after explicit local accept",
+  "blocked_automation": [
+    "auto_accept_popup",
+    "bypass_user_consent",
+    "arbitrary_command_execution",
+    "privilege_escalation",
+    "secret_export"
+  ]
+}
