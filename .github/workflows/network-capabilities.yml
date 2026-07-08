@@ -1,0 +1,61 @@
+name: network-capabilities
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - network-capabilities-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Python
+        run: python3 --version
+
+      - name: Compile network scripts
+        run: python3 -m py_compile scripts/network_capabilities.py scripts/operable_repo.py
+
+      - name: Network status
+        run: python3 scripts/network_capabilities.py status > network-status.json
+
+      - name: Validate network status JSON
+        run: python3 -m json.tool network-status.json >/dev/null
+
+      - name: Network real loopback bandwidth measure
+        run: python3 scripts/network_capabilities.py measure > network-measure.json
+
+      - name: Validate network measure JSON
+        run: python3 -m json.tool network-measure.json >/dev/null
+
+      - name: Network doctor
+        run: python3 scripts/network_capabilities.py doctor > network-doctor.json
+
+      - name: Validate network doctor JSON
+        run: python3 -m json.tool network-doctor.json >/dev/null
+
+      - name: Operable network integration
+        run: python3 scripts/operable_repo.py network measure > operable-network.json
+
+      - name: Validate operable network JSON
+        run: python3 -m json.tool operable-network.json >/dev/null
+
+      - name: Upload network capability reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-capabilities-reports
+          path: |
+            network-status.json
+            network-measure.json
+            network-doctor.json
+            operable-network.json
+          if-no-files-found: error
