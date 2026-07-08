@@ -114,6 +114,18 @@ def repo_git_state() -> dict[str, Any]:
     }
 
 
+def repository_report(config: dict[str, Any]) -> dict[str, Any]:
+    repo = config["repository"]
+    return {
+        "full_name": repo["full_name"],
+        "default_branch": repo["default_branch"],
+        "historical_anchors": repo.get("historical_anchors", {
+            "after_depo_server_commit": repo.get("known_main_head_after_depo_server"),
+            "semantics": "historical audit anchor, not current branch head assertion",
+        }),
+    }
+
+
 def build_report(command: str, config: dict[str, Any], write: bool) -> dict[str, Any]:
     runtime_root = ROOT / config["runtime"]["state_root"]
     export_bundle = expand_runtime_path(config["runtime"]["localhost_export_bundle"])
@@ -123,11 +135,7 @@ def build_report(command: str, config: dict[str, Any], write: bool) -> dict[str,
         "generated_at_utc": utc_now(),
         "ok": True,
         "command": command,
-        "repository": {
-            "full_name": config["repository"]["full_name"],
-            "default_branch": config["repository"]["default_branch"],
-            "known_main_head": config["repository"]["known_main_head_after_depo_server"],
-        },
+        "repository": repository_report(config),
         "device_exec": {
             "hostname": socket.gethostname(),
             "platform": platform.platform(),
