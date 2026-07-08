@@ -23,7 +23,8 @@
     "safe_write_edit_ops": "scripts/safe_write_edit_ops.py",
     "localhost_export": "scripts/localhost_export_server.py",
     "network_capabilities": "scripts/network_capabilities.py",
-    "depo_server": "scripts/depo_server.py"
+    "depo_server": "scripts/depo_server.py",
+    "device_exec_check": "scripts/device_exec_check.py"
   },
   "required_files": [
     "Makefile",
@@ -36,6 +37,7 @@
     "scripts/localhost_export_server.py",
     "scripts/network_capabilities.py",
     "scripts/depo_server.py",
+    "scripts/device_exec_check.py",
     "datasets/repository-synthesis.dataset.json",
     "datasets/safe-write-edit-ops.policy.json",
     "datasets/localhost-export.config.json",
@@ -43,16 +45,19 @@
     "datasets/operable-repo.config.json",
     "datasets/network-capabilities.config.json",
     "datasets/depo-server.config.json",
+    "datasets/device-exec.config.json",
     "schemas/safe-write-edit-ops.schema.json",
     "schemas/localhost-export.schema.json",
     "schemas/operable-repo-report.schema.json",
     "schemas/network-capabilities-report.schema.json",
     "schemas/depo-server-report.schema.json",
+    "schemas/device-exec-report.schema.json",
     ".github/workflows/full-debug.yml",
     ".github/workflows/localhost-export.yml",
     ".github/workflows/operable-repo.yml",
     ".github/workflows/network-capabilities.yml",
-    ".github/workflows/depo-server.yml"
+    ".github/workflows/depo-server.yml",
+    ".github/workflows/device-exec.yml"
   ],
   "commands": {
     "status": {"description": "machine-readable inventory and status report", "argv": ["python3", "scripts/operable_repo.py", "status"]},
@@ -63,7 +68,9 @@
     "network": {"description": "inventory network capabilities and measure real standalone loopback bandwidth", "argv": ["python3", "scripts/operable_repo.py", "network", "measure"]},
     "depo_status": {"description": "inspect depo_server_ local user connection state", "argv": ["python3", "scripts/depo_server.py", "status"]},
     "depo_connect": {"description": "connect localhost user outbound to depo_server_", "argv": ["python3", "scripts/depo_server.py", "connect"]},
-    "depo_serve": {"description": "serve depo_server_ on localhost", "argv": ["python3", "scripts/depo_server.py", "serve", "--host", "127.0.0.1", "--port", "9797"]}
+    "depo_serve": {"description": "serve depo_server_ on localhost", "argv": ["python3", "scripts/depo_server.py", "serve", "--host", "127.0.0.1", "--port", "9797"]},
+    "device_exec_status": {"description": "check real local /exec and root state without escalation", "argv": ["python3", "scripts/device_exec_check.py", "status"]},
+    "device_exec_doctor": {"description": "write runtime report for real local /exec and root state", "argv": ["python3", "scripts/device_exec_check.py", "doctor"]}
   },
   "security": {
     "committed_tls_private_key": false,
@@ -73,6 +80,7 @@
     "delete_supported": false,
     "packet_capture": false,
     "promiscuous_mode": false,
-    "depo_server_hardcoded_token": false
+    "depo_server_hardcoded_token": false,
+    "device_root_escalation_attempted": false
   }
 }
