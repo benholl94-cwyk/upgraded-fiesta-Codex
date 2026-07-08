@@ -1,0 +1,81 @@
+{
+  "schema": "released-fullworking-system.dataset.v1",
+  "generated_date": "2026-07-08",
+  "dataset_id": "v1.released_fullworking_system.full_space_repo",
+  "repository": "benholl94-cwyk/upgraded-fiesta-Codex",
+  "release_manifest": "releases/v1/released-fullworking-system.manifest.json",
+  "release_object": "config/v1-released-fullworking-system.object.json",
+  "full_space_repo_components": [
+    {
+      "id": "C01_CORE_REPO_STRUCTURE",
+      "kind": "validator",
+      "path": "scripts/validate_repo.py",
+      "required": true
+    },
+    {
+      "id": "C02_AGENT_OBJECTIVES",
+      "kind": "machine_object",
+      "path": "config/agent-objectives.audit.json",
+      "required": true
+    },
+    {
+      "id": "C03_OPS_ROUTE_MATRIX",
+      "kind": "machine_object",
+      "path": "config/ops-route-matrix.example.json",
+      "required": true
+    },
+    {
+      "id": "C04_REPO_TRUSTED_OPS",
+      "kind": "machine_object",
+      "path": "config/repo-trusted-ops.fullstack.json",
+      "required": true
+    },
+    {
+      "id": "C05_WORKFLOW_DISPATCH",
+      "kind": "dataset",
+      "path": "datasets/workflow-dispatch.fullstacked.dataset.json",
+      "required": true
+    },
+    {
+      "id": "C06_FINISHLINE_DEBUG_CONSOLE",
+      "kind": "workflow",
+      "path": ".github/workflows/finishline-debug-console.yml",
+      "required": true
+    },
+    {
+      "id": "C07_AUDIT_VALID_STREAMPipe",
+      "kind": "validator_report_generator",
+      "path": "scripts/audit_valid_debug_streampipe.py",
+      "required": true
+    },
+    {
+      "id": "C08_V1_RELEASE_GATE",
+      "kind": "workflow",
+      "path": ".github/workflows/v1-release-gate.yml",
+      "required": true
+    }
+  ],
+  "release_artifact_contract": {
+    "required_for_fullworking_proof": true,
+    "artifact_names": [
+      "v1-release-proof",
+      "finishline-debug-console",
+      "repo-trusted-ops-report",
+      "ops-route-dry-run-reports"
+    ],
+    "runtime_reports": [
+      "reports/v1-release-proof.json",
+      "reports/finishline-debug-console.json",
+      "reports/repo-trusted-ops-report.json",
+      "reports/ops-route-dry-run-report.json",
+      "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json"
+    ]
+  },
+  "acceptance_status_model": {
+    "code_contract_complete": "validator_true",
+    "formative_docs_complete": "validator_true",
+    "machine_objects_complete": "validator_true",
+    "workflows_complete": "validator_true",
+    "runtime_fullworking_complete": "artifact_required"
+  }
+}
