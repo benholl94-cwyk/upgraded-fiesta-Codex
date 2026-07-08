@@ -96,7 +96,13 @@ trusted-ops-report-external:
 audit-streampipe:
 	python3 scripts/audit_valid_debug_streampipe.py --output-dir reports/audit-valid-debug-streampipe
 
-audit-streampipe-full: trusted-ops-report-local ops-route-dry-run-execute docker-ops-config docker-ops-services audit-streampipe
+audit-streampipe-full:
+	mkdir -p reports
+	python3 scripts/repo_trusted_ops.py report --profile config/repo-trusted-ops.fullstack.json --execute-local --write-report reports/repo-trusted-ops-report.json
+	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --execute-safe --write-report reports/ops-route-dry-run-report.json
+	POSTGRES_PASSWORD=OPS_DRY_RUN_COMPOSE_PARSER_ONLY docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config > reports/docker-compose-ops-dry-run.config.yml
+	POSTGRES_PASSWORD=OPS_DRY_RUN_COMPOSE_PARSER_ONLY docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config --services > reports/docker-compose-ops-dry-run.services.txt
+	python3 scripts/audit_valid_debug_streampipe.py --output-dir reports/audit-valid-debug-streampipe
 
 ops-route-validate:
 	python3 scripts/ops_route_runner.py --route-matrix config/ops-route-matrix.example.json --validate-only
