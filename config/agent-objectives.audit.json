@@ -81,6 +81,17 @@
       "decision": "blocked_until_declared_targets",
       "remote": false,
       "destructive": false
+    },
+    {
+      "id": "A08_LIVE_SYNC_REPORT",
+      "title": "Live sync report artifact",
+      "success_metric": "live_sync_report_only_true",
+      "evidence_required": true,
+      "evidence_path": "reports/ops-route-dry-run-report.json",
+      "route_id": "R08_LIVE_SYNC_REPORT",
+      "decision": "allow_local",
+      "remote": false,
+      "destructive": false
     }
   ],
   "required_objective_fields": [
