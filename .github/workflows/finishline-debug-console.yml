@@ -1,0 +1,173 @@
+name: Finishline Debug Console
+
+on:
+  workflow_dispatch:
+    inputs:
+      execute_local:
+        description: Execute declared local trusted ops checks.
+        required: true
+        default: true
+        type: boolean
+      probe_external:
+        description: Probe declared external targets.
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  finishline-debug-console:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TRUSTED_OPS_PROFILE: config/repo-trusted-ops.fullstack.json
+      TRUSTED_OPS_REPORT: reports/repo-trusted-ops-report.json
+      OPS_ROUTE_MATRIX: config/ops-route-matrix.example.json
+      OPS_ROUTE_REPORT: reports/ops-route-dry-run-report.json
+      FINISHLINE_REPORT: reports/finishline-debug-console.json
+      POSTGRES_PASSWORD: OPS_DRY_RUN_COMPOSE_PARSER_ONLY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight debug console
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import subprocess
+          import datetime as dt
+          root = pathlib.Path.cwd()
+          def cmd(args):
+              return subprocess.run(args, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False).stdout.strip()
+          print(json.dumps({
+              "schema": "finishline.debug-console.preflight.v1",
+              "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+              "github_sha": os.environ.get("GITHUB_SHA"),
+              "git_head": cmd(["git", "rev-parse", "HEAD"]),
+              "branch": cmd(["git", "branch", "--show-current"]),
+              "trusted_ops_profile_exists": (root / "config/repo-trusted-ops.fullstack.json").is_file(),
+              "agent_audit_exists": (root / "config/agent-objectives.audit.json").is_file(),
+              "route_matrix_exists": (root / "config/ops-route-matrix.example.json").is_file()
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Validate repository structure
+        run: python3 scripts/validate_repo.py
+
+      - name: Validate agent audit
+        run: python3 scripts/validate_agent_audit.py --audit config/agent-objectives.audit.json --routes "$OPS_ROUTE_MATRIX"
+
+      - name: Validate trusted ops profile
+        run: python3 scripts/repo_trusted_ops.py validate --profile "$TRUSTED_OPS_PROFILE"
+
+      - name: Generate trusted ops report
+        run: |
+          set -euo pipefail
+          args=(report --profile "$TRUSTED_OPS_PROFILE" --write-report "$TRUSTED_OPS_REPORT")
+          if [ "${{ github.event_name }}" = "push" ]; then
+            args+=(--execute-local)
+          elif [ "${{ inputs.execute_local }}" = "true" ]; then
+            args+=(--execute-local)
+          fi
+          if [ "${{ github.event_name }}" != "push" ] && [ "${{ inputs.probe_external }}" = "true" ]; then
+            args+=(--probe-external)
+          fi
+          python3 scripts/repo_trusted_ops.py "${args[@]}"
+
+      - name: Generate route dry-run report
+        run: python3 scripts/ops_route_runner.py --route-matrix "$OPS_ROUTE_MATRIX" --execute-safe --write-report "$OPS_ROUTE_REPORT"
+
+      - name: Docker compose parse artifacts
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config > reports/docker-compose-ops-dry-run.config.yml
+          docker compose -f docker-compose.yml -f docker-compose.ops-dry-run.yml config --services > reports/docker-compose-ops-dry-run.services.txt
+
+      - name: Write finishline debug console report
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import subprocess
+          import datetime as dt
+          root = pathlib.Path.cwd()
+          report_paths = [
+              "reports/repo-trusted-ops-report.json",
+              "reports/ops-route-dry-run-report.json",
+              "reports/docker-compose-ops-dry-run.config.yml",
+              "reports/docker-compose-ops-dry-run.services.txt",
+          ]
+          def sha256(path):
+              data = path.read_bytes()
+              return hashlib.sha256(data).hexdigest()
+          def cmd(args):
+              p = subprocess.run(args, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+              return {"argv": args, "returncode": p.returncode, "ok": p.returncode == 0, "output_tail": p.stdout[-2000:]}
+          artifacts = []
+          for rel in report_paths:
+              path = root / rel
+              artifacts.append({
+                  "path": rel,
+                  "exists": path.is_file(),
+                  "bytes": path.stat().st_size if path.is_file() else None,
+                  "sha256": sha256(path) if path.is_file() else None,
+              })
+          payload = {
+              "schema": "finishline.debug-console.report.v1",
+              "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+              "ok": all(item["exists"] for item in artifacts),
+              "github_sha": os.environ.get("GITHUB_SHA"),
+              "git_head": cmd(["git", "rev-parse", "HEAD"]),
+              "artifacts": artifacts,
+              "repo_trusted_ops_enabled": True,
+              "enterprise_first_mobile": True,
+              "interactive_console": False,
+              "runtime_artifact_only": True
+          }
+          out = root / "reports/finishline-debug-console.json"
+          out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(json.dumps(payload, indent=2, sort_keys=True))
+          raise SystemExit(0 if payload["ok"] else 1)
+          PY
+
+      - name: Upload finishline debug console artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: finishline-debug-console
+          path: |
+            reports/finishline-debug-console.json
+            reports/repo-trusted-ops-report.json
+            reports/ops-route-dry-run-report.json
+            reports/docker-compose-ops-dry-run.config.yml
+            reports/docker-compose-ops-dry-run.services.txt
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Finishline Debug Console"
+            echo ""
+            echo "- Artifact: finishline-debug-console"
+            echo "- Report: $FINISHLINE_REPORT"
+            echo "- Trusted ops report: $TRUSTED_OPS_REPORT"
+            echo "- Route report: $OPS_ROUTE_REPORT"
+            echo "- Interactive console: false"
+            echo "- Runtime artifact only: true"
+          } >> "$GITHUB_STEP_SUMMARY"
