@@ -1,0 +1,119 @@
+{
+  "schema": "workflow-dispatch.fullstacked.dataset.v1",
+  "generated_date": "2026-07-08",
+  "repository": {
+    "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
+    "default_branch": "main",
+    "source_head_before_dataset": "c76df52aae7cead0706c859df755cd38a6ec7678",
+    "full_space_repo": true
+  },
+  "dispatch_model": {
+    "official_semantics": {
+      "workflow_dispatch_requires_workflow_on_default_branch": true,
+      "manual_dispatch_supports_api_cli_and_ui": true,
+      "dispatch_body_requires_ref": true,
+      "dispatch_body_supports_inputs": true,
+      "max_top_level_inputs": 25,
+      "max_input_payload_characters": 65535,
+      "actions_write_permission_required_for_rest_dispatch": true
+    },
+    "available_chat_connector_dispatch": false,
+    "available_push_trigger_path": true,
+    "non_fabrication_rule": "Do not claim a workflow run or artifact until a workflow run is observed and artifacts are available."
+  },
+  "workflow_dispatch_targets": [
+    {
+      "id": "WD01_FINISHLINE_DEBUG_CONSOLE",
+      "name": "Finishline Debug Console",
+      "workflow_file": ".github/workflows/finishline-debug-console.yml",
+      "ref": "main",
+      "inputs": {
+        "execute_local": true,
+        "probe_external": false
+      },
+      "push_trigger_enabled": true,
+      "workflow_dispatch_enabled": true,
+      "expected_artifact": "finishline-debug-console",
+      "expected_runtime_outputs": [
+        "reports/finishline-debug-console.json",
+        "reports/repo-trusted-ops-report.json",
+        "reports/ops-route-dry-run-report.json",
+        "reports/docker-compose-ops-dry-run.config.yml",
+        "reports/docker-compose-ops-dry-run.services.txt",
+        "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.json",
+        "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.jsonl",
+        "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.md",
+        "reports/audit-valid-debug-streampipe/audit-valid-debug-streampipe.sarif"
+      ],
+      "hard_scan_after_dispatch": true,
+      "hard_scan_scope": "full_space_repo"
+    },
+    {
+      "id": "WD02_REPO_TRUSTED_OPS",
+      "name": "Repo Trusted Ops",
+      "workflow_file": ".github/workflows/repo-trusted-ops.yml",
+      "ref": "main",
+      "inputs": {
+        "execute_local": true,
+        "probe_external": false
+      },
+      "push_trigger_enabled": true,
+      "workflow_dispatch_enabled": true,
+      "expected_artifact": "repo-trusted-ops-report",
+      "expected_runtime_outputs": [
+        "reports/repo-trusted-ops-report.json"
+      ],
+      "hard_scan_after_dispatch": true,
+      "hard_scan_scope": "full_space_repo"
+    },
+    {
+      "id": "WD03_OPS_ROUTE_SAFETY_DRY_RUN",
+      "name": "Ops Route Safety Dry Run",
+      "workflow_file": ".github/workflows/ops-route-dry-run.yml",
+      "ref": "main",
+      "inputs": {
+        "execute_safe": true,
+        "include_docker_parse": true
+      },
+      "push_trigger_enabled": false,
+      "workflow_dispatch_enabled": true,
+      "expected_artifact": "ops-route-dry-run-reports",
+      "expected_runtime_outputs": [
+        "reports/ops-route-dry-run-report.json",
+        "reports/docker-compose-ops-dry-run.config.yml",
+        "reports/docker-compose-ops-dry-run.services.txt"
+      ],
+      "hard_scan_after_dispatch": true,
+      "hard_scan_scope": "full_space_repo"
+    }
+  ],
+  "hard_scan_matrix": [
+    {
+      "id": "HS01_REPO_STRUCTURE",
+      "command": ["python3", "scripts/validate_repo.py"],
+      "required": true
+    },
+    {
+      "id": "HS02_AGENT_AUDIT",
+      "command": ["python3", "scripts/validate_agent_audit.py", "--audit", "config/agent-objectives.audit.json", "--routes", "config/ops-route-matrix.example.json"],
+      "required": true
+    },
+    {
+      "id": "HS03_TRUSTED_OPS_PROFILE",
+      "command": ["python3", "scripts/repo_trusted_ops.py", "validate", "--profile", "config/repo-trusted-ops.fullstack.json"],
+      "required": true
+    },
+    {
+      "id": "HS04_WORKFLOW_DISPATCH_DATASET",
+      "command": ["python3", "scripts/validate_workflow_dispatch_dataset.py", "--dataset", "datasets/workflow-dispatch.fullstacked.dataset.json"],
+      "required": true
+    }
+  ],
+  "execution_boundaries": {
+    "secret_read_allowed": false,
+    "remote_shell_allowed": false,
+    "destructive_execution_allowed": false,
+    "arbitrary_shell_allowed": false,
+    "artifact_evidence_required_for_100_percent_proof": true
+  }
+}
