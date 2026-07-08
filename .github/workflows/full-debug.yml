@@ -1,0 +1,121 @@
+name: full-debug
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - init-full-debug-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Run static full debug
+        run: python3 scripts/full_debug.py --write-report
+
+      - name: Upload debug reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-debug-report
+          path: |
+            reports/full_debug_report.json
+            reports/full_debug_report.txt
+          if-no-files-found: ignore
+
+  rust-check:
+    runs-on: ubuntu-latest
+    needs: static-debug
+    if: ${{ always() }}
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Rust files
+        id: rust
+        shell: bash
+        run: |
+          if git ls-files '*.rs' 'Cargo.toml' 'Cargo.lock' | grep -q .; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Rust
+        if: steps.rust.outputs.present == 'true'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Cargo format check
+        if: steps.rust.outputs.present == 'true'
+        run: cargo fmt --all -- --check
+
+      - name: Cargo check
+        if: steps.rust.outputs.present == 'true'
+        run: cargo check --workspace
+
+      - name: Cargo test
+        if: steps.rust.outputs.present == 'true'
+        run: cargo test --workspace
+
+  ui-check:
+    runs-on: ubuntu-latest
+    needs: static-debug
+    if: ${{ always() }}
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect UI package
+        id: ui
+        shell: bash
+        run: |
+          if test -f ui/package.json; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node
+        if: steps.ui.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build UI
+        if: steps.ui.outputs.present == 'true'
+        working-directory: ui
+        run: |
+          npm install --package-lock=false --no-audit --no-fund
+          npm run build
+
+  compose-check:
+    runs-on: ubuntu-latest
+    needs: static-debug
+    if: ${{ always() }}
+    continue-on-error: true
+    env:
+      POSTGRES_PASSWORD: debug-local-placeholder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose config
+        if: ${{ hashFiles('docker-compose.yml') != '' }}
+        run: docker compose config >/dev/null
