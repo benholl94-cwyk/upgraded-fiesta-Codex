@@ -1,0 +1,97 @@
+{
+  "schema": "hm-agent.objectives.audit.v1",
+  "status": "active_local_audit",
+  "agent_component": "hm-agent",
+  "remote_execution_performed": false,
+  "destructive_execution_performed": false,
+  "objectives": [
+    {
+      "id": "A01_REPO_VALIDATION",
+      "title": "Repository validation",
+      "success_metric": "validate_repo_ok_true",
+      "evidence_required": true,
+      "evidence_path": "reports/ops-route-dry-run-report.json",
+      "route_id": "R01_REPO_VALIDATE",
+      "decision": "allow_local",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A02_OPS_MANIFEST_VALIDATION",
+      "title": "Operations manifest validation",
+      "success_metric": "ops_manifest_ok_true",
+      "evidence_required": true,
+      "evidence_path": "reports/ops-route-dry-run-report.json",
+      "route_id": "R02_OPS_MANIFEST_VALIDATE",
+      "decision": "allow_local",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A03_ROUTE_MATRIX_VALIDATION",
+      "title": "Route matrix validation",
+      "success_metric": "route_matrix_ok_true",
+      "evidence_required": true,
+      "evidence_path": "reports/ops-route-dry-run-report.json",
+      "route_id": "R03_OPS_ROUTE_MATRIX_VALIDATE",
+      "decision": "allow_local",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A04_DOCKER_PARSE_PLAN",
+      "title": "Docker compose parse plan",
+      "success_metric": "compose_config_parse_ok_true",
+      "evidence_required": true,
+      "evidence_path": "reports/docker-compose-ops-dry-run.config.yml",
+      "route_id": "R04_DOCKER_COMPOSE_PARSE",
+      "decision": "parse_only",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A05_DOCKER_SERVICE_PLAN",
+      "title": "Docker compose service plan",
+      "success_metric": "compose_services_parse_ok_true",
+      "evidence_required": true,
+      "evidence_path": "reports/docker-compose-ops-dry-run.services.txt",
+      "route_id": "R05_DOCKER_OVERWRITE_PLAN",
+      "decision": "parse_only",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A06_REMOTE_SERVICE_STATUS_RESERVED",
+      "title": "Remote service status reserved gate",
+      "success_metric": "reserved_until_guard_reviewed",
+      "evidence_required": true,
+      "evidence_path": "docs/ops-access-remote-host-bootstrap.md",
+      "route_id": "R06_SERVICE_STATUS_RESERVED",
+      "decision": "blocked_until_reviewed_guard",
+      "remote": false,
+      "destructive": false
+    },
+    {
+      "id": "A07_EXTERNAL_API_CHECK_RESERVED",
+      "title": "External API check reserved gate",
+      "success_metric": "reserved_until_targets_declared",
+      "evidence_required": true,
+      "evidence_path": "docs/ops-access-remote-host-bootstrap.md",
+      "route_id": "R07_EXTERNAL_API_CHECK_RESERVED",
+      "decision": "blocked_until_declared_targets",
+      "remote": false,
+      "destructive": false
+    }
+  ],
+  "required_objective_fields": [
+    "id",
+    "title",
+    "success_metric",
+    "evidence_required",
+    "evidence_path",
+    "route_id",
+    "decision",
+    "remote",
+    "destructive"
+  ]
+}
