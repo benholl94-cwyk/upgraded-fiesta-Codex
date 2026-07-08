@@ -5,7 +5,8 @@
     "full_name": "benholl94-cwyk/upgraded-fiesta-Codex",
     "default_branch": "main",
     "role": "one-repo control-plane target",
-    "merge_strategy": "audited pull request; no destructive overwrite of source repositories"
+    "merge_strategy": "audited pull request; no destructive overwrite of source repositories",
+    "last_synthesis_merge_commit": "d0fce4a66703364f8c3d28333c03ac3ebe27d21d"
   },
   "source_repositories": [
     {
@@ -42,21 +43,27 @@
   "validated_target_components": [
     "scripts/full_debug.py",
     "scripts/init_github_repo.py",
+    "scripts/rebase_guard.py",
     ".github/workflows/full-debug.yml",
     "docs/full-debug-runbook.md",
+    "docs/one-repo-synthesis-audit.md",
+    "docs/rebase-build-audit.md",
     "Makefile"
   ],
   "rest_order_cleanup": {
     "open_issues_found": 0,
-    "open_pull_requests_found": [3, 4, 7],
-    "stale_pull_requests": [3, 4],
-    "active_pull_request": 7,
-    "cleanup_decision": "PRs 3 and 4 are stale/diverged and their intended UI production deployment content is already represented in the current target tree; close only after PR 7 lands or after explicit maintainer review."
+    "open_pull_requests_found": [],
+    "closed_stale_pull_requests": [3, 4],
+    "merged_pull_requests": [7],
+    "active_pull_request": null,
+    "cleanup_decision": "PRs 3 and 4 were closed as stale/superseded after PR 7 landed; no open PR rest orders remain in the target repository."
   },
   "audit_status": {
     "destructive_overwrite_performed": false,
     "secrets_copied": false,
     "source_repositories_deleted_or_archived": false,
-    "synthesis_ready_for_review": true
+    "synthesis_ready_for_review": false,
+    "synthesis_merged": true,
+    "rebase_guard_required": true
   }
 }
