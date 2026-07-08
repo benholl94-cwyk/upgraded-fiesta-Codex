@@ -30,8 +30,8 @@
       "destructive": false
     },
     {
-      "id": "R03_OPS_THRESHOLDS_VALIDATE",
-      "operation": "ops.validate_thresholds_shape",
+      "id": "R03_OPS_ROUTE_MATRIX_VALIDATE",
+      "operation": "ops.validate_route_matrix",
       "criticality": "standard",
       "mode": "safe_execute_allowed",
       "command": ["python3", "scripts/ops_route_runner.py", "--route-matrix", "config/ops-route-matrix.example.json", "--validate-only"],
@@ -44,7 +44,7 @@
       "id": "R04_DOCKER_COMPOSE_PARSE",
       "operation": "docker.compose.parse_only",
       "criticality": "critical-near",
-      "mode": "plan_only",
+      "mode": "safe_execute_allowed",
       "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config"],
       "expected_artifact": "reports/ops-route-dry-run-report.json",
       "network": "deny",
@@ -58,7 +58,7 @@
       "id": "R05_DOCKER_OVERWRITE_PLAN",
       "operation": "docker.overwrite.plan_only",
       "criticality": "critical-near",
-      "mode": "plan_only",
+      "mode": "safe_execute_allowed",
       "command": ["docker", "compose", "-f", "docker-compose.yml", "-f", "docker-compose.ops-dry-run.yml", "config", "--services"],
       "expected_artifact": "reports/ops-route-dry-run-report.json",
       "network": "deny",
