@@ -1,0 +1,33 @@
+# Docker Compose overlay for operations dry-runs.
+# This file is intended for `docker compose config` and service-plan inspection.
+# It must not be used as proof of production readiness and does not authorize `up`, `down`, `rm`, prune, or volume deletion.
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+    labels:
+      ops.upgraded-fiesta.mode: "dry-run-parse-only"
+      ops.upgraded-fiesta.destructive: "false"
+      ops.upgraded-fiesta.remote: "false"
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+    labels:
+      ops.upgraded-fiesta.mode: "dry-run-parse-only"
+      ops.upgraded-fiesta.destructive: "false"
+      ops.upgraded-fiesta.remote: "false"
+  gateway:
+    ports:
+      - "127.0.0.1:8080:8080"
+    labels:
+      ops.upgraded-fiesta.mode: "dry-run-parse-only"
+      ops.upgraded-fiesta.destructive: "false"
+      ops.upgraded-fiesta.remote: "false"
+  ui:
+    ports:
+      - "127.0.0.1:3000:80"
+    labels:
+      ops.upgraded-fiesta.mode: "dry-run-parse-only"
+      ops.upgraded-fiesta.destructive: "false"
+      ops.upgraded-fiesta.remote: "false"
