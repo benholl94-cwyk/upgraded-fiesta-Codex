@@ -1,0 +1,53 @@
+name: remote-control
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - remote-control-consent-gate-20260708
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consent-gate:
+    runs-on: ubuntu-latest
+    env:
+      HOME: ${{ runner.temp }}/home
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile remote control gate
+        run: python3 -m py_compile scripts/remote_control_gate.py
+
+      - name: Status before accept
+        run: python3 scripts/remote_control_gate.py status > remote-control-status-before.json
+
+      - name: Validate status before JSON
+        run: python3 -m json.tool remote-control-status-before.json >/dev/null
+
+      - name: Local user accept enables all safe routes
+        run: python3 scripts/remote_control_gate.py accept --source local_user_cli_accept > remote-control-accept.json
+
+      - name: Validate accept JSON
+        run: python3 -m json.tool remote-control-accept.json >/dev/null
+
+      - name: Local user deny disables all routes
+        run: python3 scripts/remote_control_gate.py deny --source local_user_cli_deny > remote-control-deny.json
+
+      - name: Validate deny JSON
+        run: python3 -m json.tool remote-control-deny.json >/dev/null
+
+      - name: Upload remote control reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-control-reports
+          path: |
+            remote-control-status-before.json
+            remote-control-accept.json
+            remote-control-deny.json
+          if-no-files-found: error
