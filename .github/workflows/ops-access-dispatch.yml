@@ -22,6 +22,46 @@ on:
           - repo.validate
           - service.status
           - external.api.check
+      accept_phrase:
+        description: Enter USER_ACCEPT_OPS_ACCESS_THRESHOLDS to validate threshold acceptance
+        required: true
+        default: ""
+        type: string
+      accept_t01_host_identity_pin:
+        description: T01 approved remote host identity pin exists outside Git
+        required: true
+        default: false
+        type: boolean
+      accept_t02_dedicated_low_privilege_account:
+        description: T02 dedicated low-privilege operations account exists
+        required: true
+        default: false
+        type: boolean
+      accept_t03_environment_scoped_access_credential:
+        description: T03 environment-scoped access credential exists outside Git
+        required: true
+        default: false
+        type: boolean
+      accept_t04_remote_guard_reviewed:
+        description: T04 reviewed remote guard implementation exists
+        required: true
+        default: false
+        type: boolean
+      accept_t05_staging_denial_audited:
+        description: T05 staging validation shows unknown operations denied and audited
+        required: true
+        default: false
+        type: boolean
+      accept_t06_redaction_proof_synthetic_only:
+        description: T06 redaction proof uses synthetic credential markers only
+        required: true
+        default: false
+        type: boolean
+      accept_t07_remote_activation_disabled_by_default:
+        description: T07 remote activation remains disabled by default
+        required: true
+        default: false
+        type: boolean
       activate_remote:
         description: Remote execution activation gate. Must remain false until reviewed guard and environment secrets exist.
         required: true
@@ -42,8 +82,17 @@ jobs:
     timeout-minutes: 10
     env:
       OPS_MANIFEST: config/ops-command-manifest.example.json
+      OPS_THRESHOLDS: config/ops-activation-thresholds.example.json
       OPS_SELECTED_PROFILE: ${{ inputs.profile }}
       OPS_SELECTED_OPERATION: ${{ inputs.operation }}
+      OPS_ACCEPT_PHRASE: ${{ inputs.accept_phrase }}
+      OPS_ACCEPT_T01: ${{ inputs.accept_t01_host_identity_pin }}
+      OPS_ACCEPT_T02: ${{ inputs.accept_t02_dedicated_low_privilege_account }}
+      OPS_ACCEPT_T03: ${{ inputs.accept_t03_environment_scoped_access_credential }}
+      OPS_ACCEPT_T04: ${{ inputs.accept_t04_remote_guard_reviewed }}
+      OPS_ACCEPT_T05: ${{ inputs.accept_t05_staging_denial_audited }}
+      OPS_ACCEPT_T06: ${{ inputs.accept_t06_redaction_proof_synthetic_only }}
+      OPS_ACCEPT_T07: ${{ inputs.accept_t07_remote_activation_disabled_by_default }}
       OPS_ACTIVATE_REMOTE: ${{ inputs.activate_remote }}
     steps:
       - name: Checkout
@@ -54,6 +103,49 @@ jobs:
 
       - name: Validate operations manifest
         run: python3 scripts/validate_ops_access_config.py --manifest "$OPS_MANIFEST"
+
+      - name: Build runtime user acceptance file
+        run: |
+          set -euo pipefail
+          mkdir -p .ops-runtime
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          def as_bool(name: str) -> bool:
+            return os.environ[name].lower() == "true"
+
+          acceptance = {
+            "schema": "ops-access.user-acceptance.v1",
+            "accept_phrase": os.environ["OPS_ACCEPT_PHRASE"],
+            "user_accept": True,
+            "remote_activation_requested": as_bool("OPS_ACTIVATE_REMOTE"),
+            "accepted_thresholds": {
+              "T01_HOST_IDENTITY_PIN": as_bool("OPS_ACCEPT_T01"),
+              "T02_DEDICATED_LOW_PRIVILEGE_ACCOUNT": as_bool("OPS_ACCEPT_T02"),
+              "T03_ENVIRONMENT_SCOPED_ACCESS_CREDENTIAL": as_bool("OPS_ACCEPT_T03"),
+              "T04_REMOTE_GUARD_REVIEWED": as_bool("OPS_ACCEPT_T04"),
+              "T05_STAGING_DENIAL_AUDITED": as_bool("OPS_ACCEPT_T05"),
+              "T06_REDACTION_PROOF_SYNTHETIC_ONLY": as_bool("OPS_ACCEPT_T06"),
+              "T07_REMOTE_ACTIVATION_STILL_DISABLED_BY_DEFAULT": as_bool("OPS_ACCEPT_T07")
+            },
+            "evidence": {
+              "source": "github_actions_workflow_dispatch_inputs",
+              "sanitized": True,
+              "contains_secret_material": False
+            }
+          }
+          Path(".ops-runtime/user-acceptance.json").write_text(json.dumps(acceptance, indent=2, sort_keys=True), encoding="utf-8")
+          print(json.dumps({
+            "ok": True,
+            "acceptance_file": ".ops-runtime/user-acceptance.json",
+            "secret_material_written": False
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Validate explicit user acceptance gates
+        run: python3 scripts/validate_ops_user_accept.py --thresholds "$OPS_THRESHOLDS" --acceptance .ops-runtime/user-acceptance.json
 
       - name: Enforce fail-closed remote activation gate
         run: |
@@ -111,6 +203,7 @@ jobs:
             echo ""
             echo "- Profile: $OPS_SELECTED_PROFILE"
             echo "- Operation: $OPS_SELECTED_OPERATION"
+            echo "- User acceptance validator: required"
             echo "- Remote execution performed: false"
             echo "- Activation mode: fail-closed"
             echo ""
