@@ -1,4 +1,4 @@
-.PHONY: build test validate full-debug full-debug-deep init-github codex-setup codex-check run clean
+.PHONY: build test validate full-debug full-debug-deep init-github rebase-guard codex-setup codex-check run clean
 
 build:
 	cargo build --workspace
@@ -17,6 +17,9 @@ full-debug-deep:
 
 init-github:
 	python3 scripts/init_github_repo.py
+
+rebase-guard:
+	python3 scripts/rebase_guard.py
 
 codex-setup:
 	bash .codex/setup.sh
