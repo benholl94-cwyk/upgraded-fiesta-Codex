@@ -13,6 +13,7 @@ Generated from the uploaded Markdown specification as a Rust workspace.
 - plugin, sdk, session, vector, cron, auth and cli crates
 - ui scaffold, docker files, makefile, configuration, SQL and validator
 - mobile-visible Open_Source deployment checkpoint documentation in `docs/open-source-mobile-status.md`
+- mobile device manifest exporter documentation in `docs/mobile-device-manifest.md`
 
 
 ## Docker Compose startup
