@@ -1,0 +1,89 @@
+# vorging.service.data
+# Declarative service interpretation for the requested self_builded.gcc concept.
+# Format: TOML-compatible data file for tooling that wants to understand the
+# custom GCC Project Manifest idea without treating it as C/C++ source code.
+
+[service]
+name = "vorging"
+schema = "vorging.service.data.v1"
+kind = "build-manifest-interpreter"
+description = "Interprets *.gcc files as TOML-based GCC Project Manifests for C/C++ builds."
+
+[descriptor]
+extension = ".gcc"
+canonical_example = "self_builded.gcc"
+format = "toml"
+standard_format = false
+source_code = false
+purpose = "Describe how a C/C++ project should be compiled by a selfgcc/gcc-build wrapper."
+
+[descriptor.analogy]
+vcxproj = "Visual Studio project definition"
+cmake = "CMake build description"
+cargo = "Rust project manifest"
+makefile = "Build rules"
+
+[manifest.project]
+name = "self_builded"
+language = "c"
+version = "1.0"
+
+[manifest.compiler]
+name = "gcc"
+standard = "c17"
+flags = ["-Wall", "-Wextra", "-O2"]
+
+[manifest.source]
+directory = "src"
+files = ["main.c", "module.c"]
+
+[manifest.include]
+paths = ["include"]
+
+[manifest.output]
+type = "executable"
+name = "self_builded"
+
+[manifest.build]
+target = "linux"
+debug = false
+
+[loader]
+name = "selfgcc"
+alternate_command = "gcc-build"
+command = ["selfgcc", "build", "self_builded.gcc"]
+responsibilities = [
+  "Read the *.gcc TOML manifest.",
+  "Validate project, compiler, source, include, output, and build sections.",
+  "Resolve source and include paths relative to the manifest location.",
+  "Generate GCC command-line arguments.",
+  "Check that required input files and the gcc executable exist.",
+  "Execute gcc and return its exit status."
+]
+
+[generated_command]
+program = "gcc"
+arguments = [
+  "-std=c17",
+  "-Wall",
+  "-Wextra",
+  "-O2",
+  "-Iinclude",
+  "src/main.c",
+  "src/module.c",
+  "-o",
+  "self_builded"
+]
+
+[naming]
+pattern = "*.gcc"
+label = "GCC Project Manifest"
+sections = [
+  "project metadata",
+  "compiler definition",
+  "sources",
+  "dependencies",
+  "flags",
+  "targets",
+  "build profiles"
+]
